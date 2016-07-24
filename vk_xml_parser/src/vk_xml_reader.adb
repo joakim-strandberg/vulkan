@@ -24,32 +24,33 @@ package body Vk_XML_Reader with SPARK_Mode is
 
    My_Registry : Vk.Registry_Shared_Ptr.T;
 
-   XML_Tag_Registry                     : constant String := "registry";
-   XML_Tag_Comment                      : constant String := "comment";
-   XML_Tag_Vendor_Ids                   : constant String := "vendorids";
-   XML_Tag_Vendor_Id                    : constant String := "vendorid";
-   XML_Tag_Vendor_Id_Attribute_Name     : constant String := "name";
-   XML_Tag_Vendor_Id_Attribute_Id       : constant String := "id";
-   XML_Tag_Vendor_Id_Attribute_Comment  : constant String := "comment";
-   XML_Tag_Tags                         : constant String := "tags";
-   XML_Tag_Tag                          : constant String := "tag";
-   XML_Tag_Tag_Attribute_Name           : constant String := "name";
-   XML_Tag_Tag_Attribute_Author         : constant String := "author";
-   XML_Tag_Tag_Attribute_Contact        : constant String := "contact";
-   XML_Tag_Types                        : constant String := "types";
-   XML_Tag_Type                         : constant String := "type";
-   XML_Tag_Type_Attribute_Name          : constant String := "name";
-   XML_Tag_Type_Attribute_Category      : constant String := "category";
-   XML_Tag_Type_Attribute_Requires      : constant String := "requires";
-   XML_Tag_Type_Attribute_Parent        : constant String := "parent";
-   XML_Tag_Type_Attribute_Returned_Only : constant String := "returnedonly";
-   XML_Tag_Name                         : constant String := "name";
-   XML_Tag_Member                       : constant String := "member";
-   XML_Tag_Member_Attribute_Optional    : constant String := "optional";
-   XML_Tag_Member_Attribute_Len         : constant String := "len";
-   XML_Tag_Validity                     : constant String := "validity";
-   XML_Tag_Usage                        : constant String := "usage";
-   XML_Tag_Enum                         : constant String := "enum";
+   XML_Tag_Registry                          : constant String := "registry";
+   XML_Tag_Comment                           : constant String := "comment";
+   XML_Tag_Vendor_Ids                        : constant String := "vendorids";
+   XML_Tag_Vendor_Id                         : constant String := "vendorid";
+   XML_Tag_Vendor_Id_Attribute_Name          : constant String := "name";
+   XML_Tag_Vendor_Id_Attribute_Id            : constant String := "id";
+   XML_Tag_Vendor_Id_Attribute_Comment       : constant String := "comment";
+   XML_Tag_Tags                              : constant String := "tags";
+   XML_Tag_Tag                               : constant String := "tag";
+   XML_Tag_Tag_Attribute_Name                : constant String := "name";
+   XML_Tag_Tag_Attribute_Author              : constant String := "author";
+   XML_Tag_Tag_Attribute_Contact             : constant String := "contact";
+   XML_Tag_Types                             : constant String := "types";
+   XML_Tag_Type                              : constant String := "type";
+   XML_Tag_Type_Attribute_Name               : constant String := "name";
+   XML_Tag_Type_Attribute_Category           : constant String := "category";
+   XML_Tag_Type_Attribute_Requires           : constant String := "requires";
+   XML_Tag_Type_Attribute_Parent             : constant String := "parent";
+   XML_Tag_Type_Attribute_Returned_Only      : constant String := "returnedonly";
+   XML_Tag_Name                              : constant String := "name";
+   XML_Tag_Member                            : constant String := "member";
+   XML_Tag_Member_Attribute_Optional         : constant String := "optional";
+   XML_Tag_Member_Attribute_Len              : constant String := "len";
+   XML_Tag_Member_Attribute_No_Auto_Validity : constant String := "noautovalidity";
+   XML_Tag_Validity                          : constant String := "validity";
+   XML_Tag_Usage                             : constant String := "usage";
+   XML_Tag_Enum                              : constant String := "enum";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -636,6 +637,13 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Member_Attribute_Len then
                   Set_Len (This => Current_Tag_V.Member_V,
                            Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Member_Attribute_No_Auto_Validity then
+                  if Attribute_Value = "true" then
+                     Set_No_Auto_Validity (This  => Current_Tag_V.Member_V,
+                                           Value => True);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

@@ -859,6 +859,16 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         package Comment is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Comment_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Comment.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private;
@@ -876,6 +886,9 @@ package Vk with SPARK_Mode is
         Global => null;
 
       function Returned_Only (This : T) return Fs.Returned_Only_T with
+        Global => null;
+
+      function Comment (This : T) return Fs.Nullable_Comment_T with
         Global => null;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
@@ -899,6 +912,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Returned_Only (This  : in out T;
                                    Value : Boolean) with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
         Global => null;
 
       procedure Append_Child (This  : in out T;
@@ -943,6 +960,18 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Comment is new Fs.Comment.Mutable;
+
+      use all type Mutable_Comment.Mutable_T;
+
+      type Nullable_Mutable_Comment_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Comment.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       package Children_P is new Fs.Child_Vectors.Generic_Mutable_Vector;
 
       type T is limited
@@ -952,6 +981,7 @@ package Vk with SPARK_Mode is
             My_Requires      : Nullable_Mutable_Requires_T;
             My_Parent        : Nullable_Mutable_Parent_T;
             My_Returned_Only : Fs.Returned_Only_T := Fs.Returned_Only_T(False);
+            My_Comment       : Nullable_Mutable_Comment_T;
             My_Children      : Children_P.T (5_000);
          end record;
 
@@ -974,6 +1004,11 @@ package Vk with SPARK_Mode is
 
       function Returned_Only (This : T) return Fs.Returned_Only_T is (This.My_Returned_Only);
 
+      function Comment (This : T) return Fs.Nullable_Comment_T is (if This.My_Comment.Exists then
+                                                                     (Exists => True, Value => Fs.Comment.T (This.My_Comment.Value))
+                                                                   else
+                                                                     (Exists => False));
+
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
 
    end Type_T;
@@ -992,6 +1027,9 @@ package Vk with SPARK_Mode is
         Global => null;
 
       function Parent (This : T) return Type_T.Fs.Nullable_Parent_T with
+        Global => null;
+
+      function Comment (This : T) return Type_T.Fs.Nullable_Comment_T with
         Global => null;
 
       function Children (This : T) return Type_T.Fs.Child_Vectors.Immutable_T with
@@ -1014,6 +1052,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Returned_Only (This  : in out T;
                                    Value : Boolean) with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
         Global => null;
 
       procedure Append_Child (This  : in out T;
@@ -1042,6 +1084,8 @@ package Vk with SPARK_Mode is
       function Requires (This : T) return Type_T.Fs.Nullable_Requires_T is (Requires (Smart_Pointers.Value (This.SP).all));
 
       function Parent (This : T) return Type_T.Fs.Nullable_Parent_T is (Parent (Smart_Pointers.Value (This.SP).all));
+
+      function Comment (This : T) return Type_T.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
 
       function Children (This : T) return Type_T.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 

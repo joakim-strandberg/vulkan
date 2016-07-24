@@ -303,6 +303,16 @@ package body Vk with SPARK_Mode is
          This.My_Returned_Only := Fs.Returned_Only_T (Value);
       end Set_Returned_Only;
 
+      procedure Set_Comment (This : in out T;
+                             Text : String)
+      is
+         Comment_V : Mutable_Comment.Mutable_T;
+      begin
+         Initialize (This => Comment_V,
+                     Text => Text);
+         This.My_Comment := (Exists => True, Value => Comment_V);
+      end Set_Comment;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) is
       begin
@@ -350,6 +360,13 @@ package body Vk with SPARK_Mode is
          Set_Returned_Only (This  => Smart_Pointers.Value (This.SP).all,
                             Value => Value);
       end Set_Returned_Only;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
 
       procedure Append_Child (This  : in out T;
                               Child : Type_T.Fs.Child_T) is

@@ -43,6 +43,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Type_Attribute_Requires                  : constant String := "requires";
    XML_Tag_Type_Attribute_Parent                    : constant String := "parent";
    XML_Tag_Type_Attribute_Returned_Only             : constant String := "returnedonly";
+   XML_Tag_Type_Attribute_Comment                   : constant String := "comment";
    XML_Tag_Name                                     : constant String := "name";
    XML_Tag_Member                                   : constant String := "member";
    XML_Tag_Member_Attribute_Optional                : constant String := "optional";
@@ -624,6 +625,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
+               elsif Attribute_Name = XML_Tag_Type_Attribute_Comment then
+                  Set_Comment (This => Current_Tag_V.Type_V,
+                               Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

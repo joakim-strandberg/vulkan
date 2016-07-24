@@ -478,6 +478,16 @@ package Vk with SPARK_Mode is
 
          type No_Auto_Validity_T is new Boolean;
 
+         package Valid_Extension_Structs is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Valid_Extension_Structs_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Valid_Extension_Structs.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -492,6 +502,9 @@ package Vk with SPARK_Mode is
         Global => null;
 
       function No_Auto_Validity (This : T) return Fs.No_Auto_Validity_T with
+        Global => null;
+
+      function Valid_Extension_Structs (This : T) return Fs.Nullable_Valid_Extension_Structs_T with
         Global => null;
 
       procedure Append_Child (This  : in out T;
@@ -510,6 +523,10 @@ package Vk with SPARK_Mode is
                                       Value : Boolean) with
         Global => null;
 
+      procedure Set_Valid_Extension_Structs (This : in out T;
+                                             Text : String) with
+        Global => null;
+
    private
 
       package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
@@ -526,12 +543,25 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Valid_Extension_Structs is new Fs.Valid_Extension_Structs.Mutable;
+
+      use all type Mutable_Valid_Extension_Structs.Mutable_T;
+
+      type Nullable_Mutable_Valid_Extension_Structs_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Valid_Extension_Structs.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
-            My_Children         : Mutable_Children.T (10);
-            My_Optional         : Fs.Optional_T := Fs.Optional_T (False);
-            My_Len              : Nullable_Mutable_Len_T;
-            My_No_Auto_Validity : Fs.No_Auto_Validity_T;
+            My_Children                : Mutable_Children.T (10);
+            My_Optional                : Fs.Optional_T := Fs.Optional_T (False);
+            My_Len                     : Nullable_Mutable_Len_T;
+            My_No_Auto_Validity        : Fs.No_Auto_Validity_T := Fs.No_Auto_Validity_T (False);
+            My_Valid_Extension_Structs : Nullable_Mutable_Valid_Extension_Structs_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
@@ -544,6 +574,11 @@ package Vk with SPARK_Mode is
                                                              (Exists => False));
 
       function No_Auto_Validity (This : T) return Fs.No_Auto_Validity_T is (This.My_No_Auto_Validity);
+
+      function Valid_Extension_Structs (This : T) return Fs.Nullable_Valid_Extension_Structs_T is (if This.My_Valid_Extension_Structs.Exists then
+                                                                                                     (Exists => True, Value => Fs.Valid_Extension_Structs.T (This.My_Valid_Extension_Structs.Value))
+                                                                                                   else
+                                                                                                     (Exists => False));
 
    end Member;
 
@@ -564,6 +599,9 @@ package Vk with SPARK_Mode is
       function No_Auto_Validity (This : T) return Member.Fs.No_Auto_Validity_T with
         Global => null;
 
+      function Valid_Extension_Structs (This : T) return Member.Fs.Nullable_Valid_Extension_Structs_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Member.Fs.Child_T) with
         Global => null;
@@ -578,6 +616,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_No_Auto_Validity (This  : in out T;
                                       Value : Boolean) with
+        Global => null;
+
+      procedure Set_Valid_Extension_Structs (This : in out T;
+                                             Text : String) with
         Global => null;
 
    private
@@ -602,6 +644,8 @@ package Vk with SPARK_Mode is
       function Len (This : T) return Member.Fs.Nullable_Len_T is (Len (Smart_Pointers.Value (This.SP).all));
 
       function No_Auto_Validity (This : T) return Member.Fs.No_Auto_Validity_T is (No_Auto_Validity (Smart_Pointers.Value (This.SP).all));
+
+      function Valid_Extension_Structs (This : T) return Member.Fs.Nullable_Valid_Extension_Structs_T is (Valid_Extension_Structs (Smart_Pointers.Value (This.SP).all));
 
    end Member_Shared_Ptr;
 

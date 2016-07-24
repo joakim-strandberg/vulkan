@@ -160,6 +160,16 @@ package body Vk with SPARK_Mode is
          This.My_No_Auto_Validity := Fs.No_Auto_Validity_T (Value);
       end Set_No_Auto_Validity;
 
+      procedure Set_Valid_Extension_Structs (This : in out T;
+                                             Text : String)
+      is
+         Valid_Extension_Structs_V : Mutable_Valid_Extension_Structs.Mutable_T;
+      begin
+         Initialize (This => Valid_Extension_Structs_V,
+                     Text => Text);
+         This.My_Valid_Extension_Structs := (Exists => True, Value => Valid_Extension_Structs_V);
+      end Set_Valid_Extension_Structs;
+
    end Member;
 
    package body Member_Shared_Ptr with SPARK_Mode => Off is
@@ -193,6 +203,13 @@ package body Vk with SPARK_Mode is
          Set_No_Auto_Validity (This  => Smart_Pointers.Value (This.SP).all,
                                Value => Value);
       end Set_No_Auto_Validity;
+
+      procedure Set_Valid_Extension_Structs (This : in out T;
+                                             Text : String) is
+      begin
+         Set_Valid_Extension_Structs (This => Smart_Pointers.Value (This.SP).all,
+                                      Text => Text);
+      end Set_Valid_Extension_Structs;
 
    end Member_Shared_Ptr;
 

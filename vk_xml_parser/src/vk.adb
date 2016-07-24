@@ -1,0 +1,516 @@
+package body Vk with SPARK_Mode is
+
+   package Mutable_XML_Text is new XML_Text.Mutable;
+
+   package body Tag with SPARK_Mode is
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Name_P.Initialize (This => This.My_Name,
+                            Text => Text);
+      end Set_Name;
+
+      procedure Set_Author (This : in out T;
+                            Text : String) is
+      begin
+         Author_P.Initialize (This => This.My_Author,
+                              Text => Text);
+      end Set_Author;
+
+      procedure Set_Contact (This : in out T;
+                             Text : String) is
+      begin
+         Contact_P.Initialize (This => This.My_Contact,
+                               Text => Text);
+      end Set_Contact;
+
+   end Tag;
+
+   package body Tag_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Tag.T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Tag.Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                       Text => Text);
+      end Set_Name;
+
+      procedure Set_Author (This : in out T;
+                            Text : String) is
+      begin
+         Set_Author (This => Smart_Pointers.Value (This.SP).all,
+                     Text => Text);
+      end Set_Author;
+
+      procedure Set_Contact (This : in out T;
+                             Text : String) is
+      begin
+         Set_Contact (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Contact;
+
+   end Tag_Shared_Ptr;
+
+   package body Tags is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Children_P.Append (Container => This.My_Children,
+                            New_Item  => Child);
+      end Append_Child;
+
+   end Tags;
+
+   package body Tags_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Vk.Tags.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Tags.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Tags_Shared_Ptr;
+
+   package body Nested_Type with SPARK_Mode is
+
+      procedure Set_Value (This : in out T;
+                           Text : String)
+      is
+         Value_V : Mutable_Value.Mutable_T;
+      begin
+         Initialize (This => Value_V,
+                     Text => Text);
+         This.My_Value := (Exists => True, Value => Value_V);
+      end Set_Value;
+
+   end Nested_Type;
+
+   package body Nested_Type_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Nested_Type.T;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+   end Nested_Type_Shared_Ptr;
+
+   package body Enum with SPARK_Mode is
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Initialize (This => This.My_Value,
+                     Text => Text);
+      end Set_Value;
+
+   end Enum;
+
+   package body Enum_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Enum.T;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+   end Enum_Shared_Ptr;
+
+   package body Member with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) is
+      begin
+         This.My_Optional := Fs.Optional_T (Value);
+      end Set_Optional;
+
+      procedure Set_Len (This : in out T;
+                         Text : String)
+      is
+         Len_V : Mutable_Len.Mutable_T;
+      begin
+         Initialize (This => Len_V,
+                     Text => Text);
+         This.My_Len := (Exists => True, Value => Len_V);
+      end Set_Len;
+
+   end Member;
+
+   package body Member_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Member.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Member.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) is
+      begin
+         Set_Optional(This  => Smart_Pointers.Value (This.SP).all,
+                      Value => Value);
+      end Set_Optional;
+
+      procedure Set_Len (This : in out T;
+                         Text : String) is
+      begin
+         Set_Len (This => Smart_Pointers.Value (This.SP).all,
+                  Text => Text);
+      end Set_Len;
+
+   end Member_Shared_Ptr;
+
+   package body Validity with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+   end Validity;
+
+   package body Validity_Shared_Ptr with SPARK_Mode => Off is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Validity.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Validity_Shared_Ptr;
+
+   package body Usage with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+
+   end Usage;
+
+   package body Usage_Shared_Ptr with SPARK_Mode => Off is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Usage.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Usage_Shared_Ptr;
+
+   package body Type_T is
+
+      procedure Set_Name (This : in out T;
+                          Text : String)
+      is
+         Name_V : Name_P.Mutable_T;
+      begin
+         Name_P.Initialize (This => Name_V,
+                            Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+      procedure Set_Category (This : in out T;
+                              Text : String) is
+      begin
+         Category_P.Initialize (This => This.My_Category,
+                                Text => Text);
+      end Set_Category;
+
+      procedure Set_Requires (This : in out T;
+                              Text : String)
+      is
+         Requires_V : Mutable_Requires.Mutable_T;
+      begin
+         Initialize (This => Requires_V,
+                     Text => Text);
+         This.My_Requires := (Exists => True, Value => Requires_V);
+      end Set_Requires;
+
+      procedure Set_Parent (This : in out T;
+                            Text : String)
+      is
+         Parent_V : Mutable_Parent.Mutable_T;
+      begin
+         Initialize (This => Parent_V,
+                     Text => Text);
+         This.My_Parent := (Exists => True, Value => Parent_V);
+      end Set_Parent;
+
+      procedure Set_Returned_Only (This  : in out T;
+                                   Value : Boolean) is
+      begin
+         This.My_Returned_Only := Fs.Returned_Only_T (Value);
+      end Set_Returned_Only;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Children_P.Append (Container => This.My_Children,
+                            New_Item  => Child);
+      end Append_Child;
+
+   end Type_T;
+
+   package body Type_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Vk.Type_T.T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+      procedure Set_Category (This : in out T;
+                              Text : String) is
+      begin
+         Set_Category (This => Smart_Pointers.Value (This.SP).all,
+                       Text => Text);
+      end Set_Category;
+
+      procedure Set_Requires (This : in out T;
+                              Text : String) is
+      begin
+         Set_Requires (This => Smart_Pointers.Value (This.SP).all,
+                       Text => Text);
+      end Set_Requires;
+
+      procedure Set_Parent (This : in out T;
+                            Text : String) is
+      begin
+         Set_Parent (This => Smart_Pointers.Value (This.SP).all,
+                     Text => Text);
+      end Set_Parent;
+
+      procedure Set_Returned_Only (This  : in out T;
+                                   Value : Boolean) is
+      begin
+         Set_Returned_Only (This  => Smart_Pointers.Value (This.SP).all,
+                            Value => Value);
+      end Set_Returned_Only;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Type_T.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Type_Shared_Ptr;
+
+   package body Types is
+
+      use all type Children_P.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Append (Container => This.My_Children,
+                 New_Item  => Child);
+      end Append_Child;
+
+   end Types;
+
+   package body Types_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Types.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Types.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Types_Shared_Ptr;
+
+   package body Vendor_Id with SPARK_Mode is
+
+      use all type Name_P.Mutable_T;
+      use all type Id_P.Mutable_T;
+      use all type Comment_P.Mutable_T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Initialize (This => This.My_Name,
+                     Text => Text);
+      end Set_Name;
+
+      procedure Set_Id (This : in out T;
+                        Text : String) is
+      begin
+         Initialize (This => This.My_Id,
+                     Text => Text);
+      end Set_Id;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Initialize (This => This.My_Comment,
+                     Text => Text);
+      end Set_Comment;
+
+   end Vendor_Id;
+
+   package body Vendor_Id_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Vendor_Id.T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+      procedure Set_Id (This : in out T;
+                        Text : String) is
+      begin
+         Set_Id (This => Smart_Pointers.Value (This.SP).all,
+                 Text => Text);
+      end Set_Id;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
+
+   end Vendor_Id_Shared_Ptr;
+
+   package body Vendor_Ids is
+
+      use all type Mutable_Child_Vector.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T)
+      is
+      begin
+         Append (Container => This.My_Children,
+                 New_Item  => Child);
+      end Append_Child;
+
+   end Vendor_Ids;
+
+   package body Vendor_Ids_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Vendor_Ids.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Vendor_Ids.Fs.Child_T)
+      is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Vendor_Ids_Shared_Ptr;
+
+   package body Comment is
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Initialize (This => This.My_Value,
+                     Text => Text);
+      end Set_Value;
+
+   end Comment;
+
+   package body Comment_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Vk.Comment.T;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+   end Comment_Shared_Ptr;
+
+   package body Name with SPARK_Mode is
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Initialize (This => This.My_Value,
+                     Text => Text);
+      end Set_Value;
+
+   end Name;
+
+   package body Name_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Name.T;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+   end Name_Shared_Ptr;
+
+   package body Registry with SPARK_Mode is
+
+      use all type Mutable_Child_Vector.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Append (Container => This.My_Children,
+                 New_Item  => Child);
+      end Append_Child;
+
+   end Registry;
+
+   package body Registry_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Registry.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Registry.Fs.Child_T) is
+      begin
+         Append_Child (Smart_Pointers.Value (This.SP).all, Child);
+      end Append_Child;
+
+   end Registry_Shared_Ptr;
+
+end Vk;

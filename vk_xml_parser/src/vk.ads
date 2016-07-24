@@ -441,6 +441,133 @@ package Vk with SPARK_Mode is
 
    end Enum_Shared_Ptr;
 
+   -- enum tags that has an <enums>-tag as parent
+   package Enums_Enum with SPARK_Mode is
+
+      package Fs is
+
+         package Value is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Value_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value_V : Value.T;
+               when False => null;
+               end case;
+            end record;
+
+         package Name is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Name_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Name.T;
+               when False => null;
+               end case;
+            end record;
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Value (This : T) return Fs.Nullable_Value_T with
+        Global => null;
+
+      function Name (This : T) return Fs.Nullable_Name_T with
+        Global => null;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+   private
+
+      package Mutable_Value is new Fs.Value.Mutable;
+
+      use all type Mutable_Value.Mutable_T;
+
+      type Nullable_Mutable_Value_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Value.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Name is new Fs.Name.Mutable;
+
+      use all type Mutable_Name.Mutable_T;
+
+      type Nullable_Mutable_Name_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Name.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Value : Nullable_Mutable_Value_T;
+            My_Name  : Nullable_Mutable_Name_T;
+         end record;
+
+      function Value (This : T) return Fs.Nullable_Value_T is (if This.My_Value.Exists then
+                                                                 (Exists => True, Value_V => Fs.Value.T (This.My_Value.Value))
+                                                               else
+                                                                 (Exists => False));
+
+      function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                               (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                             else
+                                                               (Exists => False));
+
+
+   end Enums_Enum;
+
+   package Enums_Enum_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Value (This : T) return Enums_Enum.Fs.Nullable_Value_T with
+        Global => null;
+
+      function Name (This : T) return Enums_Enum.Fs.Nullable_Name_T with
+        Global => null;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Enums_Enum.T;
+
+      type Enums_Enum_Ptr is access Enums_Enum.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Enums_Enum.T,
+                                                             P => Enums_Enum_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Enums_Enum.T);
+         end record;
+
+      function Value (This : T) return Enums_Enum.Fs.Nullable_Value_T is (Value (Smart_Pointers.Value (This.SP).all));
+
+      function Name (This : T) return Enums_Enum.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+   end Enums_Enum_Shared_Ptr;
+
    package Member with SPARK_Mode is
 
       package Fs is
@@ -1349,6 +1476,169 @@ package Vk with SPARK_Mode is
 
    end Vendor_Ids_Shared_Ptr;
 
+   package Enums with SPARK_Mode is
+
+      package Fs is
+
+         package Name is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Name_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Name.T;
+               when False => null;
+               end case;
+            end record;
+
+         package Comment is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Comment_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Comment.T;
+               when False => null;
+               end case;
+            end record;
+
+         type Child_Kind_Id_T is (
+                                  Child_Enums_Enum,
+                                  Child_Out_Commented_Message
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Enums_Enum) is record
+            case Kind_Id is
+               when Child_Enums_Enum            => Enums_Enum_V            : aliased Vk.Enums_Enum_Shared_Ptr.T;
+               when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Fs.Nullable_Name_T with
+        Global => null;
+
+      function Comment (This : T) return Fs.Nullable_Comment_T with
+        Global => null;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Name is new Fs.Name.Mutable;
+
+      use all type Mutable_Name.Mutable_T;
+
+      type Nullable_Mutable_Name_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Name.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Comment is new Fs.Comment.Mutable;
+
+      use all type Mutable_Comment.Mutable_T;
+
+      type Nullable_Mutable_Comment_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Comment.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Name     : Nullable_Mutable_Name_T;
+            My_Comment  : Nullable_Mutable_Comment_T;
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                               (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                             else
+                                                               (Exists => False));
+
+      function Comment (This : T) return Fs.Nullable_Comment_T is (if This.My_Comment.Exists then
+                                                                     (Exists => True, Value => Fs.Comment.T (This.My_Comment.Value))
+                                                                   else
+                                                                     (Exists => False));
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Enums;
+
+   package Enums_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Enums.Fs.Nullable_Name_T with
+        Global => null;
+
+      function Comment (This : T) return Enums.Fs.Nullable_Comment_T with
+        Global => null;
+
+      function Children (This : T) return Enums.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Enums.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Enums.T;
+
+      type Enums_Ptr is access Enums.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Enums.T,
+                                                             P => Enums_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Enums.T);
+         end record;
+
+      function Name (This : T) return Enums.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+      function Comment (This : T) return Enums.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
+
+      function Children (This : T) return Enums.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Enums_Shared_Ptr;
+
    package Registry with SPARK_Mode is
 
       package Fs is
@@ -1357,16 +1647,18 @@ package Vk with SPARK_Mode is
                                   Child_Out_Commented_Message,
                                   Child_Vendor_Ids,
                                   Child_Tags,
-                                  Child_Types
+                                  Child_Types,
+                                  Child_Enums
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
             case Kind_Id is
-            when Child_Comment               => C                       : aliased Vk.Comment_Shared_Ptr.T;
-            when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
-            when Child_Vendor_Ids            => Vendor_Ids_V            : aliased Vk.Vendor_Ids_Shared_Ptr.T;
-            when Child_Tags                  => Tags_V                  : aliased Vk.Tags_Shared_Ptr.T;
-            when Child_Types                 => Types_V                 : aliased Vk.Types_Shared_Ptr.T;
+               when Child_Comment               => C                       : aliased Vk.Comment_Shared_Ptr.T;
+               when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
+               when Child_Vendor_Ids            => Vendor_Ids_V            : aliased Vk.Vendor_Ids_Shared_Ptr.T;
+               when Child_Tags                  => Tags_V                  : aliased Vk.Tags_Shared_Ptr.T;
+               when Child_Types                 => Types_V                 : aliased Vk.Types_Shared_Ptr.T;
+               when Child_Enums                 => Enums_V                 : aliased Vk.Enums_Shared_Ptr.T;
             end case;
          end record;
 

@@ -53,6 +53,11 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Validity                                 : constant String := "validity";
    XML_Tag_Usage                                    : constant String := "usage";
    XML_Tag_Enum                                     : constant String := "enum";
+   XML_Tag_Enums                                    : constant String := "enums";
+   XML_Tag_Enums_Attribute_Name                     : constant String := "name";
+   XML_Tag_Enums_Attribute_Comment                  : constant String := "comment";
+   XML_Tag_Enums_Enum_Attribute_Value               : constant String := "value";
+   XML_Tag_Enums_Enum_Attribute_Name                : constant String := "name";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -75,6 +80,9 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Validity_Shared_Ptr.T;
    use all type Vk.Usage.Fs.Child_Kind_Id_T;
    use all type Vk.Usage_Shared_Ptr.T;
+   use all type Vk.Enums.Fs.Child_Kind_Id_T;
+   use all type Vk.Enums_Shared_Ptr.T;
+   use all type Vk.Enums_Enum_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -288,6 +296,25 @@ package body Vk_XML_Reader with SPARK_Mode is
                      begin
                         Temp_Tag.Parent_Tag := Prev_Tag.Id;
                         Temp_Tag.Types_V := Types_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Vk.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
+                                                             Child => Child);
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  elsif Tag_Name = XML_Tag_Enums then
+                     declare
+                        Enums_V : Vk.Enums_Shared_Ptr.T;
+                        Child : Vk.Registry.Fs.Child_T := (Kind_Id => Child_Enums,
+                                                           Enums_V  => Enums_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Enums);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Enums_V := Enums_V;
 
                         Current_Tag.Initialize (Temp_Tag);
 
@@ -544,13 +571,38 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
+               when Current_Tag_Fs.Tag_Id.Enums =>
+                  if Tag_Name = XML_Tag_Enum then
+                     declare
+                        Enums_Enum_V : Vk.Enums_Enum_Shared_Ptr.T;
+                        Child : Vk.Enums.Fs.Child_T := (Kind_Id      => Child_Enums_Enum,
+                                                        Enums_Enum_V => Enums_Enum_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Enums_Enum);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Enums_Enum_V := Enums_Enum_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Enums_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
                when Current_Tag_Fs.Tag_Id.Comment |
                     Current_Tag_Fs.Tag_Id.Vendor_Id |
                     Current_Tag_Fs.Tag_Id.Tag |
                     Current_Tag_Fs.Tag_Id.Name |
                     Current_Tag_Fs.Tag_Id.Nested_Type |
                     Current_Tag_Fs.Tag_Id.Usage |
-                    Current_Tag_Fs.Tag_Id.Enum =>
+                    Current_Tag_Fs.Tag_Id.Enum |
+                    Current_Tag_Fs.Tag_Id.Enums_Enum =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
             end case;
          end;
@@ -652,6 +704,26 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Member_Attribute_Valid_Extension_Structs then
                   Set_Valid_Extension_Structs (This => Current_Tag_V.Member_V,
                                                Text => Attribute_Value);
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               end if;
+            when Current_Tag_Fs.Tag_Id.Enums =>
+               if Attribute_Name = XML_Tag_Enums_Attribute_Name then
+                  Set_Name (This => Current_Tag_V.Enums_V,
+                            Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Enums_Attribute_Comment then
+                  Set_Comment (This => Current_Tag_V.Enums_V,
+                               Text => Attribute_Value);
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               end if;
+            when Current_Tag_Fs.Tag_Id.Enums_Enum =>
+               if Attribute_Name = XML_Tag_Enums_Enum_Attribute_Value then
+                  Set_Value (This => Current_Tag_V.Enums_Enum_V,
+                             Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Name then
+                  Set_Name (This => Current_Tag_V.Enums_Enum_V,
+                            Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
@@ -767,7 +839,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Tag |
                        Current_Tag_Fs.Tag_Id.Types |
                        Current_Tag_Fs.Tag_Id.Member |
-                       Current_Tag_Fs.Tag_Id.Validity =>
+                       Current_Tag_Fs.Tag_Id.Validity |
+                       Current_Tag_Fs.Tag_Id.Enums |
+                       Current_Tag_Fs.Tag_Id.Enums_Enum =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
                end case;
             end;
@@ -850,6 +924,17 @@ package body Vk_XML_Reader with SPARK_Mode is
                   Append_Child (This  => Current_Tag_V.Type_V,
                                 Child => Child);
                end;
+            when Current_Tag_Fs.Tag_Id.Enums =>
+               declare
+                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
+                  Child : Vk.Enums.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                  Out_Commented_Message_V => Vk.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+               begin
+                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
+                                                                           Text => Value);
+                  Append_Child (This  => Current_Tag_V.Enums_V,
+                                Child => Child);
+               end;
             when Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
                  Current_Tag_Fs.Tag_Id.Vendor_Id |
@@ -860,7 +945,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Member |
                  Current_Tag_Fs.Tag_Id.Validity |
                  Current_Tag_Fs.Tag_Id.Usage |
-                 Current_Tag_Fs.Tag_Id.Enum =>
+                 Current_Tag_Fs.Tag_Id.Enum |
+                 Current_Tag_Fs.Tag_Id.Enums_Enum =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;
       end;

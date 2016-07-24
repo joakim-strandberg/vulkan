@@ -18,7 +18,9 @@ package Current_Tag_Fs with SPARK_Mode is
                              Member,
                              Validity,
                              Usage,
-                             Enum
+                             Enum,
+                             Enums,
+                             Enums_Enum
                             );
 
    end Tag_Id;

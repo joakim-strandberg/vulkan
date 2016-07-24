@@ -535,6 +535,109 @@ package body Vk with SPARK_Mode is
 
    end Name_Shared_Ptr;
 
+   package body Enums with SPARK_Mode is
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+         Comment_V : Mutable_Comment.Mutable_T;
+      begin
+         Initialize (This => Comment_V,
+                     Text => Text);
+         This.My_Comment := (Exists => True, Value => Comment_V);
+      end Set_Comment;
+
+      procedure Set_Name (This : in out T;
+                          Text : String)
+      is
+         Name_V : Mutable_Name.Mutable_T;
+      begin
+         Initialize (This => Name_V,
+                     Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+
+   end Enums;
+
+   package body Enums_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Enums.T;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Enums.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Enums_Shared_Ptr;
+
+   package body Enums_Enum with SPARK_Mode is
+
+      procedure Set_Value (This : in out T;
+                           Text : String)
+      is
+         Value_V : Mutable_Value.Mutable_T;
+      begin
+         Initialize (This => Value_V,
+                     Text => Text);
+         This.My_Value := (Exists => True, Value => Value_V);
+      end Set_Value;
+
+      procedure Set_Name (This : in out T;
+                             Text : String)
+      is
+         Name_V : Mutable_Name.Mutable_T;
+      begin
+         Initialize (This => Name_V,
+                     Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+   end Enums_Enum;
+
+   package body Enums_Enum_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Enums_Enum.T;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+      procedure Set_Name (This : in out T;
+                             Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+   end Enums_Enum_Shared_Ptr;
+
+
    package body Registry with SPARK_Mode is
 
       use all type Mutable_Child_Vector.T;

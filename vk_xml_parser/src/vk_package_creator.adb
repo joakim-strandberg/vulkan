@@ -50,6 +50,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                null;
             when Child_Types =>
                Handle_Child_Types (Element (Children (R), I).Types_V);
+            when Child_Enums =>
+               null;
          end case;
       end loop;
    end Create_Vk_Package;

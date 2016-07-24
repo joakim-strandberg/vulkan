@@ -24,6 +24,8 @@ package Current_Tag with SPARK_Mode is
          when Validity    => Validity_V    : Vk.Validity_Shared_Ptr.T;
          when Usage       => Usage_V       : Vk.Usage_Shared_Ptr.T;
          when Enum        => Enum_V        : Vk.Enum_Shared_Ptr.T;
+         when Enums       => Enums_V       : Vk.Enums_Shared_Ptr.T;
+         when Enums_Enum  => Enums_Enum_V  : Vk.Enums_Enum_Shared_Ptr.T;
       end case;
    end record;
 

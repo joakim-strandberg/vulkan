@@ -1924,6 +1924,18 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         type Optional_T is new Boolean;
+
+         package External_Sync is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_External_Sync_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : External_Sync.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1931,20 +1943,55 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Optional (This : T) return Fs.Optional_T with
+        Global => null;
+
+      function External_Sync (This : T) return Fs.Nullable_External_Sync_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) with
+        Global => null;
+
+      procedure Set_External_Sync (This : in out T;
+                                   Text : String) with
         Global => null;
 
    private
 
       package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
 
+      package Mutable_External_Sync is new Fs.External_Sync.Mutable;
+
+      use all type Mutable_External_Sync.Mutable_T;
+
+      type Nullable_Mutable_External_Sync_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_External_Sync.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
-            My_Children : Mutable_Children.T (10);
+            My_Children      : Mutable_Children.T (10);
+            My_Optional      : Fs.Optional_T;
+            My_External_Sync : Nullable_Mutable_External_Sync_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+      function Optional (This : T) return Fs.Optional_T is (This.My_Optional);
+
+      function External_Sync (This : T) return Fs.Nullable_External_Sync_T is (if This.My_External_Sync.Exists then
+                                                                                 (Exists => True, Value => Fs.External_Sync.T (This.My_External_Sync.Value))
+                                                                               else
+                                                                                 (Exists => False));
 
    end Param;
 
@@ -1955,8 +2002,22 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Param.Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Optional (This : T) return Param.Fs.Optional_T with
+        Global => null;
+
+      function External_Sync (This : T) return Param.Fs.Nullable_External_Sync_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Param.Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) with
+        Global => null;
+
+      procedure Set_External_Sync (This : in out T;
+                                   Text : String) with
         Global => null;
 
    private
@@ -1975,6 +2036,10 @@ package Vk with SPARK_Mode is
          end record;
 
       function Children (This : T) return Param.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function Optional (This : T) return Param.Fs.Optional_T is (Optional (Smart_Pointers.Value (This.SP).all));
+
+      function External_Sync (This : T) return Param.Fs.Nullable_External_Sync_T is (External_Sync (Smart_Pointers.Value (This.SP).all));
 
    end Param_Shared_Ptr;
 

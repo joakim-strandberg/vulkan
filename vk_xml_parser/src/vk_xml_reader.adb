@@ -69,6 +69,8 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
    XML_Tag_Proto                                    : constant String := "proto";
    XML_Tag_Param                                    : constant String := "param";
+   XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
+   XML_Tag_Param_Attribute_External_Sync            : constant String := "externsync";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -990,6 +992,20 @@ package body Vk_XML_Reader with SPARK_Mode is
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
+            when Current_Tag_Fs.Tag_Id.Param =>
+               if Attribute_Name = XML_Tag_Param_Attribute_Optional then
+                  if Attribute_Value = "true" then
+                     Set_Optional (This  => Current_Tag_V.Param_V,
+                                   Value => True);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
+               elsif Attribute_Name = XML_Tag_Param_Attribute_External_Sync then
+                  Set_External_Sync (This => Current_Tag_V.Param_V,
+                                     Text => Attribute_Value);
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               end if;
             when Current_Tag_Fs.Tag_Id.Registry |
                  Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
@@ -1001,8 +1017,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Usage |
                  Current_Tag_Fs.Tag_Id.Enum |
                  Current_Tag_Fs.Tag_Id.Commands |
-                 Current_Tag_Fs.Tag_Id.Proto |
-                 Current_Tag_Fs.Tag_Id.Param =>
+                 Current_Tag_Fs.Tag_Id.Proto =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;

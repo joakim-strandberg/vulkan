@@ -739,6 +739,22 @@ package body Vk with SPARK_Mode is
                                   New_Item  => Child);
       end Append_Child;
 
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) is
+      begin
+         This.My_Optional := Fs.Optional_T (Value);
+      end Set_Optional;
+
+      procedure Set_External_Sync (This : in out T;
+                                   Text : String)
+      is
+         External_Sync_V : Mutable_External_Sync.Mutable_T;
+      begin
+         Initialize (This => External_Sync_V,
+                     Text => Text);
+         This.My_External_Sync := (Exists => True, Value => External_Sync_V);
+      end Set_External_Sync;
+
    end Param;
 
    package body Param_Shared_Ptr with SPARK_Mode => Off is
@@ -751,6 +767,20 @@ package body Vk with SPARK_Mode is
          Append_Child (This  => Smart_Pointers.Value (This.SP).all,
                        Child => Child);
       end Append_Child;
+
+      procedure Set_Optional (This  : in out T;
+                              Value : Boolean) is
+      begin
+         Set_Optional (This  => Smart_Pointers.Value (This.SP).all,
+                       Value => Value);
+      end Set_Optional;
+
+      procedure Set_External_Sync (This : in out T;
+                                   Text : String) is
+      begin
+         Set_External_Sync (This => Smart_Pointers.Value (This.SP).all,
+                            Text => Text);
+      end Set_External_Sync;
 
    end Param_Shared_Ptr;
 

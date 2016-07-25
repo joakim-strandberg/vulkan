@@ -29,6 +29,7 @@ package Current_Tag with SPARK_Mode is
          when Unused      => Unused_V      : Vk.Unused_Shared_Ptr.T;
          when Commands    => Commands_V    : Vk.Commands_Shared_Ptr.T;
          when Command     => Command_V     : Vk.Command_Shared_Ptr.T;
+         when Proto       => Proto_V       : Vk.Proto_Shared_Ptr.T;
       end case;
    end record;
 

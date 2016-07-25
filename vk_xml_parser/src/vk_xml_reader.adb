@@ -67,6 +67,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Command                                  : constant String := "command";
    XML_Tag_Command_Attribute_Success_Codes          : constant String := "successcodes";
    XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
+   XML_Tag_Proto                                    : constant String := "proto";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -97,6 +98,9 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Commands.Fs.Child_Kind_Id_T;
    use all type Vk.Commands_Shared_Ptr.T;
    use all type Vk.Command_Shared_Ptr.T;
+   use all type Vk.Command.Fs.Child_Kind_Id_T;
+   use all type Vk.Proto.Fs.Child_Kind_Id_T;
+   use all type Vk.Proto_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -672,6 +676,74 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
+               when Current_Tag_Fs.Tag_Id.Command =>
+                  if Tag_Name = XML_Tag_Proto then
+                     declare
+                        Proto_V : Vk.Proto_Shared_Ptr.T;
+                        Child : Vk.Command.Fs.Child_T := (Kind_Id => Child_Proto,
+                                                          Proto_V => Proto_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Proto);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Proto_V := Proto_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Command_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
+               when Current_Tag_Fs.Tag_Id.Proto =>
+                  if Tag_Name = XML_Tag_Type then
+                     declare
+                        Nested_Type_V : Vk.Nested_Type_Shared_Ptr.T;
+                        Child : Vk.Proto.Fs.Child_T := (Kind_Id       => Child_Nested_Type,
+                                                        Nested_Type_V => Nested_Type_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Nested_Type);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Nested_Type_V := Nested_Type_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Proto_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  elsif Tag_Name = XML_Tag_Name then
+                     declare
+                        Name_V : Vk.Name_Shared_Ptr.T;
+                        Child : Vk.Proto.Fs.Child_T := (Kind_Id       => Child_Name,
+                                                        Name_V => Name_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Name);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Name_V := Name_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Proto_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
                when Current_Tag_Fs.Tag_Id.Comment |
                     Current_Tag_Fs.Tag_Id.Vendor_Id |
                     Current_Tag_Fs.Tag_Id.Tag |
@@ -680,8 +752,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                     Current_Tag_Fs.Tag_Id.Usage |
                     Current_Tag_Fs.Tag_Id.Enum |
                     Current_Tag_Fs.Tag_Id.Enums_Enum |
-                    Current_Tag_Fs.Tag_Id.Unused |
-                    Current_Tag_Fs.Tag_Id.Command =>
+                    Current_Tag_Fs.Tag_Id.Unused =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
             end case;
          end;
@@ -862,7 +933,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Validity |
                  Current_Tag_Fs.Tag_Id.Usage |
                  Current_Tag_Fs.Tag_Id.Enum |
-                 Current_Tag_Fs.Tag_Id.Commands =>
+                 Current_Tag_Fs.Tag_Id.Commands |
+                 Current_Tag_Fs.Tag_Id.Proto =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;
@@ -970,7 +1042,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Enums_Enum |
                        Current_Tag_Fs.Tag_Id.Unused |
                        Current_Tag_Fs.Tag_Id.Commands |
-                       Current_Tag_Fs.Tag_Id.Command =>
+                       Current_Tag_Fs.Tag_Id.Command |
+                       Current_Tag_Fs.Tag_Id.Proto =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
                end case;
             end;
@@ -1078,7 +1151,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Enums_Enum |
                  Current_Tag_Fs.Tag_Id.Unused |
                  Current_Tag_Fs.Tag_Id.Commands |
-                 Current_Tag_Fs.Tag_Id.Command =>
+                 Current_Tag_Fs.Tag_Id.Command |
+                 Current_Tag_Fs.Tag_Id.Proto =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;
       end;

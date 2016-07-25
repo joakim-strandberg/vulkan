@@ -1826,6 +1826,81 @@ package Vk with SPARK_Mode is
 
    end Enums_Shared_Ptr;
 
+   package Proto with SPARK_Mode is
+
+      package Fs is
+
+         type Child_Kind_Id_T is (
+                                  Child_Nested_Type,
+                                  Child_Name
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+            case Kind_Id is
+               when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
+               when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Proto;
+
+   package Proto_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Proto.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Proto.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Proto.T;
+
+      type Proto_Ptr is access Proto.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Proto.T,
+                                                             P => Proto_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Proto.T);
+         end record;
+
+      function Children (This : T) return Proto.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Proto_Shared_Ptr;
+
    package Command with SPARK_Mode is
 
       package Fs is
@@ -1844,6 +1919,21 @@ package Vk with SPARK_Mode is
                                                                                     "="          => Error_Code."=",
                                                                                     Bounded      => False);
 
+         type Child_Kind_Id_T is (
+                                  Child_Proto
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
+            case Kind_Id is
+            when Child_Proto        => Proto_V        : aliased Vk.Proto_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1854,12 +1944,19 @@ package Vk with SPARK_Mode is
       function Error_Codes (This : T) return Fs.Error_Code_Vector.Immutable_T with
         Global => null;
 
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
 
       procedure Append_Error_Code (This : in out T;
                                    Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
         Global => null;
 
    private
@@ -1880,15 +1977,20 @@ package Vk with SPARK_Mode is
 
       use all type Mutable_Error_Code.Mutable_T;
 
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
       type T is limited
          record
             My_Success_Codes : Mutable_Success_Code_Vector.T (10);
             My_Error_Codes   : Mutable_Error_Code_Vector.T (10);
+            My_Children      : Mutable_Children.T (10);
          end record;
 
       function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T is (Fs.Success_Code_Vector.Immutable_T (This.My_Success_Codes));
 
       function Error_Codes (This : T) return Fs.Error_Code_Vector.Immutable_T is (Fs.Error_Code_Vector.Immutable_T (This.My_Error_Codes));
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
 
    end Command;
 
@@ -1902,12 +2004,19 @@ package Vk with SPARK_Mode is
       function Error_Codes (This : T) return Command.Fs.Error_Code_Vector.Immutable_T with
         Global => null;
 
+      function Children (This : T) return Command.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
 
       procedure Append_Error_Code (This : in out T;
                                    Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Command.Fs.Child_T) with
         Global => null;
 
    private
@@ -1928,6 +2037,8 @@ package Vk with SPARK_Mode is
       function Success_Codes (This : T) return Command.Fs.Success_Code_Vector.Immutable_T is (Success_Codes (Smart_Pointers.Value (This.SP).all));
 
       function Error_Codes (This : T) return Command.Fs.Error_Code_Vector.Immutable_T is (Error_Codes (Smart_Pointers.Value (This.SP).all));
+
+      function Children (This : T) return Command.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 
    end Command_Shared_Ptr;
 

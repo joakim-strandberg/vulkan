@@ -33,7 +33,6 @@ package body Vk_Package_Creator with SPARK_Mode is
       end loop;
    end Handle_Child_Types;
 
-
    procedure Create_Vk_Package (R : Vk.Registry_Shared_Ptr.T) is
    begin
       for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop

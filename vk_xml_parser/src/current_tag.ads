@@ -28,6 +28,7 @@ package Current_Tag with SPARK_Mode is
          when Enums_Enum  => Enums_Enum_V  : Vk.Enums_Enum_Shared_Ptr.T;
          when Unused      => Unused_V      : Vk.Unused_Shared_Ptr.T;
          when Commands    => Commands_V    : Vk.Commands_Shared_Ptr.T;
+         when Command     => Command_V     : Vk.Command_Shared_Ptr.T;
       end case;
    end record;
 

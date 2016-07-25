@@ -713,12 +713,24 @@ package body Vk with SPARK_Mode is
       is
          SC : Mutable_Success_Code.Mutable_T;
       begin
-         Mutable_Success_Code.Initialize (This => SC,
-                                          Text => Text);
+         Initialize (This => SC,
+                     Text => Text);
 
-         Mutable_Success_Code_Vector.Append (Container => This.My_Success_Codes,
-                                             New_Item  => Fs.Success_Code.T (SC));
+         Append (Container => This.My_Success_Codes,
+                 New_Item  => Fs.Success_Code.T (SC));
       end Append_Success_Code;
+
+      procedure Append_Error_Code (This : in out T;
+                                   Text : String)
+      is
+         EC : Mutable_Error_Code.Mutable_T;
+      begin
+         Initialize (This => EC,
+                     Text => Text);
+
+         Append (Container => This.My_Error_Codes,
+                 New_Item  => Fs.Error_Code.T (EC));
+      end Append_Error_Code;
 
    end Command;
 
@@ -732,6 +744,13 @@ package body Vk with SPARK_Mode is
          Append_Success_Code (This => Smart_Pointers.Value (This.SP).all,
                               Text => Text);
       end Append_Success_Code;
+
+      procedure Append_Error_Code (This : in out T;
+                                   Text : String) is
+      begin
+         Append_Error_Code (This => Smart_Pointers.Value (This.SP).all,
+                            Text => Text);
+      end Append_Error_Code;
 
    end Command_Shared_Ptr;
 

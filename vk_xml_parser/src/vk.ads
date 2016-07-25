@@ -1837,6 +1837,13 @@ package Vk with SPARK_Mode is
                                                                                       "="          => Success_Code."=",
                                                                                       Bounded      => False);
 
+         package Error_Code is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         package Error_Code_Vector is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                    Element_Type => Error_Code.T,
+                                                                                    "="          => Error_Code."=",
+                                                                                    Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1844,24 +1851,44 @@ package Vk with SPARK_Mode is
       function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T with
         Global => null;
 
+      function Error_Codes (This : T) return Fs.Error_Code_Vector.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
+        Global => null;
+
+      procedure Append_Error_Code (This : in out T;
+                                   Text : String) with
         Global => null;
 
    private
 
       package Mutable_Success_Code_Vector is new Fs.Success_Code_Vector.Generic_Mutable_Vector;
 
+      use all type Mutable_Success_Code_Vector.T;
+
       package Mutable_Success_Code is new Fs.Success_Code.Mutable;
 
       use all type Mutable_Success_Code.Mutable_T;
 
+      package Mutable_Error_Code_Vector is new Fs.Error_Code_Vector.Generic_Mutable_Vector;
+
+      use all type Mutable_Error_Code_Vector.T;
+
+      package Mutable_Error_Code is new Fs.Error_Code.Mutable;
+
+      use all type Mutable_Error_Code.Mutable_T;
+
       type T is limited
          record
             My_Success_Codes : Mutable_Success_Code_Vector.T (10);
+            My_Error_Codes   : Mutable_Error_Code_Vector.T (10);
          end record;
 
       function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T is (Fs.Success_Code_Vector.Immutable_T (This.My_Success_Codes));
+
+      function Error_Codes (This : T) return Fs.Error_Code_Vector.Immutable_T is (Fs.Error_Code_Vector.Immutable_T (This.My_Error_Codes));
 
    end Command;
 
@@ -1872,8 +1899,15 @@ package Vk with SPARK_Mode is
       function Success_Codes (This : T) return Command.Fs.Success_Code_Vector.Immutable_T with
         Global => null;
 
+      function Error_Codes (This : T) return Command.Fs.Error_Code_Vector.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
+        Global => null;
+
+      procedure Append_Error_Code (This : in out T;
+                                   Text : String) with
         Global => null;
 
    private
@@ -1892,6 +1926,8 @@ package Vk with SPARK_Mode is
          end record;
 
       function Success_Codes (This : T) return Command.Fs.Success_Code_Vector.Immutable_T is (Success_Codes (Smart_Pointers.Value (This.SP).all));
+
+      function Error_Codes (This : T) return Command.Fs.Error_Code_Vector.Immutable_T is (Error_Codes (Smart_Pointers.Value (This.SP).all));
 
    end Command_Shared_Ptr;
 

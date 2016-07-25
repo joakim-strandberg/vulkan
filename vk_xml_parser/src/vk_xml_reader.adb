@@ -66,6 +66,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Commands                                 : constant String := "commands";
    XML_Tag_Command                                  : constant String := "command";
    XML_Tag_Command_Attribute_Success_Codes          : constant String := "successcodes";
+   XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -845,6 +846,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                if Attribute_Name = XML_Tag_Command_Attribute_Success_Codes then
                   Append_Success_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several success codes later
                                        Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Error_Codes then
+                  Append_Error_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several error codes later
+                                     Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

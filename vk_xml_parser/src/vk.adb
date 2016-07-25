@@ -755,6 +755,16 @@ package body Vk with SPARK_Mode is
          This.My_External_Sync := (Exists => True, Value => External_Sync_V);
       end Set_External_Sync;
 
+      procedure Set_Len (This : in out T;
+                         Text : String)
+      is
+         Len_V : Mutable_Len.Mutable_T;
+      begin
+         Initialize (This => Len_V,
+                     Text => Text);
+         This.My_Len := (Exists => True, Value => Len_V);
+      end Set_Len;
+
    end Param;
 
    package body Param_Shared_Ptr with SPARK_Mode => Off is
@@ -781,6 +791,13 @@ package body Vk with SPARK_Mode is
          Set_External_Sync (This => Smart_Pointers.Value (This.SP).all,
                             Text => Text);
       end Set_External_Sync;
+
+      procedure Set_Len (This : in out T;
+                         Text : String) is
+      begin
+         Set_Len (This => Smart_Pointers.Value (This.SP).all,
+                  Text => Text);
+      end Set_Len;
 
    end Param_Shared_Ptr;
 

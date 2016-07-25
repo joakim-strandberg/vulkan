@@ -931,7 +931,7 @@ package Vk with SPARK_Mode is
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Usage) is record
             case Kind_Id is
-              when Child_Usage        => Usage_V        : aliased Vk.Usage_Shared_Ptr.T;
+               when Child_Usage => Usage_V : aliased Vk.Usage_Shared_Ptr.T;
             end case;
          end record;
 
@@ -1936,6 +1936,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Len is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Len_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value : Len.T;
+                  when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1949,6 +1959,9 @@ package Vk with SPARK_Mode is
       function External_Sync (This : T) return Fs.Nullable_External_Sync_T with
         Global => null;
 
+      function Len (This : T) return Fs.Nullable_Len_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
         Global => null;
@@ -1959,6 +1972,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_External_Sync (This : in out T;
                                    Text : String) with
+        Global => null;
+
+      procedure Set_Len (This : in out T;
+                         Text : String) with
         Global => null;
 
    private
@@ -1977,11 +1994,24 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Len is new Fs.Len.Mutable;
+
+      use all type Mutable_Len.Mutable_T;
+
+      type Nullable_Mutable_Len_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Len.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Children      : Mutable_Children.T (10);
             My_Optional      : Fs.Optional_T;
             My_External_Sync : Nullable_Mutable_External_Sync_T;
+            My_Len           : Nullable_Mutable_Len_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
@@ -1992,6 +2022,12 @@ package Vk with SPARK_Mode is
                                                                                  (Exists => True, Value => Fs.External_Sync.T (This.My_External_Sync.Value))
                                                                                else
                                                                                  (Exists => False));
+
+      function Len (This : T) return Fs.Nullable_Len_T is (if This.My_Len.Exists then
+                                                             (Exists => True, Value => Fs.Len.T (This.My_Len.Value))
+                                                           else
+                                                             (Exists => False));
+
 
    end Param;
 
@@ -2008,6 +2044,9 @@ package Vk with SPARK_Mode is
       function External_Sync (This : T) return Param.Fs.Nullable_External_Sync_T with
         Global => null;
 
+      function Len (This : T) return Param.Fs.Nullable_Len_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Param.Fs.Child_T) with
         Global => null;
@@ -2018,6 +2057,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_External_Sync (This : in out T;
                                    Text : String) with
+        Global => null;
+
+      procedure Set_Len (This : in out T;
+                         Text : String) with
         Global => null;
 
    private
@@ -2041,6 +2084,8 @@ package Vk with SPARK_Mode is
 
       function External_Sync (This : T) return Param.Fs.Nullable_External_Sync_T is (External_Sync (Smart_Pointers.Value (This.SP).all));
 
+      function Len (This : T) return Param.Fs.Nullable_Len_T is (Len (Smart_Pointers.Value (This.SP).all));
+
    end Param_Shared_Ptr;
 
    package Command with SPARK_Mode is
@@ -2063,13 +2108,15 @@ package Vk with SPARK_Mode is
 
          type Child_Kind_Id_T is (
                                   Child_Proto,
-                                  Child_Param
+                                  Child_Param,
+                                  Child_Validity
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
             case Kind_Id is
-               when Child_Proto => Proto_V : aliased Vk.Proto_Shared_Ptr.T;
-               when Child_Param => Param_V : aliased Vk.Param_Shared_Ptr.T;
+               when Child_Proto    => Proto_V    : aliased Vk.Proto_Shared_Ptr.T;
+               when Child_Param    => Param_V    : aliased Vk.Param_Shared_Ptr.T;
+               when Child_Validity => Validity_V : aliased Vk.Validity_Shared_Ptr.T;
             end case;
          end record;
 

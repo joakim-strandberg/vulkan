@@ -71,6 +71,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Param                                    : constant String := "param";
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
    XML_Tag_Param_Attribute_External_Sync            : constant String := "externsync";
+   XML_Tag_Param_Attribute_Len                      : constant String := "len";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -722,6 +723,26 @@ package body Vk_XML_Reader with SPARK_Mode is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Validity then
+                     declare
+                        Validity_V : Vk.Validity_Shared_Ptr.T;
+                        Child : Vk.Command.Fs.Child_T := (Kind_Id => Child_Validity,
+                                                          Validity_V => Validity_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Validity);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Validity_V := Validity_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Command_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
@@ -994,7 +1015,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                end if;
             when Current_Tag_Fs.Tag_Id.Param =>
                if Attribute_Name = XML_Tag_Param_Attribute_Optional then
-                  if Attribute_Value = "true" then
+                  if Attribute_Value = "true" or Attribute_Value = "false,true" then
                      Set_Optional (This  => Current_Tag_V.Param_V,
                                    Value => True);
                   else
@@ -1003,6 +1024,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Param_Attribute_External_Sync then
                   Set_External_Sync (This => Current_Tag_V.Param_V,
                                      Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Param_Attribute_Len then
+                  Set_Len (This => Current_Tag_V.Param_V,
+                           Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

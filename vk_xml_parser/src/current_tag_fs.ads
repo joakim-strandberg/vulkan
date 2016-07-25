@@ -20,7 +20,8 @@ package Current_Tag_Fs with SPARK_Mode is
                              Usage,
                              Enum,
                              Enums,
-                             Enums_Enum
+                             Enums_Enum,
+                             Unused
                             );
 
    end Tag_Id;

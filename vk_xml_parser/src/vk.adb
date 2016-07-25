@@ -535,6 +535,33 @@ package body Vk with SPARK_Mode is
 
    end Name_Shared_Ptr;
 
+   package body Unused with SPARK_Mode is
+
+      procedure Set_Start (This : in out T;
+                           Text : String)
+      is
+         Start_V : Mutable_Start.Mutable_T;
+      begin
+         Initialize (This => Start_V,
+                     Text => Text);
+         This.My_Start := (Exists => True, Value => Start_V);
+      end Set_Start;
+
+   end Unused;
+
+   package body Unused_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Unused.T;
+
+      procedure Set_Start (This : in out T;
+                           Text : String) is
+      begin
+         Set_Start (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Start;
+
+   end Unused_Shared_Ptr;
+
    package body Enums with SPARK_Mode is
 
       procedure Set_Comment (This : in out T;

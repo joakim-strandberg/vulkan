@@ -1548,6 +1548,87 @@ package Vk with SPARK_Mode is
 
    end Vendor_Ids_Shared_Ptr;
 
+   package Unused with SPARK_Mode is
+
+      package Fs is
+
+         package Start is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Start_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Start.T;
+               when False => null;
+               end case;
+            end record;
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Start (This : T) return Fs.Nullable_Start_T with
+        Global => null;
+
+      procedure Set_Start (This : in out T;
+                           Text : String) with
+        Global => null;
+
+   private
+
+      package Mutable_Start is new Fs.Start.Mutable;
+
+      use all type Mutable_Start.Mutable_T;
+
+      type Nullable_Mutable_Start_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Start.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Start : Nullable_Mutable_Start_T;
+         end record;
+
+      function Start (This : T) return Fs.Nullable_Start_T is (if This.My_Start.Exists then
+                                                                 (Exists => True, Value => Fs.Start.T (This.My_Start.Value))
+                                                               else
+                                                                 (Exists => False));
+
+   end Unused;
+
+   package Unused_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Start (This : T) return Unused.Fs.Nullable_Start_T with
+        Global => null;
+
+      procedure Set_Start (This : in out T;
+                           Text : String) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Unused.T;
+
+      type Unused_Ptr is access Unused.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Unused.T,
+                                                             P => Unused_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Unused.T);
+         end record;
+
+      function Start (This : T) return Unused.Fs.Nullable_Start_T is (Start (Smart_Pointers.Value (This.SP).all));
+
+   end Unused_Shared_Ptr;
+
    package Enums with SPARK_Mode is
 
       package Fs is
@@ -1574,13 +1655,15 @@ package Vk with SPARK_Mode is
 
          type Child_Kind_Id_T is (
                                   Child_Enums_Enum,
-                                  Child_Out_Commented_Message
+                                  Child_Out_Commented_Message,
+                                  Child_Unused
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Enums_Enum) is record
             case Kind_Id is
                when Child_Enums_Enum            => Enums_Enum_V            : aliased Vk.Enums_Enum_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
+               when Child_Unused                => Unused_V                : aliased Vk.Unused_Shared_Ptr.T;
             end case;
          end record;
 

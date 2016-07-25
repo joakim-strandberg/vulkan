@@ -637,6 +637,12 @@ package body Vk with SPARK_Mode is
          This.My_Comment := (Exists => True, Value => Comment_V);
       end Set_Comment;
 
+      procedure Set_Bit_Position (This : in out T;
+                                  Value : Fs.Bit_Position_T) is
+      begin
+         This.My_Bit_Position := (Exists => True, Value => Value);
+      end Set_Bit_Position;
+
    end Enums_Enum;
 
    package body Enums_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -651,7 +657,7 @@ package body Vk with SPARK_Mode is
       end Set_Value;
 
       procedure Set_Name (This : in out T;
-                             Text : String) is
+                          Text : String) is
       begin
          Set_Name (This => Smart_Pointers.Value (This.SP).all,
                    Text => Text);
@@ -663,6 +669,13 @@ package body Vk with SPARK_Mode is
          Set_Comment (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Comment;
+
+      procedure Set_Bit_Position (This : in out T;
+                                  Value : Enums_Enum.Fs.Bit_Position_T) is
+      begin
+         Set_Bit_Position (This  => Smart_Pointers.Value (This.SP).all,
+                           Value => Value);
+      end Set_Bit_Position;
 
    end Enums_Enum_Shared_Ptr;
 

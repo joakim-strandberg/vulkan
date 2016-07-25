@@ -60,6 +60,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Enums_Enum_Attribute_Value               : constant String := "value";
    XML_Tag_Enums_Enum_Attribute_Name                : constant String := "name";
    XML_Tag_Enums_Enum_Attribute_Comment             : constant String := "comment";
+   XML_Tag_Enums_Enum_Attribute_Bit_Position        : constant String := "bitpos";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -740,6 +741,22 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Comment then
                   Set_Comment (This => Current_Tag_V.Enums_Enum_V,
                                Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Bit_Position then
+                  declare
+                     V : Integer;
+                     Has_Failed : Boolean;
+                  begin
+                     Std_String.To_Integer (Source     => Attribute_Value,
+                                            Target     => V,
+                                            Has_Failed => Has_Failed);
+
+                     if Has_Failed then
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     else
+                        Set_Bit_Position (This  => Current_Tag_V.Enums_Enum_V,
+                                          Value => Vk.Enums_Enum.Fs.Bit_Position_T (V));
+                     end if;
+                  end;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

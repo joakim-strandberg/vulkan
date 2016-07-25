@@ -1901,6 +1901,83 @@ package Vk with SPARK_Mode is
 
    end Proto_Shared_Ptr;
 
+   package Param with SPARK_Mode is
+
+      package Fs is
+
+         type Child_Kind_Id_T is (
+                                  Child_Nested_Type,
+                                  Child_XML_Text,
+                                  Child_Name
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+            case Kind_Id is
+               when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
+               when Child_XML_Text    => XML_Text_V    : aliased Vk.XML_Text.T;
+               when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Param;
+
+   package Param_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Param.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Param.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Param.T;
+
+      type Param_Ptr is access Param.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Param.T,
+                                                             P => Param_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Param.T);
+         end record;
+
+      function Children (This : T) return Param.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Param_Shared_Ptr;
+
    package Command with SPARK_Mode is
 
       package Fs is
@@ -1920,12 +1997,14 @@ package Vk with SPARK_Mode is
                                                                                     Bounded      => False);
 
          type Child_Kind_Id_T is (
-                                  Child_Proto
+                                  Child_Proto,
+                                  Child_Param
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
             case Kind_Id is
-            when Child_Proto        => Proto_V        : aliased Vk.Proto_Shared_Ptr.T;
+               when Child_Proto => Proto_V : aliased Vk.Proto_Shared_Ptr.T;
+               when Child_Param => Param_V : aliased Vk.Param_Shared_Ptr.T;
             end case;
          end record;
 

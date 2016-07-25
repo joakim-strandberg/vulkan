@@ -24,7 +24,8 @@ package Current_Tag_Fs with SPARK_Mode is
                              Unused,
                              Commands,
                              Command,
-                             Proto
+                             Proto,
+                             Param
                             );
 
    end Tag_Id;

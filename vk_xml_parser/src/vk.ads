@@ -1517,6 +1517,19 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         type Type_Attribue_T is (
+                                  Enum,
+                                  Bit_Mask
+                                  );
+
+         type Nullable_Type_Attribue_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Type_Attribue_T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1530,6 +1543,9 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Type_Attribue (This : T) return Fs.Nullable_Type_Attribue_T with
+        Global => null;
+
       procedure Set_Comment (This : in out T;
                              Text : String) with
         Global => null;
@@ -1540,6 +1556,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Type_Attribue (This  : in out T;
+                                   Value : Fs.Type_Attribue_T) with
         Global => null;
 
    private
@@ -1572,9 +1592,10 @@ package Vk with SPARK_Mode is
 
       type T is limited
          record
-            My_Name     : Nullable_Mutable_Name_T;
-            My_Comment  : Nullable_Mutable_Comment_T;
-            My_Children : Mutable_Children.T (10);
+            My_Name          : Nullable_Mutable_Name_T;
+            My_Comment       : Nullable_Mutable_Comment_T;
+            My_Children      : Mutable_Children.T (10);
+            My_Type_Attribue : Fs.Nullable_Type_Attribue_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -1588,6 +1609,8 @@ package Vk with SPARK_Mode is
                                                                      (Exists => False));
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+      function Type_Attribue (This : T) return Fs.Nullable_Type_Attribue_T is (This.My_Type_Attribue);
 
    end Enums;
 
@@ -1604,6 +1627,9 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Enums.Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Type_Attribue (This : T) return Enums.Fs.Nullable_Type_Attribue_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -1614,6 +1640,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Child (This  : in out T;
                               Child : Enums.Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Type_Attribue (This  : in out T;
+                                   Value : Enums.Fs.Type_Attribue_T) with
         Global => null;
 
    private
@@ -1636,6 +1666,8 @@ package Vk with SPARK_Mode is
       function Comment (This : T) return Enums.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
 
       function Children (This : T) return Enums.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function Type_Attribue (This : T) return Enums.Fs.Nullable_Type_Attribue_T is (Type_Attribue (Smart_Pointers.Value (This.SP).all));
 
    end Enums_Shared_Ptr;
 

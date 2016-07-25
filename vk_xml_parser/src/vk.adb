@@ -563,6 +563,11 @@ package body Vk with SPARK_Mode is
                                   New_Item  => Child);
       end Append_Child;
 
+      procedure Set_Type_Attribue (This : in out T;
+                                   Value : Fs.Type_Attribue_T) is
+      begin
+         This.My_Type_Attribue := (Exists => True, Value => Value);
+      end Set_Type_Attribue;
 
    end Enums;
 
@@ -590,6 +595,13 @@ package body Vk with SPARK_Mode is
          Append_Child (This  => Smart_Pointers.Value (This.SP).all,
                        Child => Child);
       end Append_Child;
+
+      procedure Set_Type_Attribue (This : in out T;
+                                   Value : Enums.Fs.Type_Attribue_T) is
+      begin
+         Set_Type_Attribue (This => Smart_Pointers.Value (This.SP).all,
+                            Value => Value);
+      end Set_Type_Attribue;
 
    end Enums_Shared_Ptr;
 

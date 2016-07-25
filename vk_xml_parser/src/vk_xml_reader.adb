@@ -56,6 +56,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Enums                                    : constant String := "enums";
    XML_Tag_Enums_Attribute_Name                     : constant String := "name";
    XML_Tag_Enums_Attribute_Comment                  : constant String := "comment";
+   XML_Tag_Enums_Attribute_Type                     : constant String := "type";
    XML_Tag_Enums_Enum_Attribute_Value               : constant String := "value";
    XML_Tag_Enums_Enum_Attribute_Name                : constant String := "name";
 
@@ -81,6 +82,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Usage.Fs.Child_Kind_Id_T;
    use all type Vk.Usage_Shared_Ptr.T;
    use all type Vk.Enums.Fs.Child_Kind_Id_T;
+   use all type Vk.Enums.Fs.Type_Attribue_T;
    use all type Vk.Enums_Shared_Ptr.T;
    use all type Vk.Enums_Enum_Shared_Ptr.T;
 
@@ -714,6 +716,16 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Enums_Attribute_Comment then
                   Set_Comment (This => Current_Tag_V.Enums_V,
                                Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Enums_Attribute_Type then
+                  if Attribute_Value = "enum" then
+                     Set_Type_Attribue (This  => Current_Tag_V.Enums_V,
+                                        Value => Enum);
+                  elsif Attribute_Value = "bitmask" then
+                     Set_Type_Attribue (This  => Current_Tag_V.Enums_V,
+                                        Value => Bit_Mask);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

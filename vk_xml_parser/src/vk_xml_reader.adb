@@ -59,6 +59,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Enums_Attribute_Type                     : constant String := "type";
    XML_Tag_Enums_Enum_Attribute_Value               : constant String := "value";
    XML_Tag_Enums_Enum_Attribute_Name                : constant String := "name";
+   XML_Tag_Enums_Enum_Attribute_Comment             : constant String := "comment";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -736,6 +737,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Name then
                   Set_Name (This => Current_Tag_V.Enums_Enum_V,
                             Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Comment then
+                  Set_Comment (This => Current_Tag_V.Enums_Enum_V,
+                               Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

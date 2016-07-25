@@ -627,6 +627,16 @@ package body Vk with SPARK_Mode is
          This.My_Name := (Exists => True, Value => Name_V);
       end Set_Name;
 
+      procedure Set_Comment (This : in out T;
+                             Text : String)
+      is
+         Comment_V : Mutable_Comment.Mutable_T;
+      begin
+         Initialize (This => Comment_V,
+                     Text => Text);
+         This.My_Comment := (Exists => True, Value => Comment_V);
+      end Set_Comment;
+
    end Enums_Enum;
 
    package body Enums_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -647,8 +657,14 @@ package body Vk with SPARK_Mode is
                    Text => Text);
       end Set_Name;
 
-   end Enums_Enum_Shared_Ptr;
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
 
+   end Enums_Enum_Shared_Ptr;
 
    package body Registry with SPARK_Mode is
 

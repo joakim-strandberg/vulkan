@@ -1826,6 +1826,117 @@ package Vk with SPARK_Mode is
 
    end Enums_Shared_Ptr;
 
+   package Command with SPARK_Mode is
+
+      package Fs is
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+   private
+
+      type T is limited
+         record
+            null;
+         end record;
+
+   end Command;
+
+   package Command_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Command.T;
+
+      type Command_Ptr is access Command.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Command.T,
+                                                             P => Command_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Command.T);
+         end record;
+
+   end Command_Shared_Ptr;
+
+   package Commands with SPARK_Mode is
+
+      package Fs is
+
+         type Child_Kind_Id_T is (
+                                  Child_Command
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Command) is record
+            case Kind_Id is
+            when Child_Command        => Command_V        : aliased Vk.Command_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Commands;
+
+   package Commands_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Commands.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Commands.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Commands.T;
+
+      type Commands_Ptr is access Commands.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Commands.T,
+                                                             P => Commands_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Commands.T);
+         end record;
+
+      function Children (This : T) return Commands.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Commands_Shared_Ptr;
+
    package Registry with SPARK_Mode is
 
       package Fs is
@@ -1835,7 +1946,8 @@ package Vk with SPARK_Mode is
                                   Child_Vendor_Ids,
                                   Child_Tags,
                                   Child_Types,
-                                  Child_Enums
+                                  Child_Enums,
+                                  Child_Commands
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
@@ -1846,6 +1958,7 @@ package Vk with SPARK_Mode is
                when Child_Tags                  => Tags_V                  : aliased Vk.Tags_Shared_Ptr.T;
                when Child_Types                 => Types_V                 : aliased Vk.Types_Shared_Ptr.T;
                when Child_Enums                 => Enums_V                 : aliased Vk.Enums_Shared_Ptr.T;
+               when Child_Commands              => Commands_V              : aliased Vk.Commands_Shared_Ptr.T;
             end case;
          end record;
 

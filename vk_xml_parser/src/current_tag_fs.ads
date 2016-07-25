@@ -21,7 +21,8 @@ package Current_Tag_Fs with SPARK_Mode is
                              Enum,
                              Enums,
                              Enums_Enum,
-                             Unused
+                             Unused,
+                             Commands
                             );
 
    end Tag_Id;

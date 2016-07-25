@@ -706,6 +706,40 @@ package body Vk with SPARK_Mode is
 
    end Enums_Enum_Shared_Ptr;
 
+   package body Command with SPARK_Mode is
+
+   end Command;
+
+   package body Command_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Command.T;
+
+   end Command_Shared_Ptr;
+
+   package body Commands with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+   end Commands;
+
+   package body Commands_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Commands.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Commands.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Commands_Shared_Ptr;
+
    package body Registry with SPARK_Mode is
 
       use all type Mutable_Child_Vector.T;

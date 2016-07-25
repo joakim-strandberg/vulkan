@@ -63,6 +63,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Enums_Enum_Attribute_Bit_Position        : constant String := "bitpos";
    XML_Tag_Unused                                   : constant String := "unused";
    XML_Tag_Unused_Attribute_Start                   : constant String := "start";
+   XML_Tag_Commands                                 : constant String := "commands";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -322,6 +323,25 @@ package body Vk_XML_Reader with SPARK_Mode is
                      begin
                         Temp_Tag.Parent_Tag := Prev_Tag.Id;
                         Temp_Tag.Enums_V := Enums_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Vk.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
+                                                             Child => Child);
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  elsif Tag_Name = XML_Tag_Commands then
+                     declare
+                        Commands_V : Vk.Commands_Shared_Ptr.T;
+                        Child : Vk.Registry.Fs.Child_T := (Kind_Id    => Child_Commands,
+                                                           Commands_V => Commands_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Commands);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Commands_V := Commands_V;
 
                         Current_Tag.Initialize (Temp_Tag);
 
@@ -630,7 +650,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                     Current_Tag_Fs.Tag_Id.Usage |
                     Current_Tag_Fs.Tag_Id.Enum |
                     Current_Tag_Fs.Tag_Id.Enums_Enum |
-                    Current_Tag_Fs.Tag_Id.Unused =>
+                    Current_Tag_Fs.Tag_Id.Unused |
+                    Current_Tag_Fs.Tag_Id.Commands =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
             end case;
          end;
@@ -800,7 +821,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Nested_Type |
                  Current_Tag_Fs.Tag_Id.Validity |
                  Current_Tag_Fs.Tag_Id.Usage |
-                 Current_Tag_Fs.Tag_Id.Enum =>
+                 Current_Tag_Fs.Tag_Id.Enum |
+                 Current_Tag_Fs.Tag_Id.Commands =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;
@@ -906,7 +928,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Validity |
                        Current_Tag_Fs.Tag_Id.Enums |
                        Current_Tag_Fs.Tag_Id.Enums_Enum |
-                       Current_Tag_Fs.Tag_Id.Unused =>
+                       Current_Tag_Fs.Tag_Id.Unused |
+                       Current_Tag_Fs.Tag_Id.Commands =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
                end case;
             end;
@@ -1012,7 +1035,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Usage |
                  Current_Tag_Fs.Tag_Id.Enum |
                  Current_Tag_Fs.Tag_Id.Enums_Enum |
-                 Current_Tag_Fs.Tag_Id.Unused =>
+                 Current_Tag_Fs.Tag_Id.Unused |
+                 Current_Tag_Fs.Tag_Id.Commands =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;
       end;

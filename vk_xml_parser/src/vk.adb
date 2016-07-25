@@ -708,11 +708,30 @@ package body Vk with SPARK_Mode is
 
    package body Command with SPARK_Mode is
 
+      procedure Append_Success_Code (This : in out T;
+                                     Text : String)
+      is
+         SC : Mutable_Success_Code.Mutable_T;
+      begin
+         Mutable_Success_Code.Initialize (This => SC,
+                                          Text => Text);
+
+         Mutable_Success_Code_Vector.Append (Container => This.My_Success_Codes,
+                                             New_Item  => Fs.Success_Code.T (SC));
+      end Append_Success_Code;
+
    end Command;
 
    package body Command_Shared_Ptr with SPARK_Mode => Off is
 
       use all type Command.T;
+
+      procedure Append_Success_Code (This : in out T;
+                                     Text : String) is
+      begin
+         Append_Success_Code (This => Smart_Pointers.Value (This.SP).all,
+                              Text => Text);
+      end Append_Success_Code;
 
    end Command_Shared_Ptr;
 

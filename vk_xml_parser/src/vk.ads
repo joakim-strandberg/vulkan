@@ -1830,22 +1830,51 @@ package Vk with SPARK_Mode is
 
       package Fs is
 
+         package Success_Code is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         package Success_Code_Vector is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                      Element_Type => Success_Code.T,
+                                                                                      "="          => Success_Code."=",
+                                                                                      Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
 
+      function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T with
+        Global => null;
+
+      procedure Append_Success_Code (This : in out T;
+                                     Text : String) with
+        Global => null;
+
    private
+
+      package Mutable_Success_Code_Vector is new Fs.Success_Code_Vector.Generic_Mutable_Vector;
+
+      package Mutable_Success_Code is new Fs.Success_Code.Mutable;
+
+      use all type Mutable_Success_Code.Mutable_T;
 
       type T is limited
          record
-            null;
+            My_Success_Codes : Mutable_Success_Code_Vector.T (10);
          end record;
+
+      function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T is (Fs.Success_Code_Vector.Immutable_T (This.My_Success_Codes));
 
    end Command;
 
    package Command_Shared_Ptr with SPARK_Mode is
 
       type T is private with Default_Initial_Condition => True;
+
+      function Success_Codes (This : T) return Command.Fs.Success_Code_Vector.Immutable_T with
+        Global => null;
+
+      procedure Append_Success_Code (This : in out T;
+                                     Text : String) with
+        Global => null;
 
    private
       pragma SPARK_Mode (Off);
@@ -1861,6 +1890,8 @@ package Vk with SPARK_Mode is
          record
             SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Command.T);
          end record;
+
+      function Success_Codes (This : T) return Command.Fs.Success_Code_Vector.Immutable_T is (Success_Codes (Smart_Pointers.Value (This.SP).all));
 
    end Command_Shared_Ptr;
 

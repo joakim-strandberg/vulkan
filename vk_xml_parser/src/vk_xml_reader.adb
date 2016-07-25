@@ -65,6 +65,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Unused_Attribute_Start                   : constant String := "start";
    XML_Tag_Commands                                 : constant String := "commands";
    XML_Tag_Command                                  : constant String := "command";
+   XML_Tag_Command_Attribute_Success_Codes          : constant String := "successcodes";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -94,6 +95,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Unused_Shared_Ptr.T;
    use all type Vk.Commands.Fs.Child_Kind_Id_T;
    use all type Vk.Commands_Shared_Ptr.T;
+   use all type Vk.Command_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -839,6 +841,13 @@ package body Vk_XML_Reader with SPARK_Mode is
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
+            when Current_Tag_Fs.Tag_Id.Command =>
+               if Attribute_Name = XML_Tag_Command_Attribute_Success_Codes then
+                  Append_Success_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several success codes later
+                                       Text => Attribute_Value);
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               end if;
             when Current_Tag_Fs.Tag_Id.Registry |
                  Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
@@ -849,8 +858,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Validity |
                  Current_Tag_Fs.Tag_Id.Usage |
                  Current_Tag_Fs.Tag_Id.Enum |
-                 Current_Tag_Fs.Tag_Id.Commands |
-                 Current_Tag_Fs.Tag_Id.Command =>
+                 Current_Tag_Fs.Tag_Id.Commands =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;

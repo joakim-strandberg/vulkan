@@ -801,6 +801,40 @@ package body Vk with SPARK_Mode is
 
    end Param_Shared_Ptr;
 
+   package body External_Sync_Parameter with SPARK_Mode is
+
+   end External_Sync_Parameter;
+
+   package body External_Sync_Parameter_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type External_Sync_Parameter.T;
+
+   end External_Sync_Parameter_Shared_Ptr;
+
+   package body Implicit_External_Sync_Parameters with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+   end Implicit_External_Sync_Parameters;
+
+   package body Implicit_External_Sync_Parameters_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Implicit_External_Sync_Parameters.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Implicit_External_Sync_Parameters.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Implicit_External_Sync_Parameters_Shared_Ptr;
+
    package body Command with SPARK_Mode is
 
       procedure Append_Success_Code (This : in out T;

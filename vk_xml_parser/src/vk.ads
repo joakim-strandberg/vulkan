@@ -2088,6 +2088,117 @@ package Vk with SPARK_Mode is
 
    end Param_Shared_Ptr;
 
+   package External_Sync_Parameter with SPARK_Mode is
+
+      package Fs is
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+   private
+
+      type T is limited
+         record
+            null;
+         end record;
+
+   end External_Sync_Parameter;
+
+   package External_Sync_Parameter_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type External_Sync_Parameter.T;
+
+      type External_Sync_Parameter_Ptr is access External_Sync_Parameter.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => External_Sync_Parameter.T,
+                                                             P => External_Sync_Parameter_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new External_Sync_Parameter.T);
+         end record;
+
+   end External_Sync_Parameter_Shared_Ptr;
+
+   package Implicit_External_Sync_Parameters with SPARK_Mode is
+
+      package Fs is
+
+         type Child_Kind_Id_T is (
+                                  Child_External_Sync_Parameter
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_External_Sync_Parameter) is record
+            case Kind_Id is
+            when Child_External_Sync_Parameter        => External_Sync_Parameter_V        : aliased Vk.External_Sync_Parameter_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+         function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Implicit_External_Sync_Parameters;
+
+   package Implicit_External_Sync_Parameters_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Implicit_External_Sync_Parameters.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Implicit_External_Sync_Parameters.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Implicit_External_Sync_Parameters.T;
+
+      type Implicit_External_Sync_Parameters_Ptr is access Implicit_External_Sync_Parameters.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Implicit_External_Sync_Parameters.T,
+                                                             P => Implicit_External_Sync_Parameters_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Implicit_External_Sync_Parameters.T);
+         end record;
+
+      function Children (This : T) return Implicit_External_Sync_Parameters.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Implicit_External_Sync_Parameters_Shared_Ptr;
+
    package Command with SPARK_Mode is
 
       package Fs is

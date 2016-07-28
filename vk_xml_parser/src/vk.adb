@@ -765,6 +765,12 @@ package body Vk with SPARK_Mode is
          This.My_Len := (Exists => True, Value => Len_V);
       end Set_Len;
 
+      procedure Set_No_Auto_Validity (This : in out T;
+                                      Value : Boolean) is
+      begin
+         This.My_No_Auto_Validity := (Exists => True, Value => Fs.No_Auto_Validity_T (Value));
+      end Set_No_Auto_Validity;
+
    end Param;
 
    package body Param_Shared_Ptr with SPARK_Mode => Off is
@@ -798,6 +804,13 @@ package body Vk with SPARK_Mode is
          Set_Len (This => Smart_Pointers.Value (This.SP).all,
                   Text => Text);
       end Set_Len;
+
+      procedure Set_No_Auto_Validity (This : in out T;
+                                      Value : Boolean) is
+      begin
+         Set_No_Auto_Validity (This => Smart_Pointers.Value (This.SP).all,
+                               Value => Value);
+      end Set_No_Auto_Validity;
 
    end Param_Shared_Ptr;
 

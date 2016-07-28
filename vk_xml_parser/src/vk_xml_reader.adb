@@ -73,6 +73,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
    XML_Tag_Param_Attribute_External_Sync            : constant String := "externsync";
    XML_Tag_Param_Attribute_Len                      : constant String := "len";
+   XML_Tag_Param_Attribute_No_Auto_Validity         : constant String := "noautovalidity";
    XML_Tag_Implicit_External_Syns_Params            : constant String := "implicitexternsyncparams";
    XML_Tag_External_Sync_Parameter                  : constant String := "param";
 
@@ -1065,6 +1066,11 @@ package body Vk_XML_Reader with SPARK_Mode is
                   if Attribute_Value = "sparse_binding" then
                      Append_Queue (This  => Current_Tag_V.Command_V,
                                    Queue => Sparse_Binding);
+                  elsif Attribute_Value = "graphics,compute" then
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Graphics);
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Compute);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
@@ -1085,6 +1091,13 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Param_Attribute_Len then
                   Set_Len (This => Current_Tag_V.Param_V,
                            Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Param_Attribute_No_Auto_Validity then
+                  if Attribute_Value = "true" then
+                     Set_No_Auto_Validity (This  => Current_Tag_V.Param_V,
+                                           Value => True);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

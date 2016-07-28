@@ -1946,6 +1946,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         type No_Auto_Validity_T is new Boolean;
+
+         type Nullable_No_Auto_Validity_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : No_Auto_Validity_T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -1962,6 +1972,9 @@ package Vk with SPARK_Mode is
       function Len (This : T) return Fs.Nullable_Len_T with
         Global => null;
 
+      function No_Auto_Validity (This : T) return Fs.Nullable_No_Auto_Validity_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
         Global => null;
@@ -1976,6 +1989,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Len (This : in out T;
                          Text : String) with
+        Global => null;
+
+      procedure Set_No_Auto_Validity (This  : in out T;
+                                      Value : Boolean) with
         Global => null;
 
    private
@@ -2008,10 +2025,11 @@ package Vk with SPARK_Mode is
 
       type T is limited
          record
-            My_Children      : Mutable_Children.T (10);
-            My_Optional      : Fs.Optional_T;
-            My_External_Sync : Nullable_Mutable_External_Sync_T;
-            My_Len           : Nullable_Mutable_Len_T;
+            My_Children         : Mutable_Children.T (10);
+            My_Optional         : Fs.Optional_T;
+            My_External_Sync    : Nullable_Mutable_External_Sync_T;
+            My_Len              : Nullable_Mutable_Len_T;
+            My_No_Auto_Validity : Fs.Nullable_No_Auto_Validity_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
@@ -2028,6 +2046,7 @@ package Vk with SPARK_Mode is
                                                            else
                                                              (Exists => False));
 
+      function No_Auto_Validity (This : T) return Fs.Nullable_No_Auto_Validity_T is (This.My_No_Auto_Validity);
 
    end Param;
 
@@ -2047,6 +2066,9 @@ package Vk with SPARK_Mode is
       function Len (This : T) return Param.Fs.Nullable_Len_T with
         Global => null;
 
+      function No_Auto_Validity (This : T) return Param.Fs.Nullable_No_Auto_Validity_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Param.Fs.Child_T) with
         Global => null;
@@ -2061,6 +2083,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Len (This : in out T;
                          Text : String) with
+        Global => null;
+
+      procedure Set_No_Auto_Validity (This  : in out T;
+                                      Value : Boolean) with
         Global => null;
 
    private
@@ -2085,6 +2111,8 @@ package Vk with SPARK_Mode is
       function External_Sync (This : T) return Param.Fs.Nullable_External_Sync_T is (External_Sync (Smart_Pointers.Value (This.SP).all));
 
       function Len (This : T) return Param.Fs.Nullable_Len_T is (Len (Smart_Pointers.Value (This.SP).all));
+
+      function No_Auto_Validity (This : T) return Param.Fs.Nullable_No_Auto_Validity_T is (No_Auto_Validity (Smart_Pointers.Value (This.SP).all));
 
    end Param_Shared_Ptr;
 

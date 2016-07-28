@@ -905,6 +905,13 @@ package body Vk with SPARK_Mode is
                  New_Item  => Queue);
       end Append_Queue;
 
+      procedure Append_Render_Pass (This  : in out T;
+                                    Value : Fs.Render_Pass_T) is
+      begin
+         Append (Container => This.My_Render_Passes,
+                 New_Item  => Value);
+      end Append_Render_Pass;
+
    end Command;
 
    package body Command_Shared_Ptr with SPARK_Mode => Off is
@@ -938,6 +945,13 @@ package body Vk with SPARK_Mode is
          Append_Queue (This  => Smart_Pointers.Value (This.SP).all,
                        Queue => Queue);
       end Append_Queue;
+
+      procedure Append_Render_Pass (This  : in out T;
+                                    Value : Command.Fs.Render_Pass_T) is
+      begin
+         Append_Render_Pass (This  => Smart_Pointers.Value (This.SP).all,
+                             Value => Value);
+      end Append_Render_Pass;
 
    end Command_Shared_Ptr;
 

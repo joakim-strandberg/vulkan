@@ -68,6 +68,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Command_Attribute_Success_Codes          : constant String := "successcodes";
    XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
    XML_Tag_Command_Attribute_Queues                 : constant String := "queues";
+   XML_Tag_Command_Attribute_Render_Pass            : constant String := "renderpass";
    XML_Tag_Proto                                    : constant String := "proto";
    XML_Tag_Param                                    : constant String := "param";
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
@@ -108,6 +109,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Command_Shared_Ptr.T;
    use all type Vk.Command.Fs.Child_Kind_Id_T;
    use all type Vk.Command.Fs.Queue_T;
+   use all type Vk.Command.Fs.Render_Pass_T;
    use all type Vk.Proto.Fs.Child_Kind_Id_T;
    use all type Vk.Proto_Shared_Ptr.T;
    use all type Vk.Param.Fs.Child_Kind_Id_T;
@@ -1071,6 +1073,19 @@ package body Vk_XML_Reader with SPARK_Mode is
                                    Queue => Graphics);
                      Append_Queue (This  => Current_Tag_V.Command_V,
                                    Queue => Compute);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Render_Pass then
+                  if Attribute_Value = "inside" then
+                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
+                                         Value => Inside);
+                  elsif Attribute_Value = "outside" then
+                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
+                                         Value => Outside);
+                  elsif Attribute_Value = "both" then
+                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
+                                         Value => Both);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;

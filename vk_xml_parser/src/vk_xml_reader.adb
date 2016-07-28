@@ -69,6 +69,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
    XML_Tag_Command_Attribute_Queues                 : constant String := "queues";
    XML_Tag_Command_Attribute_Render_Pass            : constant String := "renderpass";
+   XML_Tag_Command_Attribute_Cmd_Buffer_Level       : constant String := "cmdbufferlevel";
    XML_Tag_Proto                                    : constant String := "proto";
    XML_Tag_Param                                    : constant String := "param";
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
@@ -110,6 +111,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Command.Fs.Child_Kind_Id_T;
    use all type Vk.Command.Fs.Queue_T;
    use all type Vk.Command.Fs.Render_Pass_T;
+   use all type Vk.Command.Fs.Command_Buffer_Level_T;
    use all type Vk.Proto.Fs.Child_Kind_Id_T;
    use all type Vk.Proto_Shared_Ptr.T;
    use all type Vk.Param.Fs.Child_Kind_Id_T;
@@ -1073,6 +1075,19 @@ package body Vk_XML_Reader with SPARK_Mode is
                                    Queue => Graphics);
                      Append_Queue (This  => Current_Tag_V.Command_V,
                                    Queue => Compute);
+                  elsif Attribute_Value = "graphics" then
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Graphics);
+                  elsif Attribute_Value = "compute" then
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Compute);
+                  elsif Attribute_Value = "transfer,graphics,compute" then
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Graphics);
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Compute);
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Transfer);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
@@ -1086,6 +1101,18 @@ package body Vk_XML_Reader with SPARK_Mode is
                   elsif Attribute_Value = "both" then
                      Append_Render_Pass (This  => Current_Tag_V.Command_V,
                                          Value => Both);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Cmd_Buffer_Level then
+                  if Attribute_Value = "primary,secondary" then
+                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
+                                                  Value => Primary);
+                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
+                                                  Value => Secondary);
+                  elsif Attribute_Value = "primary" then
+                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
+                                                  Value => Primary);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;

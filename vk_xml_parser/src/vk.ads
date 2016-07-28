@@ -2313,7 +2313,8 @@ package Vk with SPARK_Mode is
          type Queue_T is (
                           Sparse_Binding,
                           Graphics,
-                          Compute
+                          Compute,
+                          Transfer
                          );
 
          package Queue_Vector is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
@@ -2331,6 +2332,16 @@ package Vk with SPARK_Mode is
                                                                                      Element_Type => Render_Pass_T,
                                                                                      "="          => "=",
                                                                                      Bounded      => False);
+
+         type Command_Buffer_Level_T is (
+                                         Primary,
+                                         Secondary
+                                        );
+
+         package Command_Buffer_Level_Vector is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                      Element_Type => Command_Buffer_Level_T,
+                                                                                      "="          => "=",
+                                                                                      Bounded      => False);
 
       end Fs;
 
@@ -2351,6 +2362,9 @@ package Vk with SPARK_Mode is
       function Render_Passes (This : T) return Fs.Render_Pass_Vector.Immutable_T with
         Global => null;
 
+      function Command_Buffer_Levels (This : T) return Fs.Command_Buffer_Level_Vector.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
@@ -2369,6 +2383,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Render_Pass (This  : in out T;
                                     Value : Fs.Render_Pass_T) with
+        Global => null;
+
+      procedure Append_Command_Buffer_Level (This  : in out T;
+                                             Value : Fs.Command_Buffer_Level_T) with
         Global => null;
 
    private
@@ -2399,13 +2417,18 @@ package Vk with SPARK_Mode is
 
       use all type Mutable_Render_Pass_Vector.T;
 
+      package Mutable_Command_Buffer_Level_Vector is new Fs.Command_Buffer_Level_Vector.Generic_Mutable_Vector;
+
+      use all type Mutable_Command_Buffer_Level_Vector.T;
+
       type T is limited
          record
-            My_Success_Codes : Mutable_Success_Code_Vector.T (10);
-            My_Error_Codes   : Mutable_Error_Code_Vector.T (10);
-            My_Children      : Mutable_Children.T (10);
-            My_Queues        : Mutable_Queue_Vector.T (5);
-            My_Render_Passes : Mutable_Render_Pass_Vector.T (5);
+            My_Success_Codes         : Mutable_Success_Code_Vector.T (10);
+            My_Error_Codes           : Mutable_Error_Code_Vector.T (10);
+            My_Children              : Mutable_Children.T (10);
+            My_Queues                : Mutable_Queue_Vector.T (5);
+            My_Render_Passes         : Mutable_Render_Pass_Vector.T (5);
+            My_Command_Buffer_Levels : Mutable_Command_Buffer_Level_Vector.T (10);
          end record;
 
       function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T is (Fs.Success_Code_Vector.Immutable_T (This.My_Success_Codes));
@@ -2417,6 +2440,8 @@ package Vk with SPARK_Mode is
       function Queues (This : T) return Fs.Queue_Vector.Immutable_T is (Fs.Queue_Vector.Immutable_T (This.My_Queues));
 
       function Render_Passes (This : T) return Fs.Render_Pass_Vector.Immutable_T is (Fs.Render_Pass_Vector.Immutable_T (This.My_Render_Passes));
+
+      function Command_Buffer_Levels (This : T) return Fs.Command_Buffer_Level_Vector.Immutable_T is (Fs.Command_Buffer_Level_Vector.Immutable_T (This.My_Command_Buffer_Levels));
 
    end Command;
 
@@ -2439,6 +2464,9 @@ package Vk with SPARK_Mode is
       function Render_Passes (This : T) return Command.Fs.Render_Pass_Vector.Immutable_T with
         Global => null;
 
+      function Command_Buffer_Levels (This : T) return Command.Fs.Command_Buffer_Level_Vector.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
@@ -2457,6 +2485,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Render_Pass (This  : in out T;
                                     Value : Command.Fs.Render_Pass_T) with
+        Global => null;
+
+      procedure Append_Command_Buffer_Level (This  : in out T;
+                                             Value : Command.Fs.Command_Buffer_Level_T) with
         Global => null;
 
    private
@@ -2483,6 +2515,8 @@ package Vk with SPARK_Mode is
       function Queues (This : T) return Command.Fs.Queue_Vector.Immutable_T is (Queues (Smart_Pointers.Value (This.SP).all));
 
       function Render_Passes (This : T) return Command.Fs.Render_Pass_Vector.Immutable_T is (Render_Passes (Smart_Pointers.Value (This.SP).all));
+
+      function Command_Buffer_Levels (This : T) return Command.Fs.Command_Buffer_Level_Vector.Immutable_T is (Command_Buffer_Levels (Smart_Pointers.Value (This.SP).all));
 
    end Command_Shared_Ptr;
 

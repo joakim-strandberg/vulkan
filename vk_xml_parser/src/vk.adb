@@ -912,6 +912,13 @@ package body Vk with SPARK_Mode is
                  New_Item  => Value);
       end Append_Render_Pass;
 
+      procedure Append_Command_Buffer_Level (This  : in out T;
+                                             Value : Fs.Command_Buffer_Level_T) is
+      begin
+         Append (Container => This.My_Command_Buffer_Levels,
+                 New_Item  => Value);
+      end Append_Command_Buffer_Level;
+
    end Command;
 
    package body Command_Shared_Ptr with SPARK_Mode => Off is
@@ -952,6 +959,13 @@ package body Vk with SPARK_Mode is
          Append_Render_Pass (This  => Smart_Pointers.Value (This.SP).all,
                              Value => Value);
       end Append_Render_Pass;
+
+      procedure Append_Command_Buffer_Level (This  : in out T;
+                                             Value : Command.Fs.Command_Buffer_Level_T) is
+      begin
+         Append_Command_Buffer_Level (This  => Smart_Pointers.Value (This.SP).all,
+                                      Value => Value);
+      end Append_Command_Buffer_Level;
 
    end Command_Shared_Ptr;
 

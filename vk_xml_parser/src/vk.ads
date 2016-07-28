@@ -2092,22 +2092,64 @@ package Vk with SPARK_Mode is
 
       package Fs is
 
+         -- Put in the Fields package
+         package XML_Value is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_XML_Value_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : XML_Value.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
 
+      function XML_Value (This : T) return Fs.Nullable_XML_Value_T with
+        Global => null;
+
+      procedure Set_XML_Value (This : in out T;
+                               Text : String) with
+        Global => null;
+
    private
+
+      package Mutable_XML_Value is new Fs.XML_Value.Mutable;
+
+      use all type Mutable_XML_Value.Mutable_T;
+
+      type Nullable_Mutable_XML_Value_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_XML_Value.Mutable_T;
+               when False => null;
+            end case;
+         end record;
 
       type T is limited
          record
-            null;
+            My_XML_Value : Nullable_Mutable_XML_Value_T;
          end record;
+
+         function XML_Value (This : T) return Fs.Nullable_XML_Value_T is (if This.My_XML_Value.Exists then
+                                                                                  (Exists => True, Value => Fs.XML_Value.T (This.My_XML_Value.Value))
+                                                                                else
+                                                                                  (Exists => False));
 
    end External_Sync_Parameter;
 
    package External_Sync_Parameter_Shared_Ptr with SPARK_Mode is
 
       type T is private with Default_Initial_Condition => True;
+
+      function XML_Value (This : T) return External_Sync_Parameter.Fs.Nullable_XML_Value_T with
+        Global => null;
+
+      procedure Set_XML_Value (This : in out T;
+                               Text : String) with
+        Global => null;
 
    private
       pragma SPARK_Mode (Off);
@@ -2123,6 +2165,8 @@ package Vk with SPARK_Mode is
          record
             SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new External_Sync_Parameter.T);
          end record;
+
+      function XML_Value (This : T) return External_Sync_Parameter.Fs.Nullable_XML_Value_T is (XML_Value (Smart_Pointers.Value (This.SP).all));
 
    end External_Sync_Parameter_Shared_Ptr;
 
@@ -2220,14 +2264,16 @@ package Vk with SPARK_Mode is
          type Child_Kind_Id_T is (
                                   Child_Proto,
                                   Child_Param,
-                                  Child_Validity
+                                  Child_Validity,
+                                  Child_Implicit_External_Sync_Parameters
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
             case Kind_Id is
-               when Child_Proto    => Proto_V    : aliased Vk.Proto_Shared_Ptr.T;
-               when Child_Param    => Param_V    : aliased Vk.Param_Shared_Ptr.T;
-               when Child_Validity => Validity_V : aliased Vk.Validity_Shared_Ptr.T;
+               when Child_Proto                             => Proto_V      : aliased Vk.Proto_Shared_Ptr.T;
+               when Child_Param                             => Param_V      : aliased Vk.Param_Shared_Ptr.T;
+               when Child_Validity                          => Validity_V   : aliased Vk.Validity_Shared_Ptr.T;
+               when Child_Implicit_External_Sync_Parameters => Parameters_V : aliased Vk.Implicit_External_Sync_Parameters_Shared_Ptr.T;
             end case;
          end record;
 

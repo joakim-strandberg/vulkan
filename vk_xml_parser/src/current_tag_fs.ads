@@ -25,7 +25,9 @@ package Current_Tag_Fs with SPARK_Mode is
                              Commands,
                              Command,
                              Proto,
-                             Param
+                             Param,
+                             Implicit_External_Sync_Parameters,
+                             External_Sync_Parameter
                             );
 
    end Tag_Id;

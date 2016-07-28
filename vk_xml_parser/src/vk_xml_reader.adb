@@ -72,6 +72,8 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
    XML_Tag_Param_Attribute_External_Sync            : constant String := "externsync";
    XML_Tag_Param_Attribute_Len                      : constant String := "len";
+   XML_Tag_Implicit_External_Syns_Params            : constant String := "implicitexternsyncparams";
+   XML_Tag_External_Sync_Parameter                  : constant String := "param";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -107,6 +109,8 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Proto_Shared_Ptr.T;
    use all type Vk.Param.Fs.Child_Kind_Id_T;
    use all type Vk.Param_Shared_Ptr.T;
+   use all type Vk.Implicit_External_Sync_Parameters.Fs.Child_Kind_Id_T;
+   use all type Vk.Implicit_External_Sync_Parameters_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -743,6 +747,26 @@ package body Vk_XML_Reader with SPARK_Mode is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Implicit_External_Syns_Params then
+                     declare
+                        Parameters_V : Vk.Implicit_External_Sync_Parameters_Shared_Ptr.T;
+                        Child : Vk.Command.Fs.Child_T := (Kind_Id      => Child_Implicit_External_Sync_Parameters,
+                                                          Parameters_V => Parameters_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Parameters_V := Parameters_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Command_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
@@ -834,6 +858,30 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
+               when Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters =>
+                  if Tag_Name = XML_Tag_External_Sync_Parameter then
+                     declare
+                        External_Sync_Parameter_V : Vk.External_Sync_Parameter_Shared_Ptr.T;
+                        Child : Vk.Implicit_External_Sync_Parameters.Fs.Child_T := (Kind_Id                   => Child_External_Sync_Parameter,
+                                                                                    External_Sync_Parameter_V => External_Sync_Parameter_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.External_Sync_Parameter);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.External_Sync_Parameter_V := External_Sync_Parameter_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Parameters_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
                when Current_Tag_Fs.Tag_Id.Comment |
                     Current_Tag_Fs.Tag_Id.Vendor_Id |
                     Current_Tag_Fs.Tag_Id.Tag |
@@ -842,7 +890,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                     Current_Tag_Fs.Tag_Id.Usage |
                     Current_Tag_Fs.Tag_Id.Enum |
                     Current_Tag_Fs.Tag_Id.Enums_Enum |
-                    Current_Tag_Fs.Tag_Id.Unused =>
+                    Current_Tag_Fs.Tag_Id.Unused |
+                    Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
             end case;
          end;
@@ -1041,7 +1090,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Usage |
                  Current_Tag_Fs.Tag_Id.Enum |
                  Current_Tag_Fs.Tag_Id.Commands |
-                 Current_Tag_Fs.Tag_Id.Proto =>
+                 Current_Tag_Fs.Tag_Id.Proto |
+                 Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters |
+                 Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;
@@ -1137,6 +1188,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                   when Current_Tag_Fs.Tag_Id.Enum =>
                      Vk.Enum_Shared_Ptr.Set_Value (This => Current_Tag_V.Enum_V,
                                                    Text => Tag_Value);
+                  when Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
+                     Vk.External_Sync_Parameter_Shared_Ptr.Set_XML_Value (This => Current_Tag_V.External_Sync_Parameter_V,
+                                                                          Text => Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Registry |
                        Current_Tag_Fs.Tag_Id.Vendor_Ids |
                        Current_Tag_Fs.Tag_Id.Vendor_Id |
@@ -1151,7 +1205,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Commands |
                        Current_Tag_Fs.Tag_Id.Command |
                        Current_Tag_Fs.Tag_Id.Proto |
-                       Current_Tag_Fs.Tag_Id.Param =>
+                       Current_Tag_Fs.Tag_Id.Param |
+                       Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
                end case;
             end;
@@ -1261,7 +1316,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Commands |
                  Current_Tag_Fs.Tag_Id.Command |
                  Current_Tag_Fs.Tag_Id.Proto |
-                 Current_Tag_Fs.Tag_Id.Param=>
+                 Current_Tag_Fs.Tag_Id.Param |
+                 Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters |
+                 Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;
       end;

@@ -803,11 +803,28 @@ package body Vk with SPARK_Mode is
 
    package body External_Sync_Parameter with SPARK_Mode is
 
+      procedure Set_XML_Value (This : in out T;
+                               Text : String)
+      is
+         XML_Value_V : Mutable_XML_Value.Mutable_T;
+      begin
+         Initialize (This => XML_Value_V,
+                     Text => Text);
+         This.My_XML_Value := (Exists => True, Value => XML_Value_V);
+      end Set_XML_Value;
+
    end External_Sync_Parameter;
 
    package body External_Sync_Parameter_Shared_Ptr with SPARK_Mode => Off is
 
       use all type External_Sync_Parameter.T;
+
+      procedure Set_XML_Value (This : in out T;
+                               Text : String) is
+      begin
+         Set_XML_Value (This => Smart_Pointers.Value (This.SP).all,
+                        Text => Text);
+      end Set_XML_Value;
 
    end External_Sync_Parameter_Shared_Ptr;
 

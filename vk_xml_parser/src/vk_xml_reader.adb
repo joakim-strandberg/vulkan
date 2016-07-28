@@ -67,6 +67,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Command                                  : constant String := "command";
    XML_Tag_Command_Attribute_Success_Codes          : constant String := "successcodes";
    XML_Tag_Command_Attribute_Error_Codes            : constant String := "errorcodes";
+   XML_Tag_Command_Attribute_Queues                 : constant String := "queues";
    XML_Tag_Proto                                    : constant String := "proto";
    XML_Tag_Param                                    : constant String := "param";
    XML_Tag_Param_Attribute_Optional                 : constant String := "optional";
@@ -105,6 +106,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Commands_Shared_Ptr.T;
    use all type Vk.Command_Shared_Ptr.T;
    use all type Vk.Command.Fs.Child_Kind_Id_T;
+   use all type Vk.Command.Fs.Queue_T;
    use all type Vk.Proto.Fs.Child_Kind_Id_T;
    use all type Vk.Proto_Shared_Ptr.T;
    use all type Vk.Param.Fs.Child_Kind_Id_T;
@@ -1059,6 +1061,13 @@ package body Vk_XML_Reader with SPARK_Mode is
                elsif Attribute_Name = XML_Tag_Command_Attribute_Error_Codes then
                   Append_Error_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several error codes later
                                      Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Queues then
+                  if Attribute_Value = "sparse_binding" then
+                     Append_Queue (This  => Current_Tag_V.Command_V,
+                                   Queue => Sparse_Binding);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

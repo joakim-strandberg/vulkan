@@ -885,6 +885,13 @@ package body Vk with SPARK_Mode is
                                   New_Item  => Child);
       end Append_Child;
 
+      procedure Append_Queue (This  : in out T;
+                              Queue : Fs.Queue_T) is
+      begin
+         Append (Container => This.My_Queues,
+                 New_Item  => Queue);
+      end Append_Queue;
+
    end Command;
 
    package body Command_Shared_Ptr with SPARK_Mode => Off is
@@ -911,6 +918,13 @@ package body Vk with SPARK_Mode is
          Append_Child (This  => Smart_Pointers.Value (This.SP).all,
                        Child => Child);
       end Append_Child;
+
+      procedure Append_Queue (This  : in out T;
+                              Queue : Command.Fs.Queue_T) is
+      begin
+         Append_Queue (This  => Smart_Pointers.Value (This.SP).all,
+                       Queue => Queue);
+      end Append_Queue;
 
    end Command_Shared_Ptr;
 

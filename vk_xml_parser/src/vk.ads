@@ -2282,6 +2282,15 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         type Queue_T is (Sparse_Binding,
+                          Graphics,
+                          Compute);
+
+         package Queue_Vector is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                               Element_Type => Queue_T,
+                                                                               "="          => "=",
+                                                                               Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2295,6 +2304,9 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Queues (This : T) return Fs.Queue_Vector.Immutable_T with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
@@ -2305,6 +2317,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
+        Global => null;
+
+      procedure Append_Queue (This  : in out T;
+                              Queue : Fs.Queue_T) with
         Global => null;
 
    private
@@ -2327,11 +2343,16 @@ package Vk with SPARK_Mode is
 
       package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
 
+      package Mutable_Queue_Vector is new Fs.Queue_Vector.Generic_Mutable_Vector;
+
+      use all type Mutable_Queue_Vector.T;
+
       type T is limited
          record
             My_Success_Codes : Mutable_Success_Code_Vector.T (10);
             My_Error_Codes   : Mutable_Error_Code_Vector.T (10);
             My_Children      : Mutable_Children.T (10);
+            My_Queues        : Mutable_Queue_Vector.T (5);
          end record;
 
       function Success_Codes (This : T) return Fs.Success_Code_Vector.Immutable_T is (Fs.Success_Code_Vector.Immutable_T (This.My_Success_Codes));
@@ -2339,6 +2360,8 @@ package Vk with SPARK_Mode is
       function Error_Codes (This : T) return Fs.Error_Code_Vector.Immutable_T is (Fs.Error_Code_Vector.Immutable_T (This.My_Error_Codes));
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+      function Queues (This : T) return Fs.Queue_Vector.Immutable_T is (Fs.Queue_Vector.Immutable_T (This.My_Queues));
 
    end Command;
 
@@ -2367,6 +2390,10 @@ package Vk with SPARK_Mode is
                               Child : Command.Fs.Child_T) with
         Global => null;
 
+      procedure Append_Queue (This  : in out T;
+                              Queue : Command.Fs.Queue_T) with
+        Global => null;
+
    private
       pragma SPARK_Mode (Off);
 
@@ -2387,6 +2414,8 @@ package Vk with SPARK_Mode is
       function Error_Codes (This : T) return Command.Fs.Error_Code_Vector.Immutable_T is (Error_Codes (Smart_Pointers.Value (This.SP).all));
 
       function Children (This : T) return Command.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function Queues (This : T) return Command.Fs.Queue_Vector.Immutable_T is (Queues (Smart_Pointers.Value (This.SP).all));
 
    end Command_Shared_Ptr;
 

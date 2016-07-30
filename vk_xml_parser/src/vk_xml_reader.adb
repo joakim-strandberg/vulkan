@@ -85,12 +85,17 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Require                                  : constant String := "require";
    XML_Tag_Require_Attribute_Comment                : constant String := "comment";
    XML_Tag_Require_Enum_Attribute_Name              : constant String := "name";
+   XML_Tag_Require_Enum_Attribute_Value             : constant String := "value";
+   XML_Tag_Require_Enum_Attribute_Offset            : constant String := "offset";
+   XML_Tag_Require_Enum_Attribute_Dir               : constant String := "dir";
+   XML_Tag_Require_Enum_Attribute_Extends           : constant String := "extends";
    XML_Tag_Require_Command_Attribute_Name           : constant String := "name";
    XML_Tag_Extensions                               : constant String := "extensions";
    XML_Tag_Extension                                : constant String := "extension";
    XML_Tag_Extension_Attribute_Name                 : constant String := "name";
    XML_Tag_Extension_Attribute_Number               : constant String := "number";
    XML_Tag_Extension_Attribute_Supported            : constant String := "supported";
+   XML_Tag_Extension_Attribute_Protect              : constant String := "protect";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -1367,6 +1372,31 @@ package body Vk_XML_Reader with SPARK_Mode is
                if Attribute_Name = XML_Tag_Require_Enum_Attribute_Name then
                   Set_Name (This => Current_Tag_V.Require_Enum_V,
                             Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Value then
+                  Set_Value (This => Current_Tag_V.Require_Enum_V,
+                             Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Offset then
+                  declare
+                     V : Integer;
+                     Has_Failed : Boolean;
+                  begin
+                     Std_String.To_Integer (Source     => Attribute_Value,
+                                            Target     => V,
+                                            Has_Failed => Has_Failed);
+
+                     if Has_Failed then
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     else
+                        Set_Offset (This => Current_Tag_V.Require_Enum_V,
+                                    Value => Vk.Require_Enum.Fs.Offset_T (V));
+                     end if;
+                  end;
+               elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Dir then
+                  Set_Dir (This => Current_Tag_V.Require_Enum_V,
+                           Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Extends then
+                  Set_Extends (This => Current_Tag_V.Require_Enum_V,
+                               Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
@@ -1407,6 +1437,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
+               elsif Attribute_Name = XML_Tag_Extension_Attribute_Protect then
+                  Set_Protect (This => Current_Tag_V.Extension_V,
+                               Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;

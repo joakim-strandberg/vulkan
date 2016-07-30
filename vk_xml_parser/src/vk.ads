@@ -3295,6 +3295,16 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         package Protect is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Protect_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Protect.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -3309,6 +3319,9 @@ package Vk with SPARK_Mode is
         Global => null;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      function Protect (This : T) return Fs.Nullable_Protect_T with
         Global => null;
 
       procedure Set_Name (This : in out T;
@@ -3327,6 +3340,10 @@ package Vk with SPARK_Mode is
                               Child : Fs.Child_T) with
         Global => null;
 
+      procedure Set_Protect (This : in out T;
+                             Text : String) with
+        Global => null;
+
    private
 
       package Mutable_Name is new Fs.Name.Mutable;
@@ -3343,12 +3360,25 @@ package Vk with SPARK_Mode is
 
       package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
 
+      package Mutable_Protect is new Fs.Protect.Mutable;
+
+      use all type Mutable_Protect.Mutable_T;
+
+      type Nullable_Mutable_Protect_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Protect.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Name      : Nullable_Mutable_Name_T;
             My_Number    : Fs.Nullable_Number_T;
             My_Supported : Fs.Nullable_Supported_T;
             My_Children  : Mutable_Children.T (20);
+            My_Protect   : Nullable_Mutable_Protect_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -3361,6 +3391,11 @@ package Vk with SPARK_Mode is
       function Supported (This : T) return Fs.Nullable_Supported_T is (This.My_Supported);
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+      function Protect (This : T) return Fs.Nullable_Protect_T is (if This.My_Protect.Exists then
+                                                                     (Exists => True, Value => Fs.Protect.T (This.My_Protect.Value))
+                                                                   else
+                                                                     (Exists => False));
 
    end Extension;
 
@@ -3380,6 +3415,9 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Extension.Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Protect (This : T) return Extension.Fs.Nullable_Protect_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -3394,6 +3432,10 @@ package Vk with SPARK_Mode is
 
       procedure Append_Child (This  : in out T;
                               Child : Extension.Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Protect (This : in out T;
+                             Text : String) with
         Global => null;
 
    private
@@ -3418,6 +3460,8 @@ package Vk with SPARK_Mode is
       function Supported (This : T) return Extension.Fs.Nullable_Supported_T is (Supported (Smart_Pointers.Value (This.SP).all));
 
       function Children (This : T) return Extension.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function Protect (This : T) return Extension.Fs.Nullable_Protect_T is (Protect (Smart_Pointers.Value (This.SP).all));
 
    end Extension_Shared_Ptr;
 

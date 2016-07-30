@@ -1258,6 +1258,16 @@ package body Vk with SPARK_Mode is
                                   New_Item  => Child);
       end Append_Child;
 
+      procedure Set_Protect (This : in out T;
+                             Text : String)
+      is
+         Protect_V : Mutable_Protect.Mutable_T;
+      begin
+         Initialize (This => Protect_V,
+                     Text => Text);
+         This.My_Protect := (Exists => True, Value => Protect_V);
+      end Set_Protect;
+
    end Extension;
 
    package body Extension_Shared_Ptr with SPARK_Mode => Off is
@@ -1291,6 +1301,13 @@ package body Vk with SPARK_Mode is
          Append_Child (This  => Smart_Pointers.Value (This.SP).all,
                        Child => Child);
       end Append_Child;
+
+      procedure Set_Protect (This : in out T;
+                             Text : String) is
+      begin
+         Set_Protect (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Protect;
 
    end Extension_Shared_Ptr;
 

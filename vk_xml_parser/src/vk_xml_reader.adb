@@ -89,6 +89,8 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Extensions                               : constant String := "extensions";
    XML_Tag_Extension                                : constant String := "extension";
    XML_Tag_Extension_Attribute_Name                 : constant String := "name";
+   XML_Tag_Extension_Attribute_Number               : constant String := "number";
+   XML_Tag_Extension_Attribute_Supported            : constant String := "supported";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -136,6 +138,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Require_Enum_Shared_Ptr.T;
    use all type Vk.Require_Command_Shared_Ptr.T;
    use all type Vk.Extension.Fs.Child_Kind_Id_T;
+   use all type Vk.Extension.Fs.Supported_T;
    use all type Vk.Extension_Shared_Ptr.T;
    use all type Vk.Extensions.Fs.Child_Kind_Id_T;
    use all type Vk.Extensions_Shared_Ptr.T;
@@ -1378,6 +1381,32 @@ package body Vk_XML_Reader with SPARK_Mode is
                if Attribute_Name = XML_Tag_Extension_Attribute_Name then
                   Set_Name (This => Current_Tag_V.Extension_V,
                             Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Extension_Attribute_Number then
+                  declare
+                     V : Integer;
+                     Has_Failed : Boolean;
+                  begin
+                     Std_String.To_Integer (Source     => Attribute_Value,
+                                            Target     => V,
+                                            Has_Failed => Has_Failed);
+
+                     if Has_Failed then
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     else
+                        Set_Number (This  => Current_Tag_V.Extension_V,
+                                    Value => Vk.Extension.Fs.Number_T (V));
+                     end if;
+                  end;
+               elsif Attribute_Name = XML_Tag_Extension_Attribute_Supported then
+                  if Attribute_Value = "vulkan" then
+                     Set_Supported (This  => Current_Tag_V.Extension_V,
+                                    Value => Vulkan);
+                  elsif Attribute_Value = "disabled" then
+                     Set_Supported (This  => Current_Tag_V.Extension_V,
+                                    Value => Disabled);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  end if;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
@@ -1620,6 +1649,17 @@ package body Vk_XML_Reader with SPARK_Mode is
                   Append_Child (This  => Current_Tag_V.Require_V,
                                 Child => Child);
                end;
+            when Current_Tag_Fs.Tag_Id.Extensions =>
+               declare
+                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
+                  Child : Vk.Extensions.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                       Out_Commented_Message_V => Vk.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+               begin
+                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
+                                                                           Text => Value);
+                  Append_Child (This  => Current_Tag_V.Extensions_V,
+                                Child => Child);
+               end;
             when Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
                  Current_Tag_Fs.Tag_Id.Vendor_Id |
@@ -1642,7 +1682,6 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Feature |
                  Current_Tag_Fs.Tag_Id.Require_Enum |
                  Current_Tag_Fs.Tag_Id.Require_Command |
-                 Current_Tag_Fs.Tag_Id.Extensions |
                  Current_Tag_Fs.Tag_Id.Extension =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;

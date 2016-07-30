@@ -36,6 +36,7 @@ package Current_Tag with SPARK_Mode is
          when Feature                           => Feature_V                 : Vk.Feature_Shared_Ptr.T;
          when Require                           => Require_V                 : Vk.Require_Shared_Ptr.T;
          when Require_Enum                      => Require_Enum_V            : Vk.Require_Enum_Shared_Ptr.T;
+         when Require_Command                   => Require_Command_V         : Vk.Require_Command_Shared_Ptr.T;
       end case;
    end record;
 

@@ -996,6 +996,33 @@ package body Vk with SPARK_Mode is
 
    end Require_Enum_Shared_Ptr;
 
+   package body Require_Command with SPARK_Mode is
+
+      procedure Set_Name (This : in out T;
+                          Text : String)
+      is
+         Name_V : Mutable_Name.Mutable_T;
+      begin
+         Initialize (This => Name_V,
+                     Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+   end Require_Command;
+
+   package body Require_Command_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Require_Command.T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+   end Require_Command_Shared_Ptr;
+
    package body Require with SPARK_Mode is
 
       procedure Set_Comment (This : in out T;

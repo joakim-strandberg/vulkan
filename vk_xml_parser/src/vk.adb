@@ -981,6 +981,32 @@ package body Vk with SPARK_Mode is
          This.My_Name := (Exists => True, Value => Name_V);
       end Set_Name;
 
+      procedure Set_Value (This : in out T;
+                           Text : String)
+      is
+         Value_V : Mutable_Value.Mutable_T;
+      begin
+         Initialize (This => Value_V,
+                     Text => Text);
+         This.My_Value := (Exists => True, Value => Value_V);
+      end Set_Value;
+
+      procedure Set_Offset (This : in out T;
+                            Value : Fs.Offset_T) is
+      begin
+         This.My_Offset := (Exists => True, Value => Value);
+      end Set_Offset;
+
+      procedure Set_Dir (This : in out T;
+                         Text : String)
+      is
+         Dir_V : Mutable_Dir.Mutable_T;
+      begin
+         Initialize (This => Dir_V,
+                     Text => Text);
+         This.My_Dir := (Exists => True, Value => Dir_V);
+      end Set_Dir;
+
    end Require_Enum;
 
    package body Require_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -993,6 +1019,27 @@ package body Vk with SPARK_Mode is
          Set_Name (This => Smart_Pointers.Value (This.SP).all,
                    Text => Text);
       end Set_Name;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) is
+      begin
+         Set_Value (This => Smart_Pointers.Value (This.SP).all,
+                    Text => Text);
+      end Set_Value;
+
+      procedure Set_Offset (This : in out T;
+                            Value : Require_Enum.Fs.Offset_T) is
+      begin
+         Set_Offset (This => Smart_Pointers.Value (This.SP).all,
+                     Value => Value);
+      end Set_Offset;
+
+      procedure Set_Dir (This : in out T;
+                         Text : String) is
+      begin
+         Set_Dir (This => Smart_Pointers.Value (This.SP).all,
+                  Text => Text);
+      end Set_Dir;
 
    end Require_Enum_Shared_Ptr;
 

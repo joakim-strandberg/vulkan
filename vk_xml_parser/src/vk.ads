@@ -2606,6 +2606,36 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Value is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Value_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value_V : Value.T;
+                  when False => null;
+               end case;
+            end record;
+
+         type Offset_T is new Natural range 0..10;
+
+         type Nullable_Offset_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Offset_T;
+               when False => null;
+               end case;
+            end record;
+
+         package Dir is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Dir_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Dir.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2613,8 +2643,29 @@ package Vk with SPARK_Mode is
       function Name (This : T) return Fs.Nullable_Name_T with
         Global => null;
 
+      function Value (This : T) return Fs.Nullable_Value_T with
+        Global => null;
+
+      function Offset (This : T) return Fs.Nullable_Offset_T with
+        Global => null;
+
+      function Dir (This : T) return Fs.Nullable_Dir_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
+        Global => null;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) with
+        Global => null;
+
+      procedure Set_Offset (This  : in out T;
+                            Value : Fs.Offset_T) with
+        Global => null;
+
+      procedure Set_Dir (This : in out T;
+                         Text : String) with
         Global => null;
 
    private
@@ -2631,15 +2682,54 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
-      type T is limited
+      package Mutable_Value is new Fs.Value.Mutable;
+
+      use all type Mutable_Value.Mutable_T;
+
+      type Nullable_Mutable_Value_T (Exists : Boolean := False) is
          record
-            My_Name : Nullable_Mutable_Name_T;
+            case Exists is
+               when True  => Value : Mutable_Value.Mutable_T;
+               when False => null;
+            end case;
          end record;
 
-         function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
-                                                                  (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
-                                                                else
-                                                                  (Exists => False));
+      package Mutable_Dir is new Fs.Dir.Mutable;
+
+      use all type Mutable_Dir.Mutable_T;
+
+      type Nullable_Mutable_Dir_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Dir.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Name   : Nullable_Mutable_Name_T;
+            My_Value  : Nullable_Mutable_Value_T;
+            My_Offset : Fs.Nullable_Offset_T;
+            My_Dir    : Nullable_Mutable_Dir_T;
+         end record;
+
+      function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                               (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                             else
+                                                               (Exists => False));
+
+      function Value (This : T) return Fs.Nullable_Value_T is (if This.My_Value.Exists then
+                                                                 (Exists => True, Value_V => Fs.Value.T (This.My_Value.Value))
+                                                               else
+                                                                 (Exists => False));
+
+      function Offset (This : T) return Fs.Nullable_Offset_T is (This.My_Offset);
+
+      function Dir (This : T) return Fs.Nullable_Dir_T is (if This.My_Dir.Exists then
+                                                             (Exists => True, Value => Fs.Dir.T (This.My_Dir.Value))
+                                                           else
+                                                             (Exists => False));
 
    end Require_Enum;
 
@@ -2650,8 +2740,29 @@ package Vk with SPARK_Mode is
       function Name (This : T) return Require_Enum.Fs.Nullable_Name_T with
         Global => null;
 
+      function Value (This : T) return Require_Enum.Fs.Nullable_Value_T with
+        Global => null;
+
+      function Offset (This : T) return Require_Enum.Fs.Nullable_Offset_T with
+        Global => null;
+
+      function Dir (This : T) return Require_Enum.Fs.Nullable_Dir_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
+        Global => null;
+
+      procedure Set_Value (This : in out T;
+                           Text : String) with
+        Global => null;
+
+      procedure Set_Offset (This  : in out T;
+                            Value : Require_Enum.Fs.Offset_T) with
+        Global => null;
+
+      procedure Set_Dir (This : in out T;
+                         Text : String) with
         Global => null;
 
    private
@@ -2670,6 +2781,12 @@ package Vk with SPARK_Mode is
          end record;
 
       function Name (This : T) return Require_Enum.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+      function Value (This : T) return Require_Enum.Fs.Nullable_Value_T is (Value (Smart_Pointers.Value (This.SP).all));
+
+      function Offset (This : T) return Require_Enum.Fs.Nullable_Offset_T is (Offset (Smart_Pointers.Value (This.SP).all));
+
+      function Dir (This : T) return Require_Enum.Fs.Nullable_Dir_T is (Dir (Smart_Pointers.Value (This.SP).all));
 
    end Require_Enum_Shared_Ptr;
 

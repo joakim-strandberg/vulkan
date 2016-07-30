@@ -127,6 +127,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Feature.Fs.Child_Kind_Id_T;
    use all type Vk.Feature_Shared_Ptr.T;
    use all type Vk.Require_Shared_Ptr.T;
+   use all type Vk.Require.Fs.Child_Kind_Id_T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -941,6 +942,30 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
+               when Current_Tag_Fs.Tag_Id.Require =>
+                  if Tag_Name = XML_Tag_Type then
+                     declare
+                        Type_V : Vk.Type_Shared_Ptr.T;
+                        Child : Vk.Require.Fs.Child_T := (Kind_Id => Child_Type,
+                                                          Type_V  => Type_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Type_T);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Type_V := Type_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Require_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
                when Current_Tag_Fs.Tag_Id.Comment |
                     Current_Tag_Fs.Tag_Id.Vendor_Id |
                     Current_Tag_Fs.Tag_Id.Tag |
@@ -950,8 +975,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                     Current_Tag_Fs.Tag_Id.Enum |
                     Current_Tag_Fs.Tag_Id.Enums_Enum |
                     Current_Tag_Fs.Tag_Id.Unused |
-                    Current_Tag_Fs.Tag_Id.External_Sync_Parameter |
-                    Current_Tag_Fs.Tag_Id.Require =>
+                    Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
             end case;
          end;

@@ -981,6 +981,13 @@ package body Vk with SPARK_Mode is
          This.My_Comment := (Exists => True, Value => Comment_V);
       end Set_Comment;
 
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
    end Require;
 
    package body Require_Shared_Ptr with SPARK_Mode => Off is
@@ -993,6 +1000,13 @@ package body Vk with SPARK_Mode is
          Set_Comment (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Comment;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Require.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
 
    end Require_Shared_Ptr;
 

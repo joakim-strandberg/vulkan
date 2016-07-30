@@ -2606,6 +2606,21 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         type Child_Kind_Id_T is (
+                                  Child_Type
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
+            case Kind_Id is
+              when Child_Type        => Type_V        : aliased Vk.Type_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2613,8 +2628,15 @@ package Vk with SPARK_Mode is
       function Comment (This : T) return Fs.Nullable_Comment_T with
         Global => null;
 
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Set_Comment (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
         Global => null;
 
    private
@@ -2631,15 +2653,20 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
       type T is limited
          record
-            My_Comment : Nullable_Mutable_Comment_T;
+            My_Comment  : Nullable_Mutable_Comment_T;
+            My_Children : Mutable_Children.T (10);
          end record;
 
       function Comment (This : T) return Fs.Nullable_Comment_T is (if This.My_Comment.Exists then
                                                                      (Exists => True, Value => Fs.Comment.T (This.My_Comment.Value))
                                                                    else
                                                                      (Exists => False));
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
 
    end Require;
 
@@ -2650,8 +2677,15 @@ package Vk with SPARK_Mode is
       function Comment (This : T) return Require.Fs.Nullable_Comment_T with
         Global => null;
 
+      function Children (This : T) return Require.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Set_Comment (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Require.Fs.Child_T) with
         Global => null;
 
    private
@@ -2670,6 +2704,8 @@ package Vk with SPARK_Mode is
          end record;
 
       function Comment (This : T) return Require.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
+
+      function Children (This : T) return Require.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 
    end Require_Shared_Ptr;
 

@@ -55,6 +55,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                null;
             when Child_Feature =>
                null;
+            when Child_Extensions =>
+               null;
          end case;
       end loop;
    end Create_Vk_Package;

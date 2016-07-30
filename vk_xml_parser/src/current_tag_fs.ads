@@ -31,7 +31,9 @@ package Current_Tag_Fs with SPARK_Mode is
                              Feature,
                              Require,
                              Require_Enum,
-                             Require_Command
+                             Require_Command,
+                             Extensions,
+                             Extension
                             );
 
    end Tag_Id;

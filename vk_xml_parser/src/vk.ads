@@ -2636,6 +2636,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Extends is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Extends_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Extends.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2652,6 +2662,9 @@ package Vk with SPARK_Mode is
       function Dir (This : T) return Fs.Nullable_Dir_T with
         Global => null;
 
+      function Extends (This : T) return Fs.Nullable_Extends_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -2666,6 +2679,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Dir (This : in out T;
                          Text : String) with
+        Global => null;
+
+      procedure Set_Extends (This : in out T;
+                             Text : String) with
         Global => null;
 
    private
@@ -2706,12 +2723,25 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Extends is new Fs.Extends.Mutable;
+
+      use all type Mutable_Extends.Mutable_T;
+
+      type Nullable_Mutable_Extends_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Extends.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
-            My_Name   : Nullable_Mutable_Name_T;
-            My_Value  : Nullable_Mutable_Value_T;
-            My_Offset : Fs.Nullable_Offset_T;
-            My_Dir    : Nullable_Mutable_Dir_T;
+            My_Name    : Nullable_Mutable_Name_T;
+            My_Value   : Nullable_Mutable_Value_T;
+            My_Offset  : Fs.Nullable_Offset_T;
+            My_Dir     : Nullable_Mutable_Dir_T;
+            My_Extends : Nullable_Mutable_Extends_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -2731,6 +2761,11 @@ package Vk with SPARK_Mode is
                                                            else
                                                              (Exists => False));
 
+      function Extends (This : T) return Fs.Nullable_Extends_T is (if This.My_Extends.Exists then
+                                                                     (Exists => True, Value => Fs.Extends.T (This.My_Extends.Value))
+                                                                   else
+                                                                     (Exists => False));
+
    end Require_Enum;
 
    package Require_Enum_Shared_Ptr with SPARK_Mode is
@@ -2749,6 +2784,9 @@ package Vk with SPARK_Mode is
       function Dir (This : T) return Require_Enum.Fs.Nullable_Dir_T with
         Global => null;
 
+      function Extends (This : T) return Require_Enum.Fs.Nullable_Extends_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -2763,6 +2801,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Dir (This : in out T;
                          Text : String) with
+        Global => null;
+
+      procedure Set_Extends (This : in out T;
+                             Text : String) with
         Global => null;
 
    private
@@ -2787,6 +2829,8 @@ package Vk with SPARK_Mode is
       function Offset (This : T) return Require_Enum.Fs.Nullable_Offset_T is (Offset (Smart_Pointers.Value (This.SP).all));
 
       function Dir (This : T) return Require_Enum.Fs.Nullable_Dir_T is (Dir (Smart_Pointers.Value (This.SP).all));
+
+      function Extends (This : T) return Require_Enum.Fs.Nullable_Extends_T is (Extends (Smart_Pointers.Value (This.SP).all));
 
    end Require_Enum_Shared_Ptr;
 
@@ -3236,6 +3280,21 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         type Child_Kind_Id_T is (
+                                  Child_Require
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
+            case Kind_Id is
+               when Child_Require => Require_V : aliased Vk.Require_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -3249,6 +3308,9 @@ package Vk with SPARK_Mode is
       function Supported (This : T) return Fs.Nullable_Supported_T with
         Global => null;
 
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -3259,6 +3321,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Supported (This  : in out T;
                                Value : Fs.Supported_T) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
         Global => null;
 
    private
@@ -3275,11 +3341,14 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
       type T is limited
          record
             My_Name      : Nullable_Mutable_Name_T;
             My_Number    : Fs.Nullable_Number_T;
             My_Supported : Fs.Nullable_Supported_T;
+            My_Children  : Mutable_Children.T (20);
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -3290,6 +3359,8 @@ package Vk with SPARK_Mode is
       function Number (This : T) return Fs.Nullable_Number_T is (This.My_Number);
 
       function Supported (This : T) return Fs.Nullable_Supported_T is (This.My_Supported);
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
 
    end Extension;
 
@@ -3306,6 +3377,9 @@ package Vk with SPARK_Mode is
       function Supported (This : T) return Extension.Fs.Nullable_Supported_T with
         Global => null;
 
+      function Children (This : T) return Extension.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -3316,6 +3390,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Supported (This  : in out T;
                                Value : Extension.Fs.Supported_T) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Extension.Fs.Child_T) with
         Global => null;
 
    private
@@ -3338,6 +3416,8 @@ package Vk with SPARK_Mode is
       function Number (This : T) return Extension.Fs.Nullable_Number_T is (Number (Smart_Pointers.Value (This.SP).all));
 
       function Supported (This : T) return Extension.Fs.Nullable_Supported_T is (Supported (Smart_Pointers.Value (This.SP).all));
+
+      function Children (This : T) return Extension.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 
    end Extension_Shared_Ptr;
 
@@ -3427,7 +3507,8 @@ package Vk with SPARK_Mode is
                                   Child_Types,
                                   Child_Enums,
                                   Child_Commands,
-                                  Child_Feature
+                                  Child_Feature,
+                                  Child_Extensions
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
@@ -3440,6 +3521,7 @@ package Vk with SPARK_Mode is
                when Child_Enums                 => Enums_V                 : aliased Vk.Enums_Shared_Ptr.T;
                when Child_Commands              => Commands_V              : aliased Vk.Commands_Shared_Ptr.T;
                when Child_Feature               => Feature_V               : aliased Vk.Feature_Shared_Ptr.T;
+               when Child_Extensions            => Extensions_V            : aliased Vk.Extensions_Shared_Ptr.T;
             end case;
          end record;
 

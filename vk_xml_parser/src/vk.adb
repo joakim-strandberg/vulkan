@@ -1007,6 +1007,16 @@ package body Vk with SPARK_Mode is
          This.My_Dir := (Exists => True, Value => Dir_V);
       end Set_Dir;
 
+      procedure Set_Extends (This : in out T;
+                             Text : String)
+      is
+         Extends_V : Mutable_Extends.Mutable_T;
+      begin
+         Initialize (This => Extends_V,
+                     Text => Text);
+         This.My_Extends := (Exists => True, Value => Extends_V);
+      end Set_Extends;
+
    end Require_Enum;
 
    package body Require_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -1040,6 +1050,13 @@ package body Vk with SPARK_Mode is
          Set_Dir (This => Smart_Pointers.Value (This.SP).all,
                   Text => Text);
       end Set_Dir;
+
+      procedure Set_Extends (This : in out T;
+                             Text : String) is
+      begin
+         Set_Extends (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Extends;
 
    end Require_Enum_Shared_Ptr;
 
@@ -1234,6 +1251,13 @@ package body Vk with SPARK_Mode is
          This.My_Supported := (Exists => True, Value => Value);
       end Set_Supported;
 
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
    end Extension;
 
    package body Extension_Shared_Ptr with SPARK_Mode => Off is
@@ -1260,6 +1284,13 @@ package body Vk with SPARK_Mode is
          Set_Supported (This => Smart_Pointers.Value (This.SP).all,
                         Value => Value);
       end Set_Supported;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Extension.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
 
    end Extension_Shared_Ptr;
 

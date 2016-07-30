@@ -86,6 +86,9 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Require_Attribute_Comment                : constant String := "comment";
    XML_Tag_Require_Enum_Attribute_Name              : constant String := "name";
    XML_Tag_Require_Command_Attribute_Name           : constant String := "name";
+   XML_Tag_Extensions                               : constant String := "extensions";
+   XML_Tag_Extension                                : constant String := "extension";
+   XML_Tag_Extension_Attribute_Name                 : constant String := "name";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -132,6 +135,10 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Require.Fs.Child_Kind_Id_T;
    use all type Vk.Require_Enum_Shared_Ptr.T;
    use all type Vk.Require_Command_Shared_Ptr.T;
+   use all type Vk.Extension.Fs.Child_Kind_Id_T;
+   use all type Vk.Extension_Shared_Ptr.T;
+   use all type Vk.Extensions.Fs.Child_Kind_Id_T;
+   use all type Vk.Extensions_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
 
@@ -402,6 +409,25 @@ package body Vk_XML_Reader with SPARK_Mode is
                      begin
                         Temp_Tag.Parent_Tag := Prev_Tag.Id;
                         Temp_Tag.Feature_V := Feature_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Vk.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
+                                                             Child => Child);
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  elsif Tag_Name = XML_Tag_Extensions then
+                     declare
+                        Extensions_V : Vk.Extensions_Shared_Ptr.T;
+                        Child : Vk.Registry.Fs.Child_T := (Kind_Id   => Child_Extensions,
+                                                           Extensions_V => Extensions_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Extensions);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Extensions_V := Extensions_V;
 
                         Current_Tag.Initialize (Temp_Tag);
 
@@ -1010,6 +1036,54 @@ package body Vk_XML_Reader with SPARK_Mode is
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
                   end if;
+               when Current_Tag_Fs.Tag_Id.Extensions =>
+                  if Tag_Name = XML_Tag_Extension then
+                     declare
+                        Extension_V : Vk.Extension_Shared_Ptr.T;
+                        Child : Vk.Extensions.Fs.Child_T := (Kind_Id     => Child_Extension,
+                                                             Extension_V => Extension_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Extension);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Extension_V := Extension_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Extensions_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
+               when Current_Tag_Fs.Tag_Id.Extension =>
+                  if Tag_Name = XML_Tag_Require then
+                     declare
+                        Require_V : Vk.Require_Shared_Ptr.T;
+                        Child : Vk.Extension.Fs.Child_T := (Kind_Id   => Child_Require,
+                                                            Require_V => Require_V);
+
+                        Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Require);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Require_V := Require_V;
+
+                        Current_Tag.Initialize (Temp_Tag);
+
+                        Append_Child (This  => Prev_Tag.Extension_V,
+                                      Child => Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
+                  end if;
                when Current_Tag_Fs.Tag_Id.Comment |
                     Current_Tag_Fs.Tag_Id.Vendor_Id |
                     Current_Tag_Fs.Tag_Id.Tag |
@@ -1300,6 +1374,13 @@ package body Vk_XML_Reader with SPARK_Mode is
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
+            when Current_Tag_Fs.Tag_Id.Extension =>
+               if Attribute_Name = XML_Tag_Extension_Attribute_Name then
+                  Set_Name (This => Current_Tag_V.Extension_V,
+                            Text => Attribute_Value);
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               end if;
             when Current_Tag_Fs.Tag_Id.Registry |
                  Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
@@ -1313,7 +1394,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Commands |
                  Current_Tag_Fs.Tag_Id.Proto |
                  Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters |
-                 Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
+                 Current_Tag_Fs.Tag_Id.External_Sync_Parameter |
+                 Current_Tag_Fs.Tag_Id.Extensions =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
          end case;
       end;
@@ -1431,7 +1513,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Feature |
                        Current_Tag_Fs.Tag_Id.Require |
                        Current_Tag_Fs.Tag_Id.Require_Enum |
-                       Current_Tag_Fs.Tag_Id.Require_Command =>
+                       Current_Tag_Fs.Tag_Id.Require_Command |
+                       Current_Tag_Fs.Tag_Id.Extensions |
+                       Current_Tag_Fs.Tag_Id.Extension =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
                end case;
             end;
@@ -1557,7 +1641,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.External_Sync_Parameter |
                  Current_Tag_Fs.Tag_Id.Feature |
                  Current_Tag_Fs.Tag_Id.Require_Enum |
-                 Current_Tag_Fs.Tag_Id.Require_Command =>
+                 Current_Tag_Fs.Tag_Id.Require_Command |
+                 Current_Tag_Fs.Tag_Id.Extensions |
+                 Current_Tag_Fs.Tag_Id.Extension =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
          end case;
       end;

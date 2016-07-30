@@ -27,7 +27,9 @@ package Current_Tag_Fs with SPARK_Mode is
                              Proto,
                              Param,
                              Implicit_External_Sync_Parameters,
-                             External_Sync_Parameter
+                             External_Sync_Parameter,
+                             Feature,
+                             Require
                             );
 
    end Tag_Id;

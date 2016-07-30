@@ -306,8 +306,8 @@ package Vk with SPARK_Mode is
          type Nullable_Value_T (Exists : Boolean := False) is
             record
                case Exists is
-               when True  => Value_V : Value.T;
-               when False => null;
+                  when True  => Value_V : Value.T;
+                  when False => null;
                end case;
             end record;
 
@@ -2120,7 +2120,6 @@ package Vk with SPARK_Mode is
 
       package Fs is
 
-         -- Put in the Fields package
          package XML_Value is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
 
          type Nullable_XML_Value_T (Exists : Boolean := False) is
@@ -2708,7 +2707,6 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
-         -- Put in the Fields package
          type Child_Kind_Id_T is (
                                   Child_Require
                                  );
@@ -2890,7 +2888,8 @@ package Vk with SPARK_Mode is
                                   Child_Tags,
                                   Child_Types,
                                   Child_Enums,
-                                  Child_Commands
+                                  Child_Commands,
+                                  Child_Feature
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
@@ -2902,6 +2901,7 @@ package Vk with SPARK_Mode is
                when Child_Types                 => Types_V                 : aliased Vk.Types_Shared_Ptr.T;
                when Child_Enums                 => Enums_V                 : aliased Vk.Enums_Shared_Ptr.T;
                when Child_Commands              => Commands_V              : aliased Vk.Commands_Shared_Ptr.T;
+               when Child_Feature               => Feature_V               : aliased Vk.Feature_Shared_Ptr.T;
             end case;
          end record;
 

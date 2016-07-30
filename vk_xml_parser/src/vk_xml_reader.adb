@@ -96,6 +96,8 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Extension_Attribute_Number               : constant String := "number";
    XML_Tag_Extension_Attribute_Supported            : constant String := "supported";
    XML_Tag_Extension_Attribute_Protect              : constant String := "protect";
+   XML_Tag_Extension_Attribute_Author               : constant String := "author";
+   XML_Tag_Extension_Attribute_Contact              : constant String := "contact";
 
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
@@ -1439,6 +1441,12 @@ package body Vk_XML_Reader with SPARK_Mode is
                   end if;
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Protect then
                   Set_Protect (This => Current_Tag_V.Extension_V,
+                               Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Extension_Attribute_Author then
+                  Set_Author (This => Current_Tag_V.Extension_V,
+                              Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Extension_Attribute_Contact then
+                  Set_Contact (This => Current_Tag_V.Extension_V,
                                Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);

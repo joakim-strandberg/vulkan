@@ -1268,6 +1268,26 @@ package body Vk with SPARK_Mode is
          This.My_Protect := (Exists => True, Value => Protect_V);
       end Set_Protect;
 
+      procedure Set_Author (This : in out T;
+                            Text : String)
+      is
+         Author_V : Mutable_Author.Mutable_T;
+      begin
+         Initialize (This => Author_V,
+                     Text => Text);
+         This.My_Author := (Exists => True, Value => Author_V);
+      end Set_Author;
+
+      procedure Set_Contact (This : in out T;
+                             Text : String)
+      is
+         Contact_V : Mutable_Contact.Mutable_T;
+      begin
+         Initialize (This => Contact_V,
+                     Text => Text);
+         This.My_Contact := (Exists => True, Value => Contact_V);
+      end Set_Contact;
+
    end Extension;
 
    package body Extension_Shared_Ptr with SPARK_Mode => Off is
@@ -1308,6 +1328,20 @@ package body Vk with SPARK_Mode is
          Set_Protect (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Protect;
+
+      procedure Set_Author (This : in out T;
+                            Text : String) is
+      begin
+         Set_Author (This => Smart_Pointers.Value (This.SP).all,
+                     Text => Text);
+      end Set_Author;
+
+      procedure Set_Contact (This : in out T;
+                             Text : String) is
+      begin
+         Set_Contact (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Contact;
 
    end Extension_Shared_Ptr;
 

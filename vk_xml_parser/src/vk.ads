@@ -3305,6 +3305,26 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Author is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Author_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Author.T;
+               when False => null;
+               end case;
+            end record;
+
+         package Contact is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Contact_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Contact.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -3324,6 +3344,12 @@ package Vk with SPARK_Mode is
       function Protect (This : T) return Fs.Nullable_Protect_T with
         Global => null;
 
+      function Author (This : T) return Fs.Nullable_Author_T with
+        Global => null;
+
+      function Contact (This : T) return Fs.Nullable_Contact_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -3341,6 +3367,14 @@ package Vk with SPARK_Mode is
         Global => null;
 
       procedure Set_Protect (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Set_Author (This : in out T;
+                            Text : String) with
+        Global => null;
+
+      procedure Set_Contact (This : in out T;
                              Text : String) with
         Global => null;
 
@@ -3372,6 +3406,30 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Author is new Fs.Author.Mutable;
+
+      use all type Mutable_Author.Mutable_T;
+
+      type Nullable_Mutable_Author_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Author.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Contact is new Fs.Contact.Mutable;
+
+      use all type Mutable_Contact.Mutable_T;
+
+      type Nullable_Mutable_Contact_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Contact.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Name      : Nullable_Mutable_Name_T;
@@ -3379,6 +3437,8 @@ package Vk with SPARK_Mode is
             My_Supported : Fs.Nullable_Supported_T;
             My_Children  : Mutable_Children.T (20);
             My_Protect   : Nullable_Mutable_Protect_T;
+            My_Author    : Nullable_Mutable_Author_T;
+            My_Contact   : Nullable_Mutable_Contact_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -3394,6 +3454,16 @@ package Vk with SPARK_Mode is
 
       function Protect (This : T) return Fs.Nullable_Protect_T is (if This.My_Protect.Exists then
                                                                      (Exists => True, Value => Fs.Protect.T (This.My_Protect.Value))
+                                                                   else
+                                                                     (Exists => False));
+
+      function Author (This : T) return Fs.Nullable_Author_T is (if This.My_Author.Exists then
+                                                                   (Exists => True, Value => Fs.Author.T (This.My_Author.Value))
+                                                                 else
+                                                                   (Exists => False));
+
+      function Contact (This : T) return Fs.Nullable_Contact_T is (if This.My_Contact.Exists then
+                                                                     (Exists => True, Value => Fs.Contact.T (This.My_Contact.Value))
                                                                    else
                                                                      (Exists => False));
 
@@ -3418,6 +3488,12 @@ package Vk with SPARK_Mode is
       function Protect (This : T) return Extension.Fs.Nullable_Protect_T with
         Global => null;
 
+      function Author (This : T) return Extension.Fs.Nullable_Author_T with
+        Global => null;
+
+      function Contact (This : T) return Extension.Fs.Nullable_Contact_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -3435,6 +3511,14 @@ package Vk with SPARK_Mode is
         Global => null;
 
       procedure Set_Protect (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Set_Author (This : in out T;
+                            Text : String) with
+        Global => null;
+
+      procedure Set_Contact (This : in out T;
                              Text : String) with
         Global => null;
 
@@ -3462,6 +3546,10 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Extension.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 
       function Protect (This : T) return Extension.Fs.Nullable_Protect_T is (Protect (Smart_Pointers.Value (This.SP).all));
+
+      function Author (This : T) return Extension.Fs.Nullable_Author_T is (Author (Smart_Pointers.Value (This.SP).all));
+
+      function Contact (This : T) return Extension.Fs.Nullable_Contact_T is (Contact (Smart_Pointers.Value (This.SP).all));
 
    end Extension_Shared_Ptr;
 

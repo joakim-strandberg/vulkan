@@ -29,7 +29,8 @@ package Current_Tag_Fs with SPARK_Mode is
                              Implicit_External_Sync_Parameters,
                              External_Sync_Parameter,
                              Feature,
-                             Require
+                             Require,
+                             Require_Enum
                             );
 
    end Tag_Id;

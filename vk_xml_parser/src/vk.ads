@@ -2592,6 +2592,87 @@ package Vk with SPARK_Mode is
 
    end Commands_Shared_Ptr;
 
+   package Require_Enum with SPARK_Mode is
+
+      package Fs is
+
+         package Name is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Name_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Name.T;
+               when False => null;
+               end case;
+            end record;
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Fs.Nullable_Name_T with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+   private
+
+      package Mutable_Name is new Fs.Name.Mutable;
+
+      use all type Mutable_Name.Mutable_T;
+
+      type Nullable_Mutable_Name_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Name.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Name : Nullable_Mutable_Name_T;
+         end record;
+
+         function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                                  (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                                else
+                                                                  (Exists => False));
+
+   end Require_Enum;
+
+   package Require_Enum_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Require_Enum.Fs.Nullable_Name_T with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Require_Enum.T;
+
+      type Require_Enum_Ptr is access Require_Enum.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Require_Enum.T,
+                                                             P => Require_Enum_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Require_Enum.T);
+         end record;
+
+      function Name (This : T) return Require_Enum.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+   end Require_Enum_Shared_Ptr;
+
    package Require with SPARK_Mode is
 
       package Fs is
@@ -2607,12 +2688,14 @@ package Vk with SPARK_Mode is
             end record;
 
          type Child_Kind_Id_T is (
-                                  Child_Type
+                                  Child_Type,
+                                  Child_Enum
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
             case Kind_Id is
-              when Child_Type        => Type_V        : aliased Vk.Type_Shared_Ptr.T;
+               when Child_Type => Type_V : aliased Vk.Type_Shared_Ptr.T;
+               when Child_Enum => Enum_V : aliased Vk.Require_Enum_Shared_Ptr.T;
             end case;
          end record;
 

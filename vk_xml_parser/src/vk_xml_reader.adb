@@ -89,6 +89,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Require_Enum_Attribute_Offset            : constant String := "offset";
    XML_Tag_Require_Enum_Attribute_Dir               : constant String := "dir";
    XML_Tag_Require_Enum_Attribute_Extends           : constant String := "extends";
+   XML_Tag_Require_Enum_Attribute_Comment           : constant String := "comment";
    XML_Tag_Require_Command_Attribute_Name           : constant String := "name";
    XML_Tag_Extensions                               : constant String := "extensions";
    XML_Tag_Extension                                : constant String := "extension";
@@ -1398,6 +1399,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                            Text => Attribute_Value);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Extends then
                   Set_Extends (This => Current_Tag_V.Require_Enum_V,
+                               Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Comment then
+                  Set_Comment (This => Current_Tag_V.Require_Enum_V,
                                Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);

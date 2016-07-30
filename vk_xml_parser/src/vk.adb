@@ -1017,6 +1017,16 @@ package body Vk with SPARK_Mode is
          This.My_Extends := (Exists => True, Value => Extends_V);
       end Set_Extends;
 
+      procedure Set_Comment (This : in out T;
+                             Text : String)
+      is
+         Comment_V : Mutable_Comment.Mutable_T;
+      begin
+         Initialize (This => Comment_V,
+                     Text => Text);
+         This.My_Comment := (Exists => True, Value => Comment_V);
+      end Set_Comment;
+
    end Require_Enum;
 
    package body Require_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -1057,6 +1067,13 @@ package body Vk with SPARK_Mode is
          Set_Extends (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Extends;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
 
    end Require_Enum_Shared_Ptr;
 

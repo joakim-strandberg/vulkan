@@ -2646,6 +2646,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Comment is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Comment_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Comment.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2665,6 +2675,9 @@ package Vk with SPARK_Mode is
       function Extends (This : T) return Fs.Nullable_Extends_T with
         Global => null;
 
+      function Comment (This : T) return Fs.Nullable_Comment_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -2682,6 +2695,10 @@ package Vk with SPARK_Mode is
         Global => null;
 
       procedure Set_Extends (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
                              Text : String) with
         Global => null;
 
@@ -2735,6 +2752,18 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Comment is new Fs.Comment.Mutable;
+
+      use all type Mutable_Comment.Mutable_T;
+
+      type Nullable_Mutable_Comment_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Comment.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Name    : Nullable_Mutable_Name_T;
@@ -2742,6 +2771,7 @@ package Vk with SPARK_Mode is
             My_Offset  : Fs.Nullable_Offset_T;
             My_Dir     : Nullable_Mutable_Dir_T;
             My_Extends : Nullable_Mutable_Extends_T;
+            My_Comment : Nullable_Mutable_Comment_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -2766,6 +2796,11 @@ package Vk with SPARK_Mode is
                                                                    else
                                                                      (Exists => False));
 
+      function Comment (This : T) return Fs.Nullable_Comment_T is (if This.My_Comment.Exists then
+                                                                     (Exists => True, Value => Fs.Comment.T (This.My_Comment.Value))
+                                                                   else
+                                                                     (Exists => False));
+
    end Require_Enum;
 
    package Require_Enum_Shared_Ptr with SPARK_Mode is
@@ -2787,6 +2822,9 @@ package Vk with SPARK_Mode is
       function Extends (This : T) return Require_Enum.Fs.Nullable_Extends_T with
         Global => null;
 
+      function Comment (This : T) return Require_Enum.Fs.Nullable_Comment_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -2804,6 +2842,10 @@ package Vk with SPARK_Mode is
         Global => null;
 
       procedure Set_Extends (This : in out T;
+                             Text : String) with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
                              Text : String) with
         Global => null;
 
@@ -2831,6 +2873,8 @@ package Vk with SPARK_Mode is
       function Dir (This : T) return Require_Enum.Fs.Nullable_Dir_T is (Dir (Smart_Pointers.Value (This.SP).all));
 
       function Extends (This : T) return Require_Enum.Fs.Nullable_Extends_T is (Extends (Smart_Pointers.Value (This.SP).all));
+
+      function Comment (This : T) return Require_Enum.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
 
    end Require_Enum_Shared_Ptr;
 

@@ -1163,6 +1163,83 @@ package body Vk with SPARK_Mode is
 
    end Commands_Shared_Ptr;
 
+   package body Extension with SPARK_Mode is
+
+      procedure Set_Name (This : in out T;
+                          Text : String)
+      is
+         Name_V : Mutable_Name.Mutable_T;
+      begin
+         Initialize (This => Name_V,
+                     Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+      procedure Set_Number (This : in out T;
+                            Value : Fs.Number_T) is
+      begin
+         This.My_Number := (Exists => True, Value => Value);
+      end Set_Number;
+
+      procedure Set_Supported (This : in out T;
+                               Value : Fs.Supported_T) is
+      begin
+         This.My_Supported := (Exists => True, Value => Value);
+      end Set_Supported;
+
+   end Extension;
+
+   package body Extension_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Extension.T;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+      procedure Set_Number (This : in out T;
+                            Value : Extension.Fs.Number_T) is
+      begin
+         Set_Number (This => Smart_Pointers.Value (This.SP).all,
+                     Value => Value);
+      end Set_Number;
+
+      procedure Set_Supported (This : in out T;
+                               Value : Extension.Fs.Supported_T) is
+      begin
+         Set_Supported (This => Smart_Pointers.Value (This.SP).all,
+                        Value => Value);
+      end Set_Supported;
+
+   end Extension_Shared_Ptr;
+
+   package body Extensions with SPARK_Mode is
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+   end Extensions;
+
+   package body Extensions_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Extensions.T;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Extensions.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Extensions_Shared_Ptr;
+
    package body Registry with SPARK_Mode is
 
       use all type Mutable_Child_Vector.T;

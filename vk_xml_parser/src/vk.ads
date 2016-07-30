@@ -3082,6 +3082,223 @@ package Vk with SPARK_Mode is
 
    end Feature_Shared_Ptr;
 
+   package Extension with SPARK_Mode is
+
+      package Fs is
+
+         package Name is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Name_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Name.T;
+               when False => null;
+               end case;
+            end record;
+
+         type Number_T is new Positive range 1..30;
+
+         type Nullable_Number_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Number_T;
+               when False => null;
+               end case;
+            end record;
+
+         type Supported_T is (
+                              Vulkan,
+                              Disabled
+                             );
+
+         type Nullable_Supported_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Supported_T;
+               when False => null;
+               end case;
+            end record;
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Fs.Nullable_Name_T with
+        Global => null;
+
+      function Number (This : T) return Fs.Nullable_Number_T with
+        Global => null;
+
+      function Supported (This : T) return Fs.Nullable_Supported_T with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Set_Number (This  : in out T;
+                            Value : Fs.Number_T) with
+        Global => null;
+
+      procedure Set_Supported (This  : in out T;
+                               Value : Fs.Supported_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Name is new Fs.Name.Mutable;
+
+      use all type Mutable_Name.Mutable_T;
+
+      type Nullable_Mutable_Name_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Name.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Name      : Nullable_Mutable_Name_T;
+            My_Number    : Fs.Nullable_Number_T;
+            My_Supported : Fs.Nullable_Supported_T;
+         end record;
+
+      function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                               (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                             else
+                                                               (Exists => False));
+
+      function Number (This : T) return Fs.Nullable_Number_T is (This.My_Number);
+
+      function Supported (This : T) return Fs.Nullable_Supported_T is (This.My_Supported);
+
+   end Extension;
+
+   package Extension_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Name (This : T) return Extension.Fs.Nullable_Name_T with
+        Global => null;
+
+      function Number (This : T) return Extension.Fs.Nullable_Number_T with
+        Global => null;
+
+      function Supported (This : T) return Extension.Fs.Nullable_Supported_T with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Set_Number (This  : in out T;
+                            Value : Extension.Fs.Number_T) with
+        Global => null;
+
+      procedure Set_Supported (This  : in out T;
+                               Value : Extension.Fs.Supported_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Extension.T;
+
+      type Extension_Ptr is access Extension.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Extension.T,
+                                                             P => Extension_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Extension.T);
+         end record;
+
+      function Name (This : T) return Extension.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+      function Number (This : T) return Extension.Fs.Nullable_Number_T is (Number (Smart_Pointers.Value (This.SP).all));
+
+      function Supported (This : T) return Extension.Fs.Nullable_Supported_T is (Supported (Smart_Pointers.Value (This.SP).all));
+
+   end Extension_Shared_Ptr;
+
+   package Extensions with SPARK_Mode is
+
+      package Fs is
+
+         type Child_Kind_Id_T is (
+                                  Child_Extension,
+                                  Child_Out_Commented_Message
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Extension) is record
+            case Kind_Id is
+               when Child_Extension             => Extension_V             : aliased Vk.Extension_Shared_Ptr.T;
+               when Child_Out_Commented_Message => Out_Commented_Message_V : aliased XML_Out_Commented_Message_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Extensions;
+
+   package Extensions_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Children (This : T) return Extensions.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Extensions.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Extensions.T;
+
+      type Extensions_Ptr is access Extensions.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Extensions.T,
+                                                             P => Extensions_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Extensions.T);
+         end record;
+
+      function Children (This : T) return Extensions.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Extensions_Shared_Ptr;
+
    package Registry with SPARK_Mode is
 
       package Fs is

@@ -969,6 +969,108 @@ package body Vk with SPARK_Mode is
 
    end Command_Shared_Ptr;
 
+   package body Require with SPARK_Mode is
+
+      procedure Set_Comment (This : in out T;
+                             Text : String)
+      is
+         Comment_V : Mutable_Comment.Mutable_T;
+      begin
+         Initialize (This => Comment_V,
+                     Text => Text);
+         This.My_Comment := (Exists => True, Value => Comment_V);
+      end Set_Comment;
+
+   end Require;
+
+   package body Require_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Require.T;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) is
+      begin
+         Set_Comment (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Comment;
+
+   end Require_Shared_Ptr;
+
+   package body Feature with SPARK_Mode is
+
+      procedure Set_API (This : in out T;
+                         Text : String)
+      is
+         API_V : Mutable_API.Mutable_T;
+      begin
+         Initialize (This => API_V,
+                     Text => Text);
+         This.My_API := (Exists => True, Value => API_V);
+      end Set_API;
+
+      procedure Set_Name (This : in out T;
+                          Text : String)
+      is
+         Name_V : Mutable_Name.Mutable_T;
+      begin
+         Initialize (This => Name_V,
+                     Text => Text);
+         This.My_Name := (Exists => True, Value => Name_V);
+      end Set_Name;
+
+      procedure Set_Number (This : in out T;
+                            Text : String)
+      is
+         Number_V : Mutable_Number.Mutable_T;
+      begin
+         Initialize (This => Number_V,
+                     Text => Text);
+         This.My_Number := (Exists => True, Value => Number_V);
+      end Set_Number;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) is
+      begin
+         Mutable_Children.Append (Container => This.My_Children,
+                                  New_Item  => Child);
+      end Append_Child;
+
+   end Feature;
+
+   package body Feature_Shared_Ptr with SPARK_Mode => Off is
+
+      use all type Feature.T;
+
+      procedure Set_API (This : in out T;
+                         Text : String) is
+      begin
+         Set_API (This => Smart_Pointers.Value (This.SP).all,
+                  Text => Text);
+      end Set_API;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) is
+      begin
+         Set_Name (This => Smart_Pointers.Value (This.SP).all,
+                   Text => Text);
+      end Set_Name;
+
+      procedure Set_Number (This : in out T;
+                            Text : String) is
+      begin
+         Set_Number (This => Smart_Pointers.Value (This.SP).all,
+                     Text => Text);
+      end Set_Number;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Feature.Fs.Child_T) is
+      begin
+         Append_Child (This  => Smart_Pointers.Value (This.SP).all,
+                       Child => Child);
+      end Append_Child;
+
+   end Feature_Shared_Ptr;
+
    package body Commands with SPARK_Mode is
 
       procedure Append_Child (This  : in out T;

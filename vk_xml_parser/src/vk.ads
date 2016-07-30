@@ -2593,6 +2593,293 @@ package Vk with SPARK_Mode is
 
    end Commands_Shared_Ptr;
 
+   package Require with SPARK_Mode is
+
+      package Fs is
+
+         package Comment is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Comment_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Comment.T;
+               when False => null;
+               end case;
+            end record;
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function Comment (This : T) return Fs.Nullable_Comment_T with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
+        Global => null;
+
+   private
+
+      package Mutable_Comment is new Fs.Comment.Mutable;
+
+      use all type Mutable_Comment.Mutable_T;
+
+      type Nullable_Mutable_Comment_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Comment.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      type T is limited
+         record
+            My_Comment : Nullable_Mutable_Comment_T;
+         end record;
+
+      function Comment (This : T) return Fs.Nullable_Comment_T is (if This.My_Comment.Exists then
+                                                                     (Exists => True, Value => Fs.Comment.T (This.My_Comment.Value))
+                                                                   else
+                                                                     (Exists => False));
+
+   end Require;
+
+   package Require_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function Comment (This : T) return Require.Fs.Nullable_Comment_T with
+        Global => null;
+
+      procedure Set_Comment (This : in out T;
+                             Text : String) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Require.T;
+
+      type Require_Ptr is access Require.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Require.T,
+                                                             P => Require_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Require.T);
+         end record;
+
+      function Comment (This : T) return Require.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
+
+   end Require_Shared_Ptr;
+
+   package Feature with SPARK_Mode is
+
+      package Fs is
+
+         package API is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_API_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value : API.T;
+                  when False => null;
+               end case;
+            end record;
+
+         package Name is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Name_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value : Name.T;
+                  when False => null;
+               end case;
+            end record;
+
+         package Number is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Number_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value : Number.T;
+                  when False => null;
+               end case;
+            end record;
+
+         -- Put in the Fields package
+         type Child_Kind_Id_T is (
+                                  Child_Require
+                                 );
+
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
+            case Kind_Id is
+            when Child_Require        => Require_V        : aliased Vk.Require_Shared_Ptr.T;
+            end case;
+         end record;
+
+         package Child_Vectors is new Aida.Containers.Generic_Immutable_Vector (Index_Type   => Positive,
+                                                                                Element_Type => Child_T,
+                                                                                "="          => "=",
+                                                                                Bounded      => False);
+
+      end Fs;
+
+      type T is limited private with Default_Initial_Condition => True;
+
+      function API (This : T) return Fs.Nullable_API_T with
+        Global => null;
+
+      function Name (This : T) return Fs.Nullable_Name_T with
+        Global => null;
+
+      function Number (This : T) return Fs.Nullable_Number_T with
+        Global => null;
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Set_API (This : in out T;
+                         Text : String) with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Set_Number (This : in out T;
+                            Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Fs.Child_T) with
+        Global => null;
+
+   private
+
+      package Mutable_API is new Fs.API.Mutable;
+
+      use all type Mutable_API.Mutable_T;
+
+      type Nullable_Mutable_API_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_API.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Name is new Fs.Name.Mutable;
+
+      use all type Mutable_Name.Mutable_T;
+
+      type Nullable_Mutable_Name_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Name.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Number is new Fs.Number.Mutable;
+
+      use all type Mutable_Number.Mutable_T;
+
+      type Nullable_Mutable_Number_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Number.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
+      package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
+
+      type T is limited
+         record
+            My_API      : Nullable_Mutable_API_T;
+            My_Name     : Nullable_Mutable_Name_T;
+            My_Number   : Nullable_Mutable_Number_T;
+            My_Children : Mutable_Children.T (10);
+         end record;
+
+      function API (This : T) return Fs.Nullable_API_T is (if This.My_API.Exists then
+                                                             (Exists => True, Value => Fs.API.T (This.My_API.Value))
+                                                           else
+                                                             (Exists => False));
+
+      function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
+                                                               (Exists => True, Value => Fs.Name.T (This.My_Name.Value))
+                                                             else
+                                                               (Exists => False));
+
+      function Number (This : T) return Fs.Nullable_Number_T is (if This.My_Number.Exists then
+                                                                   (Exists => True, Value => Fs.Number.T (This.My_Number.Value))
+                                                                 else
+                                                                   (Exists => False));
+
+      function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+   end Feature;
+
+   package Feature_Shared_Ptr with SPARK_Mode is
+
+      type T is private with Default_Initial_Condition => True;
+
+      function API (This : T) return Feature.Fs.Nullable_API_T with
+        Global => null;
+
+      function Name (This : T) return Feature.Fs.Nullable_Name_T with
+        Global => null;
+
+      function Number (This : T) return Feature.Fs.Nullable_Number_T with
+        Global => null;
+
+      function Children (This : T) return Feature.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      procedure Set_API (This : in out T;
+                         Text : String) with
+        Global => null;
+
+      procedure Set_Name (This : in out T;
+                          Text : String) with
+        Global => null;
+
+      procedure Set_Number (This : in out T;
+                            Text : String) with
+        Global => null;
+
+      procedure Append_Child (This  : in out T;
+                              Child : Feature.Fs.Child_T) with
+        Global => null;
+
+   private
+      pragma SPARK_Mode (Off);
+
+      use all type Feature.T;
+
+      type Feature_Ptr is access Feature.T;
+
+      package Smart_Pointers is new Aida.Generic_Shared_Ptr (T => Feature.T,
+                                                             P => Feature_Ptr);
+
+      type T is
+         record
+            SP : Smart_Pointers.Pointer := Smart_Pointers.Create (new Feature.T);
+         end record;
+
+      function API (This : T) return Feature.Fs.Nullable_API_T is (API (Smart_Pointers.Value (This.SP).all));
+
+      function Name (This : T) return Feature.Fs.Nullable_Name_T is (Name (Smart_Pointers.Value (This.SP).all));
+
+      function Number (This : T) return Feature.Fs.Nullable_Number_T is (Number (Smart_Pointers.Value (This.SP).all));
+
+      function Children (This : T) return Feature.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+   end Feature_Shared_Ptr;
+
    package Registry with SPARK_Mode is
 
       package Fs is

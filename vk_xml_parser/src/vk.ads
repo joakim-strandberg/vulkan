@@ -2656,6 +2656,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         type Bit_Position_T is new Natural range 0..20;
+
+         type Nullable_Bit_Position_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Bit_Position_T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -2676,6 +2686,9 @@ package Vk with SPARK_Mode is
         Global => null;
 
       function Comment (This : T) return Fs.Nullable_Comment_T with
+        Global => null;
+
+      function Bit_Position (This : T) return Fs.Nullable_Bit_Position_T with
         Global => null;
 
       procedure Set_Name (This : in out T;
@@ -2700,6 +2713,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Comment (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Set_Bit_Position (This  : in out T;
+                                  Value : Fs.Bit_Position_T) with
         Global => null;
 
    private
@@ -2766,12 +2783,13 @@ package Vk with SPARK_Mode is
 
       type T is limited
          record
-            My_Name    : Nullable_Mutable_Name_T;
-            My_Value   : Nullable_Mutable_Value_T;
-            My_Offset  : Fs.Nullable_Offset_T;
-            My_Dir     : Nullable_Mutable_Dir_T;
-            My_Extends : Nullable_Mutable_Extends_T;
-            My_Comment : Nullable_Mutable_Comment_T;
+            My_Name         : Nullable_Mutable_Name_T;
+            My_Value        : Nullable_Mutable_Value_T;
+            My_Offset       : Fs.Nullable_Offset_T;
+            My_Dir          : Nullable_Mutable_Dir_T;
+            My_Extends      : Nullable_Mutable_Extends_T;
+            My_Comment      : Nullable_Mutable_Comment_T;
+            My_Bit_Position : Fs.Nullable_Bit_Position_T;
          end record;
 
       function Name (This : T) return Fs.Nullable_Name_T is (if This.My_Name.Exists then
@@ -2801,6 +2819,8 @@ package Vk with SPARK_Mode is
                                                                    else
                                                                      (Exists => False));
 
+      function Bit_Position (This : T) return Fs.Nullable_Bit_Position_T is (This.My_Bit_Position);
+
    end Require_Enum;
 
    package Require_Enum_Shared_Ptr with SPARK_Mode is
@@ -2825,6 +2845,9 @@ package Vk with SPARK_Mode is
       function Comment (This : T) return Require_Enum.Fs.Nullable_Comment_T with
         Global => null;
 
+      function Bit_Position (This : T) return Require_Enum.Fs.Nullable_Bit_Position_T with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -2847,6 +2870,10 @@ package Vk with SPARK_Mode is
 
       procedure Set_Comment (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Set_Bit_Position (This  : in out T;
+                                  Value : Require_Enum.Fs.Bit_Position_T) with
         Global => null;
 
    private
@@ -2875,6 +2902,8 @@ package Vk with SPARK_Mode is
       function Extends (This : T) return Require_Enum.Fs.Nullable_Extends_T is (Extends (Smart_Pointers.Value (This.SP).all));
 
       function Comment (This : T) return Require_Enum.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
+
+      function Bit_Position (This : T) return Require_Enum.Fs.Nullable_Bit_Position_T is (Bit_Position (Smart_Pointers.Value (This.SP).all));
 
    end Require_Enum_Shared_Ptr;
 

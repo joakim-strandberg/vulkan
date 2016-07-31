@@ -1027,6 +1027,12 @@ package body Vk with SPARK_Mode is
          This.My_Comment := (Exists => True, Value => Comment_V);
       end Set_Comment;
 
+      procedure Set_Bit_Position (This : in out T;
+                                  Value : Fs.Bit_Position_T) is
+      begin
+         This.My_Bit_Position := (Exists => True, Value => Value);
+      end Set_Bit_Position;
+
    end Require_Enum;
 
    package body Require_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -1074,6 +1080,13 @@ package body Vk with SPARK_Mode is
          Set_Comment (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Comment;
+
+      procedure Set_Bit_Position (This : in out T;
+                                  Value : Require_Enum.Fs.Bit_Position_T) is
+      begin
+         Set_Bit_Position (This => Smart_Pointers.Value (This.SP).all,
+                           Value => Value);
+      end Set_Bit_Position;
 
    end Require_Enum_Shared_Ptr;
 

@@ -254,6 +254,16 @@ package body Vk with SPARK_Mode is
          This.My_Command := (Exists => True, Value => Command_V);
       end Set_Command;
 
+      procedure Set_Struct (This : in out T;
+                            Text : String)
+      is
+         Struct_V : Mutable_Struct.Mutable_T;
+      begin
+         Initialize (This => Struct_V,
+                     Text => Text);
+         This.My_Struct := (Exists => True, Value => Struct_V);
+      end Set_Struct;
+
    end Usage;
 
    package body Usage_Shared_Ptr with SPARK_Mode => Off is
@@ -271,6 +281,13 @@ package body Vk with SPARK_Mode is
          Set_Command (This => Smart_Pointers.Value (This.SP).all,
                       Text => Text);
       end Set_Command;
+
+      procedure Set_Struct (This : in out T;
+                            Text : String) is
+      begin
+         Set_Struct (This => Smart_Pointers.Value (This.SP).all,
+                     Text => Text);
+      end Set_Struct;
 
    end Usage_Shared_Ptr;
 

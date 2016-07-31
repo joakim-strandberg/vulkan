@@ -4,6 +4,6 @@ project Vk_Parser_Main is
     for Main use ("main.adb");
 
     package Compiler is
-       for Default_Switches ("Ada") use ("-gnat2012");
+       for Default_Switches ("Ada") use ("-gnat2012", "-fstack-check", "-gnato");
     end Compiler;
 end Vk_Parser_Main;

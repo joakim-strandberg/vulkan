@@ -877,6 +877,16 @@ package Vk with SPARK_Mode is
                end case;
             end record;
 
+         package Struct is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Struct_T (Exists : Boolean := False) is
+            record
+               case Exists is
+               when True  => Value : Struct.T;
+               when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -887,12 +897,19 @@ package Vk with SPARK_Mode is
       function Command (This : T) return Fs.Nullable_Command_T with
         Global => null;
 
+      function Struct (This : T) return Fs.Nullable_Struct_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
         Global => null;
 
       procedure Set_Command (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Set_Struct (This : in out T;
+                            Text : String) with
         Global => null;
 
    private
@@ -911,10 +928,23 @@ package Vk with SPARK_Mode is
             end case;
          end record;
 
+      package Mutable_Struct is new Fs.Struct.Mutable;
+
+      use all type Mutable_Struct.Mutable_T;
+
+      type Nullable_Mutable_Struct_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Struct.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Children : Mutable_Children.T (10);
             My_Command  : Nullable_Mutable_Command_T;
+            My_Struct   : Nullable_Mutable_Struct_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
@@ -923,6 +953,11 @@ package Vk with SPARK_Mode is
                                                                      (Exists => True, Value => Fs.Command.T (This.My_Command.Value))
                                                                    else
                                                                      (Exists => False));
+
+      function Struct (This : T) return Fs.Nullable_Struct_T is (if This.My_Struct.Exists then
+                                                                   (Exists => True, Value => Fs.Struct.T (This.My_Struct.Value))
+                                                                 else
+                                                                   (Exists => False));
 
    end Usage;
 
@@ -936,12 +971,19 @@ package Vk with SPARK_Mode is
       function Command (This : T) return Usage.Fs.Nullable_Command_T with
         Global => null;
 
+      function Struct (This : T) return Usage.Fs.Nullable_Struct_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Usage.Fs.Child_T) with
         Global => null;
 
       procedure Set_Command (This : in out T;
                              Text : String) with
+        Global => null;
+
+      procedure Set_Struct (This : in out T;
+                            Text : String) with
         Global => null;
 
    private
@@ -962,6 +1004,8 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Usage.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
 
       function Command (This : T) return Usage.Fs.Nullable_Command_T is (Command (Smart_Pointers.Value (This.SP).all));
+
+      function Struct (This : T) return Usage.Fs.Nullable_Struct_T is (Struct (Smart_Pointers.Value (This.SP).all));
 
    end Usage_Shared_Ptr;
 
@@ -3054,7 +3098,7 @@ package Vk with SPARK_Mode is
                                   Child_Usage
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
             case Kind_Id is
                when Child_Type                  => Type_V                  : aliased Vk.Type_Shared_Ptr.T;
                when Child_Enum                  => Enum_V                  : aliased Vk.Require_Enum_Shared_Ptr.T;
@@ -3681,7 +3725,7 @@ package Vk with SPARK_Mode is
                                   Child_Out_Commented_Message
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Extension) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
             case Kind_Id is
                when Child_Extension             => Extension_V             : aliased Vk.Extension_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased XML_Out_Commented_Message_Shared_Ptr.T;
@@ -3710,7 +3754,7 @@ package Vk with SPARK_Mode is
 
       type T is limited
          record
-            My_Children : Mutable_Children.T (10);
+            My_Children : Mutable_Children.T (100);
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));

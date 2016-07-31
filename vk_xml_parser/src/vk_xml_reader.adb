@@ -53,6 +53,7 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Validity                                 : constant String := "validity";
    XML_Tag_Usage                                    : constant String := "usage";
    XML_Tag_Usage_Attribute_Command                  : constant String := "command";
+   XML_Tag_Usage_Attribute_Struct                   : constant String := "struct";
    XML_Tag_Enum                                     : constant String := "enum";
    XML_Tag_Enums                                    : constant String := "enums";
    XML_Tag_Enums_Attribute_Name                     : constant String := "name";
@@ -1497,6 +1498,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                if Attribute_Name = XML_Tag_Usage_Attribute_Command then
                   Set_Command (This => Current_Tag_V.Usage_V,
                                Text => Attribute_Value);
+               elsif Attribute_Name = XML_Tag_Usage_Attribute_Struct then
+                  Set_Struct (This => Current_Tag_V.Usage_V,
+                              Text => Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
@@ -1659,8 +1663,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                    Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                    Call_Result : in out Aida.XML.Subprogram_Call_Result.T) is
    begin
-        Aida.Text_IO.Put ("Text:");
-        Aida.Text_IO.Put_Line (Value);
+--          Aida.Text_IO.Put ("Text:");
+--          Aida.Text_IO.Put_Line (Value);
       null;
    end Text;
 

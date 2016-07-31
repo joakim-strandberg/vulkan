@@ -12,6 +12,12 @@ package Vk with SPARK_Mode is
 
    package XML_Out_Commented_Message_Shared_Ptr is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
 
+   -- Created in order to avoid making the vk.xml parser application a memory hog.
+   type XML_Dummy_T is
+      record
+         null;
+      end record;
+
    package Tag with SPARK_Mode is
 
       package Fs is
@@ -117,12 +123,14 @@ package Vk with SPARK_Mode is
 
       package Fs is
          type Child_Kind_Id_T is (
+                                  Child_Dummy,
                                   Child_Tag
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Tag) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
             case Kind_Id is
-            when Child_Tag  => Tag_V : aliased Tag_Shared_Ptr.T;
+               when Child_Dummy => Dummy_V : aliased XML_Dummy_T;
+               when Child_Tag   => Tag_V : aliased Tag_Shared_Ptr.T;
             end case;
          end record;
 
@@ -645,13 +653,15 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_Dummy,
                                   Child_Name,
                                   Child_Nested_Type,
                                   Child_Enum
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Name) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
             case Kind_Id is
+               when Child_Dummy       => Dummy_V       : aliased XML_Dummy_T;
                when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
                when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
                when Child_Enum        => Enum_V        : aliased Vk.Enum_Shared_Ptr.T;
@@ -853,12 +863,14 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_Dummy,
                                   Child_XML_Text
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
             case Kind_Id is
-            when Child_XML_Text        => XML_Text_V        : aliased Vk.XML_Text.T;
+               when Child_Dummy    => Dummy_V    : aliased XML_Dummy_T;
+               when Child_XML_Text => XML_Text_V : aliased Vk.XML_Text.T;
             end case;
          end record;
 
@@ -1014,11 +1026,13 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_Dummy,
                                   Child_Usage
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Usage) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
             case Kind_Id is
+               when Child_Dummy => Dummy_V : aliased XML_Dummy_T;
                when Child_Usage => Usage_V : aliased Vk.Usage_Shared_Ptr.T;
             end case;
          end record;
@@ -1122,6 +1136,7 @@ package Vk with SPARK_Mode is
          type Returned_Only_T is new Boolean;
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_XML_Text,
                                   Child_Name,
                                   Child_Nested_Type,
@@ -1130,8 +1145,9 @@ package Vk with SPARK_Mode is
                                   Child_Out_Commented_Message
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy   => XML_Dummy_V   : aliased XML_Dummy_T;
                when Child_XML_Text    => XML_Text_V    : aliased Vk.XML_Text.T;
                when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
                when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
@@ -1386,12 +1402,14 @@ package Vk with SPARK_Mode is
 
       package Fs is
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Type,
                                   Child_Out_Commented_Message
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy             => Dummy_V                 : aliased XML_Dummy_T;
                when Child_Type                  => Type_V                  : aliased Type_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased XML_Out_Commented_Message_Shared_Ptr.T;
             end case;
@@ -1569,12 +1587,14 @@ package Vk with SPARK_Mode is
 
       package Fs is
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Vendor_Id
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Vendor_Id) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
-            when Child_Vendor_Id  => Vendor_Id_V : aliased Vk.Vendor_Id_Shared_Ptr.T;
+               when Child_XML_Dummy  => XML_Dummy_V : aliased XML_Dummy_T;
+               when Child_Vendor_Id  => Vendor_Id_V : aliased Vk.Vendor_Id_Shared_Ptr.T;
             end case;
          end record;
 
@@ -1742,13 +1762,15 @@ package Vk with SPARK_Mode is
             end record;
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Enums_Enum,
                                   Child_Out_Commented_Message,
                                   Child_Unused
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Enums_Enum) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy             => XML_Dummy_V             : aliased XML_Dummy_T;
                when Child_Enums_Enum            => Enums_Enum_V            : aliased Vk.Enums_Enum_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
                when Child_Unused                => Unused_V                : aliased Vk.Unused_Shared_Ptr.T;
@@ -1919,12 +1941,14 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Nested_Type,
                                   Child_Name
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy   => XML_Dummy_V   : aliased XML_Dummy_T;
                when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
                when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
             end case;
@@ -1994,13 +2018,15 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Nested_Type,
                                   Child_XML_Text,
                                   Child_Name
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy   => XML_Dummy_V   : aliased XML_Dummy_T;
                when Child_Nested_Type => Nested_Type_V : aliased Vk.Nested_Type_Shared_Ptr.T;
                when Child_XML_Text    => XML_Text_V    : aliased Vk.XML_Text.T;
                when Child_Name        => Name_V        : aliased Vk.Name_Shared_Ptr.T;
@@ -2290,12 +2316,14 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_External_Sync_Parameter
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_External_Sync_Parameter) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
-            when Child_External_Sync_Parameter        => External_Sync_Parameter_V        : aliased Vk.External_Sync_Parameter_Shared_Ptr.T;
+               when Child_XML_Dummy               => XML_Dummy_V               : aliased XML_Dummy_T;
+               when Child_External_Sync_Parameter => External_Sync_Parameter_V : aliased Vk.External_Sync_Parameter_Shared_Ptr.T;
             end case;
          end record;
 
@@ -2377,14 +2405,16 @@ package Vk with SPARK_Mode is
                                                                                     Bounded      => False);
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Proto,
                                   Child_Param,
                                   Child_Validity,
                                   Child_Implicit_External_Sync_Parameters
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy                         => XML_Dummy_V  : aliased XML_Dummy_T;
                when Child_Proto                             => Proto_V      : aliased Vk.Proto_Shared_Ptr.T;
                when Child_Param                             => Param_V      : aliased Vk.Param_Shared_Ptr.T;
                when Child_Validity                          => Validity_V   : aliased Vk.Validity_Shared_Ptr.T;
@@ -2612,12 +2642,14 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Command
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Command) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
-            when Child_Command        => Command_V        : aliased Vk.Command_Shared_Ptr.T;
+               when Child_XML_Dummy      => XML_Dummy_V      : aliased XML_Dummy_T;
+               when Child_Command        => Command_V        : aliased Vk.Command_Shared_Ptr.T;
             end case;
          end record;
 
@@ -3091,6 +3123,7 @@ package Vk with SPARK_Mode is
             end record;
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Type,
                                   Child_Enum,
                                   Child_Command,
@@ -3098,8 +3131,9 @@ package Vk with SPARK_Mode is
                                   Child_Usage
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy             => XML_Dummy_V             : aliased XML_Dummy_T;
                when Child_Type                  => Type_V                  : aliased Vk.Type_Shared_Ptr.T;
                when Child_Enum                  => Enum_V                  : aliased Vk.Require_Enum_Shared_Ptr.T;
                when Child_Command               => Command_V               : aliased Vk.Require_Command_Shared_Ptr.T;
@@ -3236,12 +3270,14 @@ package Vk with SPARK_Mode is
             end record;
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Require
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
-            when Child_Require        => Require_V        : aliased Vk.Require_Shared_Ptr.T;
+               when Child_XML_Dummy => XML_Dummy_V : aliased XML_Dummy_T;
+               when Child_Require   => Require_V   : aliased Vk.Require_Shared_Ptr.T;
             end case;
          end record;
 
@@ -3444,12 +3480,14 @@ package Vk with SPARK_Mode is
             end record;
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Require
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
-               when Child_Require => Require_V : aliased Vk.Require_Shared_Ptr.T;
+               when Child_XML_Dummy => XML_Dummy_V : aliased XML_Dummy_T;
+               when Child_Require   => Require_V   : aliased Vk.Require_Shared_Ptr.T;
             end case;
          end record;
 
@@ -3721,12 +3759,14 @@ package Vk with SPARK_Mode is
       package Fs is
 
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Extension,
                                   Child_Out_Commented_Message
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy             => XML_Dummy_V             : aliased XML_Dummy_T;
                when Child_Extension             => Extension_V             : aliased Vk.Extension_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased XML_Out_Commented_Message_Shared_Ptr.T;
             end case;
@@ -3795,6 +3835,7 @@ package Vk with SPARK_Mode is
 
       package Fs is
          type Child_Kind_Id_T is (
+                                  Child_XML_Dummy,
                                   Child_Comment,
                                   Child_Out_Commented_Message,
                                   Child_Vendor_Ids,
@@ -3806,8 +3847,9 @@ package Vk with SPARK_Mode is
                                   Child_Extensions
                                  );
 
-         type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
+         type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Dummy) is record
             case Kind_Id is
+               when Child_XML_Dummy             => XML_Dummy_V             : aliased XML_Dummy_T;
                when Child_Comment               => C                       : aliased Vk.Comment_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased Vk.XML_Out_Commented_Message_Shared_Ptr.T;
                when Child_Vendor_Ids            => Vendor_Ids_V            : aliased Vk.Vendor_Ids_Shared_Ptr.T;

@@ -27,6 +27,7 @@ package body Vk_Package_Creator with SPARK_Mode is
    begin
       for I in Positive range First_Index (Children (Types_V))..Last_Index (Children (Types_V)) loop
          case Element (Children (Types_V), I).Kind_Id is
+            when Child_XML_Dummy             => null;
             when Child_Type                  => Handle_Child_Type (Element (Children (Types_V), I).Type_V);
             when Child_Out_Commented_Message => Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
          end case;
@@ -56,6 +57,8 @@ package body Vk_Package_Creator with SPARK_Mode is
             when Child_Feature =>
                null;
             when Child_Extensions =>
+               null;
+            when Child_XML_Dummy =>
                null;
          end case;
       end loop;

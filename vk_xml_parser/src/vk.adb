@@ -244,6 +244,15 @@ package body Vk with SPARK_Mode is
                                   New_Item  => Child);
       end Append_Child;
 
+      procedure Set_Command (This : in out T;
+                             Text : String)
+      is
+         Command_V : Mutable_Command.Mutable_T;
+      begin
+         Initialize (This => Command_V,
+                     Text => Text);
+         This.My_Command := (Exists => True, Value => Command_V);
+      end Set_Command;
 
    end Usage;
 
@@ -255,6 +264,13 @@ package body Vk with SPARK_Mode is
          Append_Child (This  => Smart_Pointers.Value (This.SP).all,
                        Child => Child);
       end Append_Child;
+
+      procedure Set_Command (This : in out T;
+                             Text : String) is
+      begin
+         Set_Command (This => Smart_Pointers.Value (This.SP).all,
+                      Text => Text);
+      end Set_Command;
 
    end Usage_Shared_Ptr;
 

@@ -867,6 +867,16 @@ package Vk with SPARK_Mode is
                                                                                 "="          => "=",
                                                                                 Bounded      => False);
 
+         package Command is new Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr (100);
+
+         type Nullable_Command_T (Exists : Boolean := False) is
+            record
+               case Exists is
+                  when True  => Value : Command.T;
+                  when False => null;
+               end case;
+            end record;
+
       end Fs;
 
       type T is limited private with Default_Initial_Condition => True;
@@ -874,20 +884,45 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Command (This : T) return Fs.Nullable_Command_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Command (This : in out T;
+                             Text : String) with
         Global => null;
 
    private
 
       package Mutable_Children is new Fs.Child_Vectors.Generic_Mutable_Vector;
 
+      package Mutable_Command is new Fs.Command.Mutable;
+
+      use all type Mutable_Command.Mutable_T;
+
+      type Nullable_Mutable_Command_T (Exists : Boolean := False) is
+         record
+            case Exists is
+               when True  => Value : Mutable_Command.Mutable_T;
+               when False => null;
+            end case;
+         end record;
+
       type T is limited
          record
             My_Children : Mutable_Children.T (10);
+            My_Command  : Nullable_Mutable_Command_T;
          end record;
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
+
+      function Command (This : T) return Fs.Nullable_Command_T is (if This.My_Command.Exists then
+                                                                     (Exists => True, Value => Fs.Command.T (This.My_Command.Value))
+                                                                   else
+                                                                     (Exists => False));
 
    end Usage;
 
@@ -898,8 +933,15 @@ package Vk with SPARK_Mode is
       function Children (This : T) return Usage.Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function Command (This : T) return Usage.Fs.Nullable_Command_T with
+        Global => null;
+
       procedure Append_Child (This  : in out T;
                               Child : Usage.Fs.Child_T) with
+        Global => null;
+
+      procedure Set_Command (This : in out T;
+                             Text : String) with
         Global => null;
 
    private
@@ -918,6 +960,8 @@ package Vk with SPARK_Mode is
          end record;
 
       function Children (This : T) return Usage.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function Command (This : T) return Usage.Fs.Nullable_Command_T is (Command (Smart_Pointers.Value (This.SP).all));
 
    end Usage_Shared_Ptr;
 
@@ -3006,7 +3050,8 @@ package Vk with SPARK_Mode is
                                   Child_Type,
                                   Child_Enum,
                                   Child_Command,
-                                  Child_Out_Commented_Message
+                                  Child_Out_Commented_Message,
+                                  Child_Usage
                                  );
 
          type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
@@ -3015,6 +3060,7 @@ package Vk with SPARK_Mode is
                when Child_Enum                  => Enum_V                  : aliased Vk.Require_Enum_Shared_Ptr.T;
                when Child_Command               => Command_V               : aliased Vk.Require_Command_Shared_Ptr.T;
                when Child_Out_Commented_Message => Out_Commented_Message_V : aliased XML_Out_Commented_Message_Shared_Ptr.T;
+               when Child_Usage                 => Usage_V                 : aliased Vk.Usage_Shared_Ptr.T;
             end case;
          end record;
 

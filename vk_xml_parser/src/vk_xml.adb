@@ -1,4 +1,4 @@
-package body Vk with SPARK_Mode is
+package body Vk_XML with SPARK_Mode is
 
    package Mutable_XML_Text is new XML_Text.Mutable;
 
@@ -67,7 +67,8 @@ package body Vk with SPARK_Mode is
 
    package body Tags_Shared_Ptr with SPARK_Mode => Off is
 
-      use all type Vk.Tags.T;
+      use all type Vk_XML.
+        Tags.T;
 
       procedure Append_Child (This  : in out T;
                               Child : Tags.Fs.Child_T) is
@@ -357,7 +358,7 @@ package body Vk with SPARK_Mode is
 
    package body Type_Shared_Ptr with SPARK_Mode => Off is
 
-      use all type Vk.Type_T.T;
+      use all type Vk_XML.Type_T.T;
 
       procedure Set_Name (This : in out T;
                           Text : String) is
@@ -533,7 +534,7 @@ package body Vk with SPARK_Mode is
 
    package body Comment_Shared_Ptr with SPARK_Mode => Off is
 
-      use all type Vk.Comment.T;
+      use all type Vk_XML.Comment.T;
 
       procedure Set_Value (This : in out T;
                            Text : String) is
@@ -1457,4 +1458,4 @@ package body Vk with SPARK_Mode is
 
    end Registry_Shared_Ptr;
 
-end Vk;
+end Vk_XML;

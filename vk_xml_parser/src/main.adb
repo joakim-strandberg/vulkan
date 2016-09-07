@@ -7,7 +7,7 @@ with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 with Vk_Package_Creator;
 with Vk_XML_Reader;
-with Vk;
+with Vk_XML;
 
 use all type Aida.XML.Subprogram_Call_Result.T;
 
@@ -23,7 +23,7 @@ procedure Main is
       File     : File_String_IO.File_Type;
       Contents : File_String;
 
-      Registry : Vk.Registry_Shared_Ptr.T;
+      Registry : Vk_XML.Registry_Shared_Ptr.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin
@@ -39,7 +39,7 @@ procedure Main is
       Vk_Package_Creator.Create_Vk_Package (Registry);
 
       if not Has_Failed (Call_Result) then
-         Aida.Text_IO.Put_Line ("Successfully parsed " & File_Name & "! Will create vk.ads");
+         Aida.Text_IO.Put_Line ("Successfully parsed " & File_Name & "! Will create Vk_XML.ads");
          --Vk_Package_Creator.Create_Vk_Package (Registry);
       else
          Aida.Text_IO.Put_Line (Message (Call_Result));

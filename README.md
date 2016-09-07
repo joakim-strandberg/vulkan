@@ -1,6 +1,6 @@
 # vulkan
 
-The goal is to create an Ada binding for the Vulkan SDK. This goal is still far off. Work is going on to parse the vk.xml file that describes the API. When that file can successfully be parsed, the next step is to interpret the contents and generate the Ada binding.
+The goal is to create an Ada binding for the Vulkan SDK. The vk.xml file that describes the API can now be parsed. Work is ongoing to interpret the contents and generate the Ada binding.
 
 This is work in progress...
 

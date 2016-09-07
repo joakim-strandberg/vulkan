@@ -36,11 +36,9 @@ procedure Main is
                            Registry    => Registry,
                            Call_Result => Call_Result);
 
-      Vk_Package_Creator.Create_Vk_Package (Registry);
-
       if not Has_Failed (Call_Result) then
          Aida.Text_IO.Put_Line ("Successfully parsed " & File_Name & "! Will create Vk_XML.ads");
-         --Vk_Package_Creator.Create_Vk_Package (Registry);
+         Vk_Package_Creator.Create_Vk_Package (Registry);
       else
          Aida.Text_IO.Put_Line (Message (Call_Result));
       end if;

@@ -12,8 +12,9 @@ with Aida.Generic_Subprogram_Call_Result;
 with Aida.Containers;
 with Aida.XML.Generic_Parse_XML_File;
 with Vk;
-with Aida.Text_IO;
+with Ada.Characters.Latin_1;
 
+with Aida.Text_IO;
 with Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable;
 
 pragma Elaborate_All (Aida.Generic_Subprogram_Call_Result);
@@ -155,6 +156,14 @@ package body Vk_XML_Reader with SPARK_Mode is
    use all type Vk.Extensions_Shared_Ptr.T;
 
    use Current_Tag_Fs.Tag_Id;
+
+   package Mutable_XML_Out_Commented_Message_Shared_Ptr is new Vk.XML_Out_Commented_Message_Shared_Ptr.Mutable;
+
+   use all type Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
+
+   package Mutable_XML_Text_Shared_Ptr is new Vk.XML_Text.Mutable;
+
+   use all type Mutable_XML_Text_Shared_Ptr.Mutable_T;
 
    function Make_Current_Tag (Kind_Id    : Current_Tag_Fs.Tag_Id.Enumeration_T;
                               Parent_Tag_Id : Current_Tag_Fs.Id_T) return Current_Tag.T;
@@ -1661,16 +1670,76 @@ package body Vk_XML_Reader with SPARK_Mode is
 
    procedure Text (Value       : String;
                    Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                   Call_Result : in out Aida.XML.Subprogram_Call_Result.T) is
+                   Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+   is
+      Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
    begin
---          Aida.Text_IO.Put ("Text:");
---          Aida.Text_IO.Put_Line (Value);
-      null;
+      if Length (Parent_Tags) > 0 then
+         if not Searched_For.Exists then
+            Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", " & To_String (Parent_Tags));
+            return;
+         end if;
+
+         if (for all I in Value'Range => Value (I) = ' ' or Value (I) = Ada.Characters.Latin_1.CR or Value (I) = Ada.Characters.Latin_1.LF) then
+            null;
+         else
+            declare
+               Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+            begin
+               case Current_Tag_V.Kind_Id is
+               when Current_Tag_Fs.Tag_Id.Registry =>
+                  declare
+                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                     Child : Vk.Registry.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                        XML_Text_V => Vk.XML_Text.T (XML_Text_V));
+                  begin
+                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                             Text => Value);
+                     Append_Child (This  => Current_Tag_V.Registry,
+                                   Child => Child);
+                  end;
+               when Current_Tag_Fs.Tag_Id.Type_T =>
+                  declare
+                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                     Child : Vk.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                      XML_Text_V => Vk.XML_Text.T (XML_Text_V));
+                  begin
+                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                             Text => Value);
+                     Append_Child (This  => Current_Tag_V.Type_V,
+                                   Child => Child);
+                  end;
+               when Current_Tag_Fs.Tag_Id.Member =>
+                  declare
+                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                     Child : Vk.Member.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                      XML_Text_V => Vk.XML_Text.T (XML_Text_V));
+                  begin
+                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                             Text => Value);
+                     Append_Child (This  => Current_Tag_V.Member_V,
+                                   Child => Child);
+                  end;
+               when Current_Tag_Fs.Tag_Id.Param =>
+                  declare
+                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                     Child : Vk.Param.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                     XML_Text_V => Vk.XML_Text.T (XML_Text_V));
+                  begin
+                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                             Text => Value);
+                     Append_Child (This  => Current_Tag_V.Param_V,
+                                   Child => Child);
+                  end;
+               when others =>
+                  Aida.Text_IO.Put ("Text:");
+                  Aida.Text_IO.Put_Line (Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have text, " & To_String (Parent_Tags));
+               end case;
+            end;
+         end if;
+      end if;
    end Text;
-
-   package Mutable_XML_Out_Commented_Message_Shared_Ptr is new Vk.XML_Out_Commented_Message_Shared_Ptr.Mutable;
-
-   use all type Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
 
    procedure Comment (Value       : String;
                       Parent_Tags : Aida.XML.Tag_Name_Vector_T;

@@ -1,6 +1,6 @@
 with Aida.UTF8;
 with Ada.Characters.Latin_1;
-    with Aida.Text_IO;
+with Aida.Text_IO;
 
 procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
                                            Call_Result   : out Subprogram_Call_Result.T) with SPARK_Mode => On
@@ -142,7 +142,7 @@ begin
                         Pointer => P,
                         Value   => CP);
 
---                     Aida.Text_IO.Put_Line ("Extracted:" & Aida.UTF8.Image (CP) & ", state " & State_Id_Type'Image (State_Id));
+--                       Aida.Text_IO.Put_Line ("Extracted:" & Aida.UTF8.Image (CP) & ", state " & State_Id_Type'Image (State_Id));
 --                   Aida.Text_IO.Put (Aida.UTF8.Image (CP));
 
          case State_Id is
@@ -434,9 +434,8 @@ begin
                         return;
                      end if;
 
-                     Tag_Name_Vectors.Delete_Last (Tag_Names);
-
                      if not Shall_Ignore_Tag_Value then
+                        Tag_Name_Vectors.Delete_Last (Tag_Names);
                         End_Tag (Tag_Name,
                                  Value,
                                  Tag_Names,
@@ -458,6 +457,7 @@ begin
                            end if;
                         end;
 
+                        Tag_Name_Vectors.Delete_Last (Tag_Names);
                         End_Tag (Tag_Name,
                                  Tag_Names,
                                  Call_Result);

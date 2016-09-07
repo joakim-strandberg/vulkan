@@ -60,6 +60,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                null;
             when Child_XML_Dummy =>
                null;
+            when Child_XML_Text =>
+               null;
          end case;
       end loop;
    end Create_Vk_Package;

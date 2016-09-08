@@ -1735,4 +1735,29 @@ package body Std_String is
       return True;
    end Is_Latin1_Graphic_Characters;
 
+   function Starts_With (This         : String;
+                         Searched_For : String) return Boolean is
+   begin
+      if Searched_For'Length > This'Length then
+         return False;
+      end if;
+
+      declare
+         I : Integer := This'First;
+      begin
+         for Index in Integer range Searched_For'First..(Searched_For'Last - 1) loop
+            pragma Loop_Invariant (I = Index - Searched_For'First + This'First);
+            if This (I) /= Searched_For (Index) then
+               return False;
+            end if;
+            I := I + 1;
+         end loop;
+
+         if This (I) /= Searched_For (Searched_For'Last) then
+            return False;
+         end if;
+      end;
+      return True;
+   end Starts_With;
+
 end Std_String;

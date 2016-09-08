@@ -534,6 +534,12 @@ package Std_String is
                                                       elsif (Source(Source'First + 1) < '2') then
                                                     (To_String'Result = -1_000_000_000*I (Source, 1) - 100_000_000*I (Source, 2) - 10_000_000*I (Source, 3) - 1_000_000*I (Source, 4) - 100_000*I (Source, 5) - 10_000*I (Source, 6) - 1_000*I (Source, 7) - 100*I (Source, 8) - 10*I (Source, 9) - I (Source, 10)))));
 
-   function Is_Latin1_Graphic_Characters (T : String) return Boolean;
+   function Is_Latin1_Graphic_Characters (T : String) return Boolean with
+     Global => null;
+
+   function Starts_With (This         : String;
+                         Searched_For : String) return Boolean with
+     Global => null,
+     Pre    => Searched_For'Length > 0;
 
 end Std_String;

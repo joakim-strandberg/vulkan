@@ -1,6 +1,7 @@
 with Vk_XML;
 with Aida.Text_IO;
 with Ada.Text_IO;
+with Std_String;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
@@ -16,6 +17,31 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Enums.Fs.Name.T;
    use all type Vk_XML.Enums.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Enums_Shared_Ptr.T;
+   use all type Vk_XML.Enums_Enum_Shared_Ptr.T;
+   use all type Vk_XML.Enums_Enum.Fs.Value.T;
+   use all type Vk_XML.Enums_Enum.Fs.Name.T;
+
+   File : Ada.Text_IO.File_Type;
+
+   procedure Put_Tabs (N : Natural) is
+   begin
+      for I in Natural range 1..N loop
+         Ada.Text_IO.Put (File => File,
+                          Item => "   ");
+      end loop;
+   end Put_Tabs;
+
+   procedure Put_Line (Text : String) is
+   begin
+      Ada.Text_IO.Put_Line (File => File,
+                            Item => Text);
+   end Put_Line;
+
+   procedure Put (Text : String) is
+   begin
+      Ada.Text_IO.Put (File => File,
+                       Item => Text);
+   end Put;
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin
@@ -42,7 +68,62 @@ package body Vk_Package_Creator with SPARK_Mode is
 
    procedure Handle_API_Constants_Enum (Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T) is
    begin
-      null;
+      if Name (Enum_V).Exists then
+         if Value (Enum_V).Exists then
+            declare
+               Has_Failed : Boolean;
+               I : Integer;
+               V : String := To_String (Value (Enum_V).Value_V);
+               N : String := To_String (Name (Enum_V).Value);
+            begin
+               Std_String.To_Integer (Source => V,
+                                      Target => I,
+                                      Has_Failed => Has_Failed);
+
+               if Has_Failed then
+                  Aida.Text_IO.Put ("Could not convert '");
+                  Aida.Text_IO.Put (V);
+                  Aida.Text_IO.Put ("' to integer for ");
+                  Aida.Text_IO.Put_Line (N);
+               else
+                  -- Remove VK_ if the identifier begins with that
+                  -- Will not remove VK_ if it would result in a reserved word in Ada
+
+                  if Std_String.Starts_With (This         => N,
+                                             Searched_For => "VK_")
+                  then
+                     declare
+                        Short_N : String := N (N'First + 3..N'Last);
+                     begin
+                        if Short_N = "TRUE" or Short_N = "FALSE" then
+                           Put_Tabs (1);
+                           Put (N);
+                           Put (" : constant := ");
+                           Put (V);
+                           Put_Line (";");
+                        else
+                           Put_Tabs (1);
+                           Put (Short_N);
+                           Put (" : constant := ");
+                           Put (V);
+                           Put_Line (";");
+                        end if;
+                     end;
+                  else
+                     Put_Tabs (1);
+                     Put (N);
+                     Put (" : constant := ");
+                     Put (V);
+                     Put_Line (";");
+                  end if;
+               end if;
+            end;
+         else
+            Aida.Text_IO.Put_Line ("A <enum> tag exists without Value attribute!?");
+         end if;
+      else
+         Aida.Text_IO.Put_Line ("A <enum> tag exists without Name attribute!?");
+      end if;
    end Handle_API_Constants_Enum;
 
    procedure Handle_Child_Enums_Enum (Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T) is
@@ -71,27 +152,6 @@ package body Vk_Package_Creator with SPARK_Mode is
    end Handle_Registry_Child_Enums;
 
    procedure Create_Vk_Package (R : Vk_XML.Registry_Shared_Ptr.T) is
-      File : Ada.Text_IO.File_Type;
-
-      procedure Put_Tabs (N : Natural) is
-      begin
-         for I in Natural range 1..N loop
-            Ada.Text_IO.Put (File => File,
-                             Item => "   ");
-         end loop;
-      end Put_Tabs;
-
-      procedure Put_Line (Text : String) is
-      begin
-         Ada.Text_IO.Put_Line (File => File,
-                               Item => Text);
-      end Put_Line;
-
-      procedure Put (Text : String) is
-      begin
-         Ada.Text_IO.Put (File => File,
-                          Item => Text);
-      end Put;
    begin
       Ada.Text_IO.Create (File => File,
                           Mode => Ada.Text_IO.Out_File,

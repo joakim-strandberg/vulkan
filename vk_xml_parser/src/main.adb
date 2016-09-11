@@ -8,7 +8,7 @@ with Ada.Strings.Unbounded;
 with Vk_Package_Creator;
 with Vk_XML_Reader;
 with Vk_XML;
-
+with Aida.UTF8_Code_Point;
 use all type Aida.XML.Subprogram_Call_Result.T;
 
 procedure Main is
@@ -49,6 +49,8 @@ begin
       Aida.Text_IO.Put_Line ("Could not find file!");
       return;
    end if;
+
+   Aida.UTF8_Code_Point.Check;
 
    Main_Internal;
 end Main;

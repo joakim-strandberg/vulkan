@@ -15,4 +15,18 @@ package Aida.UTF8_Code_Point with SPARK_Mode is
    function Image (Value : T) return String with
      Global => null;
 
+   --
+   -- Is_Uppercase -- Case test
+   --
+   --    Value - Code point
+   --
+   -- Returns :
+   --
+   --    True if Value is a lower case point
+   --
+   function Is_Uppercase (Value : T) return Boolean with
+     Global => null;
+
+   procedure Check;
+
 end Aida.UTF8_Code_Point;

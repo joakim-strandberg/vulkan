@@ -4,8 +4,11 @@ with Aida.UTF8;
 with Ada.Text_IO;
 with Std_String;
 with Aida.Strings;
+with Aida.UTF8_Code_Point;
 
 package body Vk_Package_Creator with SPARK_Mode is
+
+   use all type Aida.UTF8_Code_Point.T;
 
    use all type Vk_XML.Registry_Shared_Ptr.T;
    use all type Vk_XML.Registry.Fs.Child_Vectors.Immutable_T;
@@ -70,26 +73,26 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Adaify_Constant_Name;
 
---     procedure Generate_Struct_Name (Old_Name : String;
---                                     New_Name : in out Aida.Strings.Unbounded_String_Type)
---     is
---        P : Integer := Old_Name'First;
---
---        CP : Aida.UTF8.Code_Point := 0;
---
---        Is_Previous_Lowercase : Boolean := False;
---        Is_Previous_A_Number  : Boolean := False;
---        Is_Previous_An_Undercase  : Boolean := False;
---     begin
---        New_Name.Initialize ("");
---        Aida.UTF8.Get (Source  => Old_Name,
---                       Pointer => P,
---                       Value   => CP);
---
---        if Strings_Edit.UTF8.Mapping.Is_Uppercase (CP) then
---           New_Name.Append (Aida.UTF8.Image (CP));
+   procedure Generate_Struct_Name (Old_Name : String;
+                                   New_Name : in out Aida.Strings.Unbounded_String_Type)
+   is
+      P : Integer := Old_Name'First;
+
+      CP : Aida.UTF8_Code_Point.T := 0;
+
+      Is_Previous_Lowercase : Boolean := False;
+      Is_Previous_A_Number  : Boolean := False;
+      Is_Previous_An_Undercase  : Boolean := False;
+   begin
+      New_Name.Initialize ("");
+      Aida.UTF8.Get (Source  => Old_Name,
+                     Pointer => P,
+                     Value   => CP);
+
+--        if Is_Uppercase (CP) then
+--           New_Name.Append (Image (CP));
 --        else
---           New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
+--           New_Name.Append (Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
 --        end if;
 --
 --        while P <= Old_Name'Last loop
@@ -133,7 +136,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 --           end if;
 --
 --        end loop;
---     end Generate_Struct_Name;
+   end Generate_Struct_Name;
 
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is

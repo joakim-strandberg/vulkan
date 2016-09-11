@@ -1,4 +1,5 @@
 with Ada.Containers;
+with Aida.UTF8_Code_Point;
 --  with Aida.Generic_Subprogram_Call_Result;
 
 use type Ada.Containers.Count_Type;
@@ -7,12 +8,11 @@ use type Ada.Containers.Count_Type;
 
 package Aida.UTF8 with SPARK_Mode is
 
-   type Code_Point is mod 2**32;
-   subtype UTF8_Code_Point is Code_Point range 0..16#10FFFF#;
-
 --     package Subprogram_Call_Result is new Aida.Generic_Subprogram_Call_Result (1000);
 --
 --     use Subprogram_Call_Result;
+
+   use all type Aida.UTF8_Code_Point.T;
 
    function Is_Valid_UTF8_Code_Point (Source      : String;
                                       Pointer     : Integer) return Boolean is ((Source'First <= Pointer and Pointer <= Source'Last) and then
@@ -44,7 +44,7 @@ package Aida.UTF8 with SPARK_Mode is
 --
    procedure Get (Source      : String;
                   Pointer     : in out Integer;
-                  Value       : out UTF8_Code_Point) with
+                  Value       : out Aida.UTF8_Code_Point.T) with
      Global => null,
      Pre    => Is_Valid_UTF8_Code_Point (Source, Pointer),
      Post   => (if (Character'Pos (Source (Pointer'Old)) in 0..16#7F#) then Character'Pos (Source (Pointer'Old)) = Value and Pointer = Pointer'Old + 1
@@ -75,18 +75,6 @@ package Aida.UTF8 with SPARK_Mode is
      Global => null;
 
 --
--- Image -- Of an UTF-8 code point
---
---    Value - The code point
---
--- Returns :
---
---    UTF-8 encoded equivalent
---
-   function Image (Value : UTF8_Code_Point) return String with
-     Global => null;
-
---
 -- Put -- Put one UTF-8 code point
 --
 --    Destination - The target string
@@ -104,7 +92,7 @@ package Aida.UTF8 with SPARK_Mode is
 --
    procedure Put (Destination : in out String;
                   Pointer     : in out Integer;
-                  Value       : UTF8_Code_Point) with
+                  Value       : Aida.UTF8_Code_Point.T) with
      Global => null,
      Pre    => (Pointer in Destination'Range and Destination'Last < Integer'Last) and then (if Value <= 16#7F# then Pointer < Integer'Last
                                                                                               elsif Value <= 16#7FF# then Pointer < Integer'Last - 1 and Pointer + 1 in Destination'Range

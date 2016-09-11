@@ -1,11 +1,12 @@
 with Aida.UTF8;
+with Aida.UTF8_Code_Point;
 with Ada.Characters.Latin_1;
 with Aida.Text_IO;
 
 procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
                                            Call_Result   : out Subprogram_Call_Result.T) with SPARK_Mode => On
 is
-   use type Aida.UTF8.Code_Point;
+   use all type Aida.UTF8_Code_Point.T;
 
    use Tag_Name;
    use Subprogram_Call_Result;
@@ -56,7 +57,7 @@ is
 
    Shall_Ignore_Tag_Value_List : Boolean_Vectors.Vector (50);
 
-   function Is_Special_Symbol (CP : Aida.UTF8.Code_Point) return Boolean is
+   function Is_Special_Symbol (CP : Aida.UTF8_Code_Point.T) return Boolean is
    begin
       if CP = Character'Pos ('<') then
          return True;
@@ -101,7 +102,7 @@ begin
       Prev_P      : Integer := P;
       Prev_Prev_P : Integer := Prev_P;
 
-      CP      : Aida.UTF8.Code_Point := 0;
+      CP      : Aida.UTF8_Code_Point.T := 0;
 
       Start_Tag_Name_First_Index : Integer;
       Start_Tag_Name_Last_Index  : Integer;
@@ -172,21 +173,21 @@ begin
                   State_Id := Extracting_Start_Tag_Name;
                   Start_Tag_Name_First_Index := Prev_P;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Found_Less_Followed_By_Exclamation_Sign =>
                if CP = Character'Pos ('-') then
                   State_Id := Found_Less_Followed_By_Exclamation_And_Dash_Sign;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Found_Less_Followed_By_Exclamation_And_Dash_Sign =>
                if CP = Character'Pos ('-') then
                   State_Id := Extracting_Comment;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Extracting_Start_Tag_Name =>
@@ -226,7 +227,7 @@ begin
 
                   State_Id := Expecting_New_Tag_Or_Extracting_Tag_Value;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Expecting_G_Sign_Or_Extracting_Attributes =>
@@ -284,7 +285,7 @@ begin
                   Attribute_Value_First_Index := P;
                   State_Id := Extracting_Attribute_Value;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Extracting_Attribute_Value =>
@@ -328,7 +329,7 @@ begin
                   State_Id := Extracting_End_Tag_Name;
                   End_Tag_Name_First_Index := P;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                else
                   -- Will ignore tag value, and start parsing child tag!
@@ -477,7 +478,7 @@ begin
                   Initialize (Call_Result, "New line is forbidden inside attribute value, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Aida.UTF8.Code_Point'Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
                   return;
                end if;
             when Expecting_New_Tag_Or_Extracting_Tag_Value_And_Found_L_And_Exclamation_And_Dash =>

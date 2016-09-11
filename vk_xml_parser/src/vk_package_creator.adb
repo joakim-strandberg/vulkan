@@ -1,7 +1,9 @@
 with Vk_XML;
 with Aida.Text_IO;
+with Aida.UTF8;
 with Ada.Text_IO;
 with Std_String;
+with Aida.Strings;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
@@ -42,6 +44,97 @@ package body Vk_Package_Creator with SPARK_Mode is
       Ada.Text_IO.Put (File => File,
                        Item => Text);
    end Put;
+
+   -- Remove VK_ if the identifier begins with that
+   -- Will not remove VK_ if it would result in a reserved word in Ada
+   function Adaify_Constant_Name (N : String) return String is
+   begin
+      if Std_String.Starts_With (This         => N,
+                                 Searched_For => "VK_")
+      then
+         if N'Length > 3 then
+            declare
+               Short_N : String := N (N'First + 3..N'Last);
+            begin
+               if Short_N = "TRUE" or Short_N = "FALSE" then
+                  return N;
+               else
+                  return N (N'First + 3..N'Last);
+               end if;
+            end;
+         else
+            return N;
+         end if;
+      else
+         return N;
+      end if;
+   end Adaify_Constant_Name;
+
+--     procedure Generate_Struct_Name (Old_Name : String;
+--                                     New_Name : in out Aida.Strings.Unbounded_String_Type)
+--     is
+--        P : Integer := Old_Name'First;
+--
+--        CP : Aida.UTF8.Code_Point := 0;
+--
+--        Is_Previous_Lowercase : Boolean := False;
+--        Is_Previous_A_Number  : Boolean := False;
+--        Is_Previous_An_Undercase  : Boolean := False;
+--     begin
+--        New_Name.Initialize ("");
+--        Aida.UTF8.Get (Source  => Old_Name,
+--                       Pointer => P,
+--                       Value   => CP);
+--
+--        if Strings_Edit.UTF8.Mapping.Is_Uppercase (CP) then
+--           New_Name.Append (Aida.UTF8.Image (CP));
+--        else
+--           New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
+--        end if;
+--
+--        while P <= Old_Name'Last loop
+--           Strings_Edit.UTF8.Get (Source  => Old_Name,
+--                                  Pointer => P,
+--                                  Value   => CP);
+--
+--           if Strings_Edit.UTF8.Image (CP) = "_" then
+--              New_Name.Append ("_");
+--              Is_Previous_An_Undercase := True;
+--           else
+--              if Strings_Edit.UTF8.Categorization.Is_Digit (CP) then
+--                 if Is_Previous_A_Number then
+--                    New_Name.Append (Aida.UTF8.Image (CP));
+--                 else
+--                    New_Name.Append ("_" & Strings_Edit.UTF8.Image (CP));
+--                 end if;
+--
+--                 Is_Previous_A_Number := True;
+--              else
+--                 if Strings_Edit.UTF8.Mapping.Is_Uppercase (CP) then
+--                    if Is_Previous_Lowercase then
+--                       New_Name.Append ("_" & Strings_Edit.UTF8.Image (CP));
+--                       Is_Previous_Lowercase := False;
+--                    else
+--                       New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Lowercase (CP)));
+--                    end if;
+--                 else
+--                    if Is_Previous_An_Undercase then
+--                       New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
+--                    else
+--                       New_Name.Append (Aida.UTF8.Image (CP));
+--                    end if;
+--                    Is_Previous_Lowercase := True;
+--                 end if;
+--
+--                 Is_Previous_A_Number := False;
+--              end if;
+--
+--              Is_Previous_An_Undercase := False;
+--           end if;
+--
+--        end loop;
+--     end Generate_Struct_Name;
+
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin
@@ -86,36 +179,11 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Aida.Text_IO.Put ("' to integer for ");
                   Aida.Text_IO.Put_Line (N);
                else
-                  -- Remove VK_ if the identifier begins with that
-                  -- Will not remove VK_ if it would result in a reserved word in Ada
-
-                  if Std_String.Starts_With (This         => N,
-                                             Searched_For => "VK_")
-                  then
-                     declare
-                        Short_N : String := N (N'First + 3..N'Last);
-                     begin
-                        if Short_N = "TRUE" or Short_N = "FALSE" then
-                           Put_Tabs (1);
-                           Put (N);
-                           Put (" : constant := ");
-                           Put (V);
-                           Put_Line (";");
-                        else
-                           Put_Tabs (1);
-                           Put (Short_N);
-                           Put (" : constant := ");
-                           Put (V);
-                           Put_Line (";");
-                        end if;
-                     end;
-                  else
-                     Put_Tabs (1);
-                     Put (N);
-                     Put (" : constant := ");
-                     Put (V);
-                     Put_Line (";");
-                  end if;
+                  Put_Tabs (1);
+                  Put (Adaify_Constant_Name (N));
+                  Put (" : constant := ");
+                  Put (V);
+                  Put_Line (";");
                end if;
             end;
          else

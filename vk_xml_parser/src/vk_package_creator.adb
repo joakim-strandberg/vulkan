@@ -73,8 +73,8 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Adaify_Constant_Name;
 
-   procedure Generate_Struct_Name (Old_Name : String;
-                                   New_Name : in out Aida.Strings.Unbounded_String_Type)
+   procedure Adaify_Name (Old_Name : String;
+                          New_Name : in out Aida.Strings.Unbounded_String_Type)
    is
       P : Integer := Old_Name'First;
 
@@ -89,55 +89,54 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Pointer => P,
                      Value   => CP);
 
---        if Is_Uppercase (CP) then
---           New_Name.Append (Image (CP));
---        else
---           New_Name.Append (Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
---        end if;
---
---        while P <= Old_Name'Last loop
---           Strings_Edit.UTF8.Get (Source  => Old_Name,
---                                  Pointer => P,
---                                  Value   => CP);
---
---           if Strings_Edit.UTF8.Image (CP) = "_" then
---              New_Name.Append ("_");
---              Is_Previous_An_Undercase := True;
---           else
---              if Strings_Edit.UTF8.Categorization.Is_Digit (CP) then
---                 if Is_Previous_A_Number then
---                    New_Name.Append (Aida.UTF8.Image (CP));
---                 else
---                    New_Name.Append ("_" & Strings_Edit.UTF8.Image (CP));
---                 end if;
---
---                 Is_Previous_A_Number := True;
---              else
---                 if Strings_Edit.UTF8.Mapping.Is_Uppercase (CP) then
---                    if Is_Previous_Lowercase then
---                       New_Name.Append ("_" & Strings_Edit.UTF8.Image (CP));
---                       Is_Previous_Lowercase := False;
---                    else
---                       New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Lowercase (CP)));
---                    end if;
---                 else
---                    if Is_Previous_An_Undercase then
---                       New_Name.Append (Aida.UTF8.Image (Strings_Edit.UTF8.Mapping.To_Uppercase (CP)));
---                    else
---                       New_Name.Append (Aida.UTF8.Image (CP));
---                    end if;
---                    Is_Previous_Lowercase := True;
---                 end if;
---
---                 Is_Previous_A_Number := False;
---              end if;
---
---              Is_Previous_An_Undercase := False;
---           end if;
---
---        end loop;
-   end Generate_Struct_Name;
+      if Is_Uppercase (CP) then
+         New_Name.Append (Image (CP));
+      else
+         New_Name.Append (Image (To_Uppercase (CP)));
+      end if;
 
+      while P <= Old_Name'Last loop
+         Aida.UTF8.Get (Source  => Old_Name,
+                        Pointer => P,
+                        Value   => CP);
+
+         if Image (CP) = "_" then
+            New_Name.Append ("_");
+            Is_Previous_An_Undercase := True;
+         else
+            if Is_Digit (CP) then
+               if Is_Previous_A_Number then
+                  New_Name.Append (Image (CP));
+               else
+                  New_Name.Append ("_" & Image (CP));
+               end if;
+
+               Is_Previous_A_Number := True;
+            else
+               if Is_Uppercase (CP) then
+                  if Is_Previous_Lowercase then
+                     New_Name.Append ("_" & Image (CP));
+                     Is_Previous_Lowercase := False;
+                  else
+                     New_Name.Append (Image (To_Lowercase (CP)));
+                  end if;
+               else
+                  if Is_Previous_An_Undercase then
+                     New_Name.Append (Image (To_Uppercase (CP)));
+                  else
+                     New_Name.Append (Image (CP));
+                  end if;
+                  Is_Previous_Lowercase := True;
+               end if;
+
+               Is_Previous_A_Number := False;
+            end if;
+
+            Is_Previous_An_Undercase := False;
+         end if;
+
+      end loop;
+   end Adaify_Name;
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin

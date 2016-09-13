@@ -9,7 +9,9 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Lower : T;
    end record;
    type Categorization_Index is range 1..3070;
-   type Categorization_Array is array (Categorization_Index) of Categorization;
+   type Categorization_Array is array (Categorization_Index) of Categorization with
+     Dynamic_Predicate => (for all I in Categorization_Array'Range =>
+                             (for all J in I..Categorization_Array'Last => Categorization_Array (I).Code <= Categorization_Array (J).Code));
 
    Mapping : constant Categorization_Array :=
    (
@@ -1050,30 +1052,27 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
    end Image;
 
    procedure Find (Code  : T;
-                   CA    : Categorization_Array;
                    Found : out Boolean;
                    Index : in out Categorization_Index) with
-     Global => null,
-     Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
+     Global => null;
 
    procedure Find (Code  : T;
-                   CA    : Categorization_Array;
                    Found : out Boolean;
                    Index : in out Categorization_Index)
    is
-      From : Categorization_Index'Base := CA'First;
-      To   : Categorization_Index'Base := CA'Last;
+      From : Categorization_Index'Base := Mapping'First;
+      To   : Categorization_Index'Base := Mapping'Last;
       This : Categorization_Index;
       Current : Code_Point;
    begin
       while From <= To loop
-         pragma Loop_Invariant (From >= CA'First);
-         pragma Loop_Invariant (To <= CA'Last);
-         pragma Loop_Invariant (for all I in CA'First..(From - 1) => CA (I).Code < Code);
-         pragma Loop_Invariant (for all I in (To + 1)..CA'Last => Code < CA (I).Code);
+         pragma Loop_Invariant (From >= Mapping'First);
+         pragma Loop_Invariant (To <= Mapping'Last);
+         pragma Loop_Invariant (for all I in Mapping'First..(From - 1) => Mapping (I).Code < Code);
+         pragma Loop_Invariant (for all I in (To + 1)..Mapping'Last => Code < Mapping (I).Code);
 
          This := From + (To - From) / 2;
-         Current := CA (This).Code;
+         Current := Mapping (This).Code;
 
          if Current < Code then
             From := This + 1;
@@ -1096,7 +1095,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Found : Boolean;
    begin
       pragma Assume (for all I in Mapping'Range => (for all J in I..Mapping'Last => Mapping (I).Code <= Mapping (J).Code));
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Upper = Value;
       else
@@ -1108,7 +1107,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return (Mapping (Index).Lower = Value or else Mapping (Index).Upper = Value);
       else
@@ -1120,7 +1119,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Lower = Value;
       else
@@ -1132,7 +1131,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Lower;
       else
@@ -1145,7 +1144,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Upper;
       else

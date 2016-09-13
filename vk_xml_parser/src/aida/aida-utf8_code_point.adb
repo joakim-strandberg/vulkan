@@ -8,7 +8,6 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Upper : T;
       Lower : T;
    end record;
-   type Categorization_Index is range 1..3070;
    type Categorization_Array is array (Categorization_Index) of Categorization with
      Dynamic_Predicate => (for all I in Categorization_Array'Range =>
                              (for all J in I..Categorization_Array'Last => Categorization_Array (I).Code <= Categorization_Array (J).Code));
@@ -1041,8 +1040,6 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       (16#1D7CB#,16#1D7CB#,16#1D7CB#)
    );
 
-   pragma Assert (for all I in Mapping'Range => (for all J in I..Mapping'Last => Mapping (I).Code <= Mapping (J).Code));
-
    function Image (Value : T) return String is
       Result  : String (1..4) := (others => ' ');
       Pointer : Integer := Result'First;
@@ -1053,11 +1050,6 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
 
    procedure Find (Code  : T;
                    Found : out Boolean;
-                   Index : in out Categorization_Index) with
-     Global => null;
-
-   procedure Find (Code  : T;
-                   Found : out Boolean;
                    Index : in out Categorization_Index)
    is
       From : Categorization_Index'Base := Mapping'First;
@@ -1065,6 +1057,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       This : Categorization_Index;
       Current : Code_Point;
    begin
+      pragma Assert (for all I in Mapping'Range => (for all J in I..Mapping'Last => Mapping (I).Code <= Mapping (J).Code));
       while From <= To loop
          pragma Loop_Invariant (From >= Mapping'First);
          pragma Loop_Invariant (To <= Mapping'Last);

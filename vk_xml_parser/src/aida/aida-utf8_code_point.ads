@@ -202,4 +202,11 @@ private
         Is_Identifier_Start, Is_Identifier_Extend
        );
 
+   type Categorization_Index is range 1..3070;
+
+   procedure Find (Code  : T;
+                   Found : out Boolean;
+                   Index : in out Categorization_Index) with
+     Global => null;
+
 end Aida.UTF8_Code_Point;

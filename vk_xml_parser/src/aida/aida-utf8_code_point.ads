@@ -202,11 +202,21 @@ private
         Is_Identifier_Start, Is_Identifier_Extend
        );
 
+   type Categorization is record
+      Code  : T;
+      Upper : T;
+      Lower : T;
+   end record;
    type Categorization_Index is range 1..3070;
+   type Categorization_Array is array (Categorization_Index) of Categorization with
+     Dynamic_Predicate => (for all I in Categorization_Array'Range =>
+                             (for all J in I..Categorization_Array'Last => Categorization_Array (I).Code <= Categorization_Array (J).Code));
 
    procedure Find (Code  : T;
+                   CA    : Categorization_Array;
                    Found : out Boolean;
                    Index : in out Categorization_Index) with
-     Global => null;
+     Global => null,
+     Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
 
 end Aida.UTF8_Code_Point;

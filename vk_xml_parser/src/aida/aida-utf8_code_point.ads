@@ -1,3 +1,69 @@
+-- The code in this package originates from the work of Dmitry A. Kazakov,
+-- the Simple Components library. The changes can be summarized:
+--
+--  - Conversion from Ada95 to SPARK (Ada2012)
+--  - The subprograms have been grouped differently.
+--
+--  The original copyright notices:
+--                                                                    --
+--                                                                    --
+--  package Strings_Edit.UTF8       Copyright (c)  Dmitry A. Kazakov  --
+--  Interface                                      Luebeck            --
+--                                                 Spring, 2005       --
+--                                                                    --
+--                                Last revision :  21:03 21 Apr 2009  --
+--                                                                    --
+--  This  library  is  free software; you can redistribute it and/or  --
+--  modify it under the terms of the GNU General Public  License  as  --
+--  published by the Free Software Foundation; either version  2  of  --
+--  the License, or (at your option) any later version. This library  --
+--  is distributed in the hope that it will be useful,  but  WITHOUT  --
+--  ANY   WARRANTY;   without   even   the   implied   warranty   of  --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  --
+--  General  Public  License  for  more  details.  You  should  have  --
+--  received  a  copy  of  the GNU General Public License along with  --
+--  this library; if not, write to  the  Free  Software  Foundation,  --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.    --
+--                                                                    --
+--  As a special exception, if other files instantiate generics from  --
+--  this unit, or you link this unit with other files to produce  an  --
+--  executable, this unit does not by  itself  cause  the  resulting  --
+--  executable to be covered by the GNU General Public License. This  --
+--  exception  does not however invalidate any other reasons why the  --
+--  executable file might be covered by the GNU Public License.       --
+--
+--
+--
+--  package                         Copyright (c)  Dmitry A. Kazakov  --
+--     Strings_Edit.UTF8.Categorization            Luebeck            --
+--  Interface                                      Spring, 2008       --
+--                                                                    --
+--                                Last revision :  21:03 21 Apr 2009  --
+--                                                                    --
+--  This  library  is  free software; you can redistribute it and/or  --
+--  modify it under the terms of the GNU General Public  License  as  --
+--  published by the Free Software Foundation; either version  2  of  --
+--  the License, or (at your option) any later version. This library  --
+--  is distributed in the hope that it will be useful,  but  WITHOUT  --
+--  ANY   WARRANTY;   without   even   the   implied   warranty   of  --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  --
+--  General  Public  License  for  more  details.  You  should  have  --
+--  received  a  copy  of  the GNU General Public License along with  --
+--  this library; if not, write to  the  Free  Software  Foundation,  --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.    --
+--                                                                    --
+--  As a special exception, if other files instantiate generics from  --
+--  this unit, or you link this unit with other files to produce  an  --
+--  executable, this unit does not by  itself  cause  the  resulting  --
+--  executable to be covered by the GNU General Public License. This  --
+--  exception  does not however invalidate any other reasons why the  --
+--  executable file might be covered by the GNU Public License.       --
+--____________________________________________________________________--
+--
+--  This  package  provides  categorization of code points as defined by
+--  UnicodeData file.
+--
+
 package Aida.UTF8_Code_Point with SPARK_Mode is
 
    package Fs with SPARK_Mode is
@@ -201,22 +267,5 @@ private
         Is_Subscript_Digit,  Is_Superscript_Digit,
         Is_Identifier_Start, Is_Identifier_Extend
        );
-
-   type Categorization is record
-      Code  : T;
-      Upper : T;
-      Lower : T;
-   end record;
-   type Categorization_Index is range 1..3070;
-   type Categorization_Array is array (Categorization_Index) of Categorization with
-     Dynamic_Predicate => (for all I in Categorization_Array'Range =>
-                             (for all J in I..Categorization_Array'Last => Categorization_Array (I).Code <= Categorization_Array (J).Code));
-
-   procedure Find (Code  : T;
-                   CA    : Categorization_Array;
-                   Found : out Boolean;
-                   Index : in out Categorization_Index) with
-     Global => null,
-     Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
 
 end Aida.UTF8_Code_Point;

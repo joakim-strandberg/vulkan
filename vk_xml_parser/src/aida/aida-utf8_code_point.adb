@@ -1,7 +1,85 @@
+-- The code in this package originates from the work of Dmitry A. Kazakov,
+-- the Simple Components library. The changes can be summarized:
+--
+--  - Conversion from Ada95 to SPARK (Ada2012)
+--  - The subprograms have been grouped differently.
+--
+--  The original copyright notices:
+--                                                                    --
+--                                                                    --
+--  package Strings_Edit.UTF8       Copyright (c)  Dmitry A. Kazakov  --
+--  Interface                                      Luebeck            --
+--                                                 Spring, 2005       --
+--                                                                    --
+--                                Last revision :  21:03 21 Apr 2009  --
+--                                                                    --
+--  This  library  is  free software; you can redistribute it and/or  --
+--  modify it under the terms of the GNU General Public  License  as  --
+--  published by the Free Software Foundation; either version  2  of  --
+--  the License, or (at your option) any later version. This library  --
+--  is distributed in the hope that it will be useful,  but  WITHOUT  --
+--  ANY   WARRANTY;   without   even   the   implied   warranty   of  --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  --
+--  General  Public  License  for  more  details.  You  should  have  --
+--  received  a  copy  of  the GNU General Public License along with  --
+--  this library; if not, write to  the  Free  Software  Foundation,  --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.    --
+--                                                                    --
+--  As a special exception, if other files instantiate generics from  --
+--  this unit, or you link this unit with other files to produce  an  --
+--  executable, this unit does not by  itself  cause  the  resulting  --
+--  executable to be covered by the GNU General Public License. This  --
+--  exception  does not however invalidate any other reasons why the  --
+--  executable file might be covered by the GNU Public License.       --
+--
+--
+--
+--  package                         Copyright (c)  Dmitry A. Kazakov  --
+--     Strings_Edit.UTF8.Categorization            Luebeck            --
+--  Interface                                      Spring, 2008       --
+--                                                                    --
+--                                Last revision :  21:03 21 Apr 2009  --
+--                                                                    --
+--  This  library  is  free software; you can redistribute it and/or  --
+--  modify it under the terms of the GNU General Public  License  as  --
+--  published by the Free Software Foundation; either version  2  of  --
+--  the License, or (at your option) any later version. This library  --
+--  is distributed in the hope that it will be useful,  but  WITHOUT  --
+--  ANY   WARRANTY;   without   even   the   implied   warranty   of  --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  --
+--  General  Public  License  for  more  details.  You  should  have  --
+--  received  a  copy  of  the GNU General Public License along with  --
+--  this library; if not, write to  the  Free  Software  Foundation,  --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.    --
+--                                                                    --
+--  As a special exception, if other files instantiate generics from  --
+--  this unit, or you link this unit with other files to produce  an  --
+--  executable, this unit does not by  itself  cause  the  resulting  --
+--  executable to be covered by the GNU General Public License. This  --
+--  exception  does not however invalidate any other reasons why the  --
+--  executable file might be covered by the GNU Public License.       --
+--____________________________________________________________________--
+--
+--  This  package  provides  categorization of code points as defined by
+--  UnicodeData file.
+--
+
 with Aida.UTF8;
 with Aida.Text_IO;
 
 package body Aida.UTF8_Code_Point with SPARK_Mode is
+
+   use all type Fs.General_Category;
+
+   type Categorization is record
+      Code  : T;
+      Upper : T;
+      Lower : T;
+   end record;
+   type Categorization_Index is range 1..3070;
+   type Categorization_Array is array (Categorization_Index) of Categorization with
+     Dynamic_Predicate => (for all I in Categorization_Array'Range =>
+                             (for all J in I..Categorization_Array'Last => Categorization_Array (I).Code <= Categorization_Array (J).Code));
 
    Mapping : constant Categorization_Array :=
    (
@@ -1039,8 +1117,59 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       return Result (1..Pointer - 1);
    end Image;
 
+-- The Find procedure can be formally verified by SPARK GPL 2016, Level=None
+-- and it takes around 20 seconds:
+--
+--     procedure Find (Code  : T;
+--                     CA    : Categorization_Array;
+--                     Found : out Boolean;
+--                     Index : in out Categorization_Index) with
+--       Global => null,
+--       Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
+--
+--     procedure Find (Code  : T;
+--                     CA    : Categorization_Array;
+--                     Found : out Boolean;
+--                     Index : in out Categorization_Index)
+--     is
+--        From : Categorization_Index'Base := Mapping'First;
+--        To   : Categorization_Index'Base := Mapping'Last;
+--        This : Categorization_Index;
+--        Current : Code_Point;
+--     begin
+--        while From <= To loop
+--           pragma Loop_Invariant (From >= CA'First);
+--           pragma Loop_Invariant (To <= CA'Last);
+--           pragma Loop_Invariant (for all I in CA'First..(From - 1) => CA (I).Code < Code);
+--           pragma Loop_Invariant (for all I in (To + 1)..CA'Last => Code < CA (I).Code);
+--
+--           This := From + (To - From) / 2;
+--           Current := CA (This).Code;
+--
+--           if Current < Code then
+--              From := This + 1;
+--           elsif Current > Code then
+--              To := This - 1;
+--           elsif Current = Code then
+--              Found := True;
+--              Index := This;
+--              return;
+--           else
+--              Found := False;
+--              return;
+--           end if;
+--        end loop;
+--        Found := False;
+--     end Find;
+
    procedure Find (Code  : T;
-                   CA    : Categorization_Array;
+                   Found : out Boolean;
+                   Index : in out Categorization_Index) with
+     Global => null;
+
+   -- Has not been able to formally verify this procedure with SPARK GPL 2016.
+   -- But the out-commented Find procedure above can be formally verified.
+   procedure Find (Code  : T;
                    Found : out Boolean;
                    Index : in out Categorization_Index)
    is
@@ -1050,13 +1179,13 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Current : Code_Point;
    begin
       while From <= To loop
-         pragma Loop_Invariant (From >= CA'First);
-         pragma Loop_Invariant (To <= CA'Last);
-         pragma Loop_Invariant (for all I in CA'First..(From - 1) => CA (I).Code < Code);
-         pragma Loop_Invariant (for all I in (To + 1)..CA'Last => Code < CA (I).Code);
+         pragma Loop_Invariant (From >= Mapping'First);
+         pragma Loop_Invariant (To <= Mapping'Last);
+         pragma Loop_Invariant (for all I in Mapping'First..(From - 1) => Mapping (I).Code < Code);
+         pragma Loop_Invariant (for all I in (To + 1)..Mapping'Last => Code < Mapping (I).Code);
 
          This := From + (To - From) / 2;
-         Current := CA (This).Code;
+         Current := Mapping (This).Code;
 
          if Current < Code then
             From := This + 1;
@@ -1074,11 +1203,14 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Found := False;
    end Find;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Uppercase (Value : T) return Boolean is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Upper = Value;
       else
@@ -1086,11 +1218,14 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end if;
    end Is_Uppercase;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Has_Case (Value : T) return Boolean is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return (Mapping (Index).Lower = Value or else Mapping (Index).Upper = Value);
       else
@@ -1098,11 +1233,14 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end if;
    end Has_Case;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Lowercase (Value : T) return Boolean is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Lower = Value;
       else
@@ -1110,11 +1248,14 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end if;
    end Is_Lowercase;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function To_Lowercase (Value : T) return T is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Lower;
       else
@@ -1122,12 +1263,14 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end if;
    end To_Lowercase;
 
-
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function To_Uppercase (Value : T) return T is
       Index : Categorization_Index := Categorization_Index'First;
       Found : Boolean;
    begin
-      Find (Value, Mapping, Found, Index);
+      Find (Value, Found, Index);
       if Found then
          return Mapping (Index).Upper;
       else
@@ -1840,8 +1983,7 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       (16#10FFFD#,16#10FFFD#,Fs.CO)
    );
 
-   use all type Fs.General_Category;
-
+   -- Needs to be formally verified:
    function Category (Value : T) return Fs.General_Category is
       From : Range_Index := Category_Mapping'First;
       To   : Range_Index := Category_Mapping'Last;
@@ -1864,6 +2006,9 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       return Fs.Co;
    end Category;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Alphanumeric (Value : in T) return Boolean is
    begin
       case Category (Value) is
@@ -1874,11 +2019,17 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end case;
    end Is_Alphanumeric;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Control (Value : in T) return Boolean is
    begin
       return Category (Value) = Fs.Cc;
    end Is_Control;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Identifier_Extend (Value : in T) return Boolean is
    begin
       case Category (Value) is
@@ -1889,6 +2040,9 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end case;
    end Is_Identifier_Extend;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Identifier_Start (Value : in T) return Boolean is
    begin
       case Category (Value) is
@@ -1899,43 +2053,66 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end case;
    end Is_Identifier_Start;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_ISO_646 (Value : in T) return Boolean is
    begin
       return Value <= 16#7F#;
    end Is_ISO_646;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Letter (Value : in T) return Boolean is
    begin
       return Category (Value) in Fs.Letter;
    end Is_Letter;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Lower (Value : in T) return Boolean is
    begin
       return Category (Value) = Ll;
    end Is_Lower;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Digit (Value : in T) return Boolean is
    begin
       return Category (Value) = Nd;
    end Is_Digit;
 
-   function Is_Other_Format (Value : in T)
-                             return Boolean is
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
+   function Is_Other_Format (Value : in T) return Boolean is
    begin
       return Category (Value) = Cf;
    end Is_Other_Format;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Space (Value : in T) return Boolean is
    begin
       return Category (Value) = Zs;
    end Is_Space;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Subscript_Digit (Value : in T)
                                 return Boolean is
    begin
       return Value in 16#2080#..16#208A#;
    end Is_Subscript_Digit;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Superscript_Digit (Value : in T) return Boolean is
    begin
       case Value is
@@ -1946,11 +2123,17 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       end case;
    end Is_Superscript_Digit;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Title (Value : in T) return Boolean is
    begin
       return Category (Value) = Lt;
    end Is_Title;
 
+   -- Verified by: SPARK GPL 2016
+   -- Level: None
+   -- Elapsed time: 12 seconds
    function Is_Upper (Value : in T) return Boolean is
    begin
       return Category (Value) = Lu;

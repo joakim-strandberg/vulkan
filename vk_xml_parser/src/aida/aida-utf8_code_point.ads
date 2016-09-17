@@ -270,17 +270,22 @@ package Aida.UTF8_Code_Point with SPARK_Mode is
    --
    -- Special digits
    --
-   function Is_Subscript_Digit (Value : in T) return Boolean;
+   function Is_Subscript_Digit (Value : in T) return Boolean with
+     Global => null;
 
-   function Is_Superscript_Digit (Value : in T) return Boolean;
+   function Is_Superscript_Digit (Value : in T) return Boolean with
+     Global => null;
    --
    -- Ada 2005 identifier sets
    --
    --    identifier_start,  see ARM 2.3(3/2)
    --    identifier_extend, see ARM 2.3(3.1/2)
    --
-   function Is_Identifier_Start (Value : in T) return Boolean;
-   function Is_Identifier_Extend (Value : in T) return Boolean;
+   function Is_Identifier_Start (Value : in T) return Boolean with
+     Global => null;
+
+   function Is_Identifier_Extend (Value : in T) return Boolean with
+     Global => null;
 
 private
    pragma Inline

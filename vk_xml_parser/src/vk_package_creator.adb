@@ -24,6 +24,7 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Enums.Fs.Name.T;
    use all type Vk_XML.Enums.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Enums.Fs.Type_Attribue_T;
+   use all type Vk_XML.Enums_Enum.Fs.Comment.T;
    use all type Vk_XML.Enums_Shared_Ptr.T;
    use all type Vk_XML.Enums_Enum_Shared_Ptr.T;
    use all type Vk_XML.Enums_Enum.Fs.Value.T;
@@ -79,6 +80,18 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Adaify_Constant_Name;
 
+   procedure Remove_Initial_Vk (New_Name : in out Aida.Strings.Unbounded_String_Type) is
+   begin
+      if
+        New_Name.Length = 3 and then
+        New_Name.Equals ("Vk_")
+      then
+         New_Name.Initialize ("");
+--        else
+--           Aida.Text_IO.Put_Line (New_Name.To_String & " != Vk_");
+      end if;
+   end Remove_Initial_Vk;
+
    procedure Adaify_Name (Old_Name : String;
                           New_Name : in out Aida.Strings.Unbounded_String_Type)
    is
@@ -108,20 +121,25 @@ package body Vk_Package_Creator with SPARK_Mode is
 
          if Image (CP) = "_" then
             New_Name.Append ("_");
+            Remove_Initial_Vk (New_Name);
             Is_Previous_An_Undercase := True;
          else
             if Is_Digit (CP) then
                if Is_Previous_A_Number then
                   New_Name.Append (Image (CP));
                else
-                  New_Name.Append ("_" & Image (CP));
+                  New_Name.Append ("_");
+                  Remove_Initial_Vk (New_Name);
+                  New_Name.Append (Image (CP));
                end if;
 
                Is_Previous_A_Number := True;
             else
                if Is_Uppercase (CP) then
                   if Is_Previous_Lowercase then
-                     New_Name.Append ("_" & Image (CP));
+                     New_Name.Append ("_");
+                     Remove_Initial_Vk (New_Name);
+                     New_Name.Append (Image (CP));
                      Is_Previous_Lowercase := False;
                   else
                      New_Name.Append (Image (To_Lowercase (CP)));
@@ -211,8 +229,8 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Handle_API_Constants_Enum;
 
-   procedure Handle_Child_Enums_Enum (Enum_V        : Vk_XML.Enums_Enum_Shared_Ptr.T;
-                                      Is_First_Enum : in out Boolean) is
+   procedure Handle_Child_Enums_Enum (Enum_V       : Vk_XML.Enums_Enum_Shared_Ptr.T;
+                                      Is_Last_Enum : in Boolean) is
    begin
       if Name (Enum_V).Exists then
          if Value (Enum_V).Exists then
@@ -232,18 +250,17 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Aida.Text_IO.Put ("' to integer for ");
                   Aida.Text_IO.Put_Line (N);
                else
-                  if Is_First_Enum then
-                     Is_First_Enum := False;
-                  else
-                     Put_Line (",");
-                  end if;
                   Put_Tabs (2);
                   Put (Adaify_Constant_Name (N));
---                    Put (" : constant := ");
---                    Put ("");
---                    Put (" := ");
---                    Put (V);
---                    Put_Line (";");
+                  if not Is_Last_Enum then
+                     Put (",");
+                  end if;
+
+                  if Comment (Enum_V).Exists then
+                     Put (" -- ");
+                     Put (To_String (Comment (Enum_V).Value));
+                  end if;
+                  Put_Line ("");
                end if;
             end;
          else
@@ -283,10 +300,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Put_Tabs (2);
                   Put (Adaify_Constant_Name (N));
                   Put (" => ");
---                    Put ("");
---                    Put (" := ");
                   Put (V);
---                    Put_Line (";");
                end if;
             end;
          else
@@ -316,6 +330,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Name_To_Adafy : String := To_String (Name (Enums_V).Value);
                   Adafied_Name : Aida.Strings.Unbounded_String_Type;
                   Is_First_Enum : Boolean := True;
+                  Is_Last_Enum : Boolean;
                begin
                   Adaify_Type_Name (Old_Name => Name_To_Adafy,
                                     New_Name => Adafied_Name);
@@ -328,15 +343,15 @@ package body Vk_Package_Creator with SPARK_Mode is
                         Put_Line (" is (");
 
                         for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
+                           Is_Last_Enum := I = Last_Index (Children (Enums_V));
                            case Element (Children (Enums_V), I).Kind_Id is
                               when Child_XML_Dummy             => null;
-                              when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_First_Enum);
+                              when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_Last_Enum);
                               when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
                               when Child_Unused                => null;
                            end case;
                         end loop;
 
-                        Put_Line ("");
                         Put_Tabs (1);
                         Put_Line (");");
                         Put_Tabs (1);

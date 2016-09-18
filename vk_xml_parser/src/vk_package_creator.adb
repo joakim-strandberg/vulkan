@@ -5,10 +5,12 @@ with Ada.Text_IO;
 with Std_String;
 with Aida.Strings;
 with Aida.UTF8_Code_Point;
+with Aida.Containers;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
    use all type Aida.UTF8_Code_Point.T;
+   use all type Aida.Containers.Count_Type;
 
    use all type Vk_XML.Registry_Shared_Ptr.T;
    use all type Vk_XML.Registry.Fs.Child_Vectors.Immutable_T;
@@ -21,10 +23,14 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Enums.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Enums.Fs.Name.T;
    use all type Vk_XML.Enums.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Enums.Fs.Type_Attribue_T;
    use all type Vk_XML.Enums_Shared_Ptr.T;
    use all type Vk_XML.Enums_Enum_Shared_Ptr.T;
    use all type Vk_XML.Enums_Enum.Fs.Value.T;
    use all type Vk_XML.Enums_Enum.Fs.Name.T;
+
+   T_End  : constant String := "_T";
+   AT_End : constant String := "_Ptr";
 
    File : Ada.Text_IO.File_Type;
 
@@ -138,6 +144,15 @@ package body Vk_Package_Creator with SPARK_Mode is
       end loop;
    end Adaify_Name;
 
+   procedure Adaify_Type_Name (Old_Name : String;
+                               New_Name : in out Aida.Strings.Unbounded_String_Type) is
+   begin
+      Adaify_Name (Old_Name => Old_Name,
+                   New_Name => New_Name);
+      Aida.Strings.Append (This => New_Name,
+                           Text => T_End);
+   end Adaify_Type_Name;
+
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin
       null;
@@ -196,9 +211,47 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Handle_API_Constants_Enum;
 
-   procedure Handle_Child_Enums_Enum (Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T) is
+   procedure Handle_Child_Enums_Enum (Enum_V        : Vk_XML.Enums_Enum_Shared_Ptr.T;
+                                      Is_First_Enum : in out Boolean) is
    begin
-      null;
+      if Name (Enum_V).Exists then
+         if Value (Enum_V).Exists then
+            declare
+               Has_Failed : Boolean;
+               I : Integer;
+               V : String := To_String (Value (Enum_V).Value_V);
+               N : String := To_String (Name (Enum_V).Value);
+            begin
+               Std_String.To_Integer (Source => V,
+                                      Target => I,
+                                      Has_Failed => Has_Failed);
+
+               if Has_Failed then
+                  Aida.Text_IO.Put ("Could not convert '");
+                  Aida.Text_IO.Put (V);
+                  Aida.Text_IO.Put ("' to integer for ");
+                  Aida.Text_IO.Put_Line (N);
+               else
+                  if Is_First_Enum then
+                     Is_First_Enum := False;
+                  else
+                     Put_Line (",");
+                  end if;
+                  Put_Tabs (2);
+                  Put (Adaify_Constant_Name (N));
+--                    Put (" : constant := ");
+--                    Put ("");
+--                    Put (" := ");
+--                    Put (V);
+--                    Put_Line (";");
+               end if;
+            end;
+         else
+            Aida.Text_IO.Put_Line ("A <enum> tag exists without Value attribute!?");
+         end if;
+      else
+         Aida.Text_IO.Put_Line ("A <enum> tag exists without Name attribute!?");
+      end if;
    end Handle_Child_Enums_Enum;
 
    procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums_Shared_Ptr.T) is
@@ -213,8 +266,44 @@ package body Vk_Package_Creator with SPARK_Mode is
                   when Child_Unused                => null;
                end case;
             end loop;
+            Put_Line ("");
          else
-            null;
+            if Type_Attribue (Enums_V).Exists then
+               declare
+                  Name_To_Adafy : String := To_String (Name (Enums_V).Value);
+                  Adafied_Name : Aida.Strings.Unbounded_String_Type;
+                  Is_First_Enum : Boolean := True;
+               begin
+                  Adaify_Type_Name (Old_Name => Name_To_Adafy,
+                                    New_Name => Adafied_Name);
+
+                  case Type_Attribue (Enums_V).Value is
+                     when Enum =>
+                        Put_Tabs (1);
+                        Put ("type ");
+                        Put (Adafied_Name.To_String);
+                        Put (T_End);
+                        Put_Line (" is (");
+
+                        for I in Positive range (First_Index (Children (Enums_V)) + 1)..Last_Index (Children (Enums_V)) loop
+                           case Element (Children (Enums_V), I).Kind_Id is
+                              when Child_XML_Dummy             => null;
+                              when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_First_Enum);
+                              when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
+                              when Child_Unused                => null;
+                           end case;
+                        end loop;
+                        Put_Line ("");
+                        Put_Tabs (1);
+                        Put_Line (");");
+                        Put_Line ("");
+                     when Bit_Mask =>
+                        Aida.Text_IO.Put_Line ("Will ignore bitmask enum type. Fix!");
+                  end case;
+               end;
+            else
+               Aida.Text_IO.Put_Line ("A <enums> tag exists without Type attribute!?");
+            end if;
          end if;
       else
          Aida.Text_IO.Put_Line ("A <enums> tag exists without Name attribute!?");

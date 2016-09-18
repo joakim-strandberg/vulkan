@@ -37,7 +37,7 @@ procedure Main is
                            Call_Result => Call_Result);
 
       if not Has_Failed (Call_Result) then
-         Aida.Text_IO.Put_Line ("Successfully parsed " & File_Name & "! Will create Vk_XML.ads");
+         Aida.Text_IO.Put_Line ("Successfully parsed " & File_Name & "! Will create vk.ads");
          Vk_Package_Creator.Create_Vk_Package (Registry);
       else
          Aida.Text_IO.Put_Line (Message (Call_Result));

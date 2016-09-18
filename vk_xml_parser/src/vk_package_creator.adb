@@ -254,6 +254,49 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Handle_Child_Enums_Enum;
 
+   procedure Handle_Child_Enums_Enum_Representation_Clause (Enum_V        : Vk_XML.Enums_Enum_Shared_Ptr.T;
+                                                            Is_First_Enum : in out Boolean) is
+   begin
+      if Name (Enum_V).Exists then
+         if Value (Enum_V).Exists then
+            declare
+               Has_Failed : Boolean;
+               I : Integer;
+               V : String := To_String (Value (Enum_V).Value_V);
+               N : String := To_String (Name (Enum_V).Value);
+            begin
+               Std_String.To_Integer (Source => V,
+                                      Target => I,
+                                      Has_Failed => Has_Failed);
+
+               if Has_Failed then
+                  Aida.Text_IO.Put ("Could not convert '");
+                  Aida.Text_IO.Put (V);
+                  Aida.Text_IO.Put ("' to integer for ");
+                  Aida.Text_IO.Put_Line (N);
+               else
+                  if Is_First_Enum then
+                     Is_First_Enum := False;
+                  else
+                     Put_Line (",");
+                  end if;
+                  Put_Tabs (2);
+                  Put (Adaify_Constant_Name (N));
+                  Put (" => ");
+--                    Put ("");
+--                    Put (" := ");
+                  Put (V);
+--                    Put_Line (";");
+               end if;
+            end;
+         else
+            Aida.Text_IO.Put_Line ("A <enum> tag exists without Value attribute!?");
+         end if;
+      else
+         Aida.Text_IO.Put_Line ("A <enum> tag exists without Name attribute!?");
+      end if;
+   end Handle_Child_Enums_Enum_Representation_Clause;
+
    procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums_Shared_Ptr.T) is
    begin
       if Name (Enums_V).Exists then
@@ -282,13 +325,30 @@ package body Vk_Package_Creator with SPARK_Mode is
                         Put_Tabs (1);
                         Put ("type ");
                         Put (Adafied_Name.To_String);
-                        Put (T_End);
                         Put_Line (" is (");
 
-                        for I in Positive range (First_Index (Children (Enums_V)) + 1)..Last_Index (Children (Enums_V)) loop
+                        for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
                            case Element (Children (Enums_V), I).Kind_Id is
                               when Child_XML_Dummy             => null;
                               when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_First_Enum);
+                              when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
+                              when Child_Unused                => null;
+                           end case;
+                        end loop;
+
+                        Put_Line ("");
+                        Put_Tabs (1);
+                        Put_Line (");");
+                        Put_Tabs (1);
+                        Put ("for ");
+                        Put (Adafied_Name.To_String);
+                        Put_Line (" use (");
+
+                        Is_First_Enum := True;
+                        for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
+                           case Element (Children (Enums_V), I).Kind_Id is
+                              when Child_XML_Dummy             => null;
+                              when Child_Enums_Enum            => Handle_Child_Enums_Enum_Representation_Clause (Element (Children (Enums_V), I).Enums_Enum_V, Is_First_Enum);
                               when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
                               when Child_Unused                => null;
                            end case;

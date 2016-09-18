@@ -373,7 +373,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                         Put_Line (");");
                         Put_Line ("");
                      when Bit_Mask =>
-                        Aida.Text_IO.Put_Line ("Will ignore bitmask enum type. Fix!");
+                        null; -- The bit mask information is/will be used when generating code for <type>-tags.
                   end case;
                end;
             else

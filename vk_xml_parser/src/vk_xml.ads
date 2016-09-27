@@ -1,10 +1,12 @@
 with Aida.Generic_Shared_Ptr;
 with Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable;
 with Aida.Containers.Generic_Immutable_Vector.Generic_Mutable_Vector;
+with Aida.Strings.Generic_Mutable_Unbounded_String;
 
 pragma Elaborate_All (Aida.Generic_Shared_Ptr);
 pragma Elaborate_All (Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable);
 pragma Elaborate_All (Aida.Containers.Generic_Immutable_Vector.Generic_Mutable_Vector);
+pragma Elaborate_All (Aida.Strings.Generic_Mutable_Unbounded_String);
 
 package Vk_XML with SPARK_Mode is
 
@@ -1199,6 +1201,9 @@ package Vk_XML with SPARK_Mode is
       function Children (This : T) return Fs.Child_Vectors.Immutable_T with
         Global => null;
 
+      function To_String (This : T) return String with
+        Global => null;
+
       procedure Set_Name (This : in out T;
                           Text : String) with
         Global => null;
@@ -1316,6 +1321,16 @@ package Vk_XML with SPARK_Mode is
 
       function Children (This : T) return Fs.Child_Vectors.Immutable_T is (Fs.Child_Vectors.Immutable_T (This.My_Children));
 
+      package Mutable_Unbounded_String is new Aida.Strings.Generic_Mutable_Unbounded_String (Capacity => 1000);
+
+      use all type Mutable_Unbounded_String.T;
+
+      use all type Children_P.T;
+
+      use all type Name_P.Mutable_T;
+
+      use all type Category_P.Mutable_T;
+
    end Type_T;
 
    package Type_Shared_Ptr with SPARK_Mode is
@@ -1338,6 +1353,9 @@ package Vk_XML with SPARK_Mode is
         Global => null;
 
       function Children (This : T) return Type_T.Fs.Child_Vectors.Immutable_T with
+        Global => null;
+
+      function To_String (This : T) return String with
         Global => null;
 
       procedure Set_Name (This : in out T;
@@ -1393,6 +1411,8 @@ package Vk_XML with SPARK_Mode is
       function Comment (This : T) return Type_T.Fs.Nullable_Comment_T is (Comment (Smart_Pointers.Value (This.SP).all));
 
       function Children (This : T) return Type_T.Fs.Child_Vectors.Immutable_T is (Children (Smart_Pointers.Value (This.SP).all));
+
+      function To_String (This : T) return String is (To_String (Smart_Pointers.Value (This.SP).all));
 
       pragma Inline (Name);
       pragma Inline (Category);

@@ -19,6 +19,7 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Types_Shared_Ptr.T;
    use all type Vk_XML.Types.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Types.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Type_T.Fs.Category.T;
    use all type Vk_XML.Type_Shared_Ptr.T;
    use all type Vk_XML.Enums.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Enums.Fs.Name.T;
@@ -173,7 +174,12 @@ package body Vk_Package_Creator with SPARK_Mode is
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin
-      null;
+      if To_String (Category (Type_V)) = "include" then
+         null; -- ignore include statements
+      else
+         Aida.Text_IO.Put ("Skiping conversion of ");
+         Aida.Text_IO.Put_Line (To_String (Type_V));
+      end if;
    end Handle_Child_Type;
 
    procedure Handle_Out_Commented_Message (Out_Commented_Message_V : Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T) is

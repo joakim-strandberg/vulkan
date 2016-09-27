@@ -1,5 +1,7 @@
 package body Vk_XML with SPARK_Mode is
 
+   use type Aida.Containers.Count_Type;
+
    package Mutable_XML_Text is new XML_Text.Mutable;
 
    package body Tag with SPARK_Mode is
@@ -353,6 +355,75 @@ package body Vk_XML with SPARK_Mode is
          Children_P.Append (Container => This.My_Children,
                             New_Item  => Child);
       end Append_Child;
+
+      function To_String (This : T) return String is
+         S : Mutable_Unbounded_String.T;
+
+         procedure Append_Name_To_String is
+         begin
+            if This.My_Name.Exists then
+               Append (This => S,
+                       Text => "name='");
+               Append (This => S,
+                       Text => To_String (This.My_Name.Value));
+               Append (This => S,
+                       Text => "' ");
+            else
+               null;
+            end if;
+         end Append_Name_To_String;
+
+         procedure Append_Category_To_String is
+         begin
+            if Length (This.My_Category) = 0 then
+               null;
+            else
+               Append (This => S,
+                       Text => "category='");
+               Append (This => S,
+                       Text => To_String (This.My_Category));
+               Append (This => S,
+                       Text => "' ");
+            end if;
+         end Append_Category_To_String;
+
+         procedure Append_Requires_To_String is
+         begin
+            if This.My_Requires.Exists then
+               Append (This => S,
+                       Text => "requires='");
+               Append (This => S,
+                       Text => To_String (This.My_Requires.Value));
+               Append (This => S,
+                       Text => "' ");
+            else
+               null;
+            end if;
+         end Append_Requires_To_String;
+
+      begin
+         if Length (This.My_Children) = 0 then
+            Append (This => S,
+                    Text => "<type ");
+            Append_Name_To_String;
+            Append_Category_To_String;
+            Append_Requires_To_String;
+            Append (This => S,
+                    Text => "/>");
+         else
+            Append (This => S,
+                    Text => "<type ");
+            Append_Name_To_String;
+            Append_Category_To_String;
+            Append_Requires_To_String;
+            Append (This => S,
+                    Text => ">");
+            Append (This => S,
+                    Text => "</type>");
+         end if;
+
+         return To_String (S);
+      end To_String;
 
    end Type_T;
 

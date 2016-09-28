@@ -6,12 +6,15 @@ with Std_String;
 with Aida.Strings;
 with Aida.UTF8_Code_Point;
 with Aida.Containers;
+with GNAT.Source_Info;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
    use all type Aida.UTF8_Code_Point.T;
    use all type Aida.Containers.Count_Type;
+   use all type Aida.Strings.Unbounded_String_Type;
 
+   use all type Vk_XML.XML_Text.T;
    use all type Vk_XML.Registry_Shared_Ptr.T;
    use all type Vk_XML.Registry.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Registry.Fs.Child_Kind_Id_T;
@@ -19,8 +22,15 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Types_Shared_Ptr.T;
    use all type Vk_XML.Types.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Types.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Nested_Type.Fs.Value.T;
+   use all type Vk_XML.Nested_Type_Shared_Ptr.T;
    use all type Vk_XML.Type_T.Fs.Category.T;
+   use all type Vk_XML.Type_T.Fs.Requires.T;
+   use all type Vk_XML.Type_T.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Type_T.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Type_Shared_Ptr.T;
+   use all type Vk_XML.Name.Fs.Value.T;
+   use all type Vk_XML.Name_Shared_Ptr.T;
    use all type Vk_XML.Enums.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Enums.Fs.Name.T;
    use all type Vk_XML.Enums.Fs.Child_Kind_Id_T;
@@ -174,10 +184,87 @@ package body Vk_Package_Creator with SPARK_Mode is
 
    procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
    begin
-      if To_String (Category (Type_V)) = "include" then
-         null; -- ignore include statements
+      if
+        To_String (Category (Type_V)) = "include" and then
+        not Requires (Type_V).Exists
+      then
+         null; -- ignore for example <type category="include">#include "<name>vulkan.h</name>"</type>
+      elsif
+        Requires (Type_V).Exists and then
+        Name (Type_V).Exists and then (
+                                       To_String (Requires (Type_V).Value) = "X11/Xlib.h" or
+                                         To_String (Requires (Type_V).Value) = "android/native_window.h" or
+                                           To_String (Requires (Type_V).Value) = "mir_toolkit/client_types.h" or
+                                         To_String (Requires (Type_V).Value) = "wayland-client.h" or
+                                           To_String (Requires (Type_V).Value) = "windows.h" or
+                                         To_String (Requires (Type_V).Value) = "xcb/xcb.h"
+                                      )
+      then
+         null; -- ignore for example <type requires="android/native_window.h" name="ANativeWindow"/>
+      elsif To_String (Category (Type_V)) = "define" then
+         null; -- ignore for example <type category="define">#define <name>VK_VERSION_MAJOR</name>(version) ((uint32_t)(version) &gt;&gt; 22)</type>
+      elsif
+        To_String (Category (Type_V)) = "basetype" and then
+        Length (Children (Type_V)) = 4
+      then
+         declare
+            Typedef_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
+            Type_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+            Name_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
+         begin
+            if
+              Typedef_Element.Kind_Id = Child_XML_Text and then
+              To_String (Typedef_Element.XML_Text_V) = "typedef "
+            then
+               if
+                 Name_Element.Kind_Id = Child_Name
+               then
+                  if
+                    Type_Element.Kind_Id = Child_Nested_Type and then
+                    Value (Type_Element.Nested_Type_V).Exists
+                  then
+                     declare
+                        New_Type_Name : Aida.Strings.Unbounded_String_Type;
+                        Parent_Type_Name : Aida.Strings.Unbounded_String_Type;
+                     begin
+                        if To_String (Value (Type_Element.Nested_Type_V).Value_V) = "uint32_t" then
+                           Aida.Strings.Append (This => Parent_Type_Name,
+                                                Text => "Interfaces.Unsigned_32");
+                        elsif To_String (Value (Type_Element.Nested_Type_V).Value_V) = "uint64_t" then
+                           Aida.Strings.Append (This => Parent_Type_Name,
+                                                Text => "Interfaces.Unsigned_64");
+                        end if;
+
+                        if Aida.Strings.Length (Parent_Type_Name) > 0 then
+                           Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
+                                             New_Name => New_Type_Name);
+                           Put_Tabs (1);
+                           Put ("type ");
+                           Put (To_String (New_Type_Name));
+                           Put (" is new ");
+                           Put (To_String (Parent_Type_Name));
+                           Put_Line (";");
+                           Put_Line ("");
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
+                     end;
+                  else
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
+                  end if;
+               else
+                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+                  Aida.Text_IO.Put_Line (To_String (Type_V));
+               end if;
+            else
+               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+               Aida.Text_IO.Put_Line (To_String (Type_V));
+            end if;
+         end;
       else
-         Aida.Text_IO.Put ("Skiping conversion of ");
+         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));
       end if;
    end Handle_Child_Type;

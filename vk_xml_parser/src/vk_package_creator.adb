@@ -7,6 +7,8 @@ with Aida.Strings;
 with Aida.UTF8_Code_Point;
 with Aida.Containers;
 with GNAT.Source_Info;
+with Ada.Containers.Formal_Hashed_Maps;
+with Ada.Strings.Fixed.Hash;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
@@ -28,6 +30,7 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Type_T.Fs.Requires.T;
    use all type Vk_XML.Type_T.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Type_T.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Type_T.Fs.Name.T;
    use all type Vk_XML.Type_Shared_Ptr.T;
    use all type Vk_XML.Name.Fs.Value.T;
    use all type Vk_XML.Name_Shared_Ptr.T;
@@ -45,6 +48,19 @@ package body Vk_Package_Creator with SPARK_Mode is
    AT_End : constant String := "_Ptr";
 
    File : Ada.Text_IO.File_Type;
+
+   function Hash_Of_Unbounded_String (Key : Aida.Strings.Unbounded_String_Type) return Ada.Containers.Hash_Type is
+   begin
+      return Ada.Strings.Fixed.Hash (Aida.Strings.To_String (Key));
+   end Hash_Of_Unbounded_String;
+
+   package C_Type_Name_To_Ada_Name_Map_Owner is new Ada.Containers.Formal_Hashed_Maps (Key_Type        => Aida.Strings.Unbounded_String_Type,
+                                                                                       Element_Type    => Aida.Strings.Unbounded_String_Type,
+                                                                                       Hash            => Hash_Of_Unbounded_String,
+                                                                                       Equivalent_Keys => Aida.Strings."=",
+                                                                                       "="             => Aida.Strings."=");
+
+   C_Type_Name_To_Ada_Name_Map : C_Type_Name_To_Ada_Name_Map_Owner.Map (1000, 1000);
 
    procedure Put_Tabs (N : Natural) is
    begin
@@ -245,6 +261,16 @@ package body Vk_Package_Creator with SPARK_Mode is
                            Put (To_String (Parent_Type_Name));
                            Put_Line (";");
                            Put_Line ("");
+
+                           declare
+                              C_Type_Name : Aida.Strings.Unbounded_String_Type;
+                           begin
+                              Aida.Strings.Initialize (This => C_Type_Name,
+                                                       Text => To_String (Value (Name_Element.Name_V)));
+                              C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                        Key       => C_Type_Name,
+                                                                        New_Item  => New_Type_Name);
+                           end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
                            Aida.Text_IO.Put_Line (To_String (Type_V));
@@ -263,6 +289,21 @@ package body Vk_Package_Creator with SPARK_Mode is
                Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
+      elsif
+        Requires (Type_V).Exists and then
+        To_String (Requires (Type_V).Value) = "vk_platform" and then
+        Name (Type_V).Exists and then (
+                                       To_String (Name (Type_V).Value) = "void" or
+                                         To_String (Name (Type_V).Value) = "char" or
+                                           To_String (Name (Type_V).Value) = "float" or
+                                         To_String (Name (Type_V).Value) = "uint8_t" or
+                                           To_String (Name (Type_V).Value) = "uint32_t" or
+                                           To_String (Name (Type_V).Value) = "uint64_t" or
+                                         To_String (Name (Type_V).Value) = "int32_t" or
+                                           To_String (Name (Type_V).Value) = "size_t"
+                                      )
+      then
+         null;
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));

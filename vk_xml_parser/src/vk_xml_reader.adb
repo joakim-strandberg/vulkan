@@ -1606,7 +1606,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   when Current_Tag_Fs.Tag_Id.Name =>
                      Vk_XML.Name_Shared_Ptr.Set_Value (This => Current_Tag_V.Name_V,
-                                                   Text => Tag_Value);
+                                                       Text => Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Nested_Type =>
                      Vk_XML.Nested_Type_Shared_Ptr.Set_Value (This => Current_Tag_V.Nested_Type_V,
                                                           Text => Tag_Value);

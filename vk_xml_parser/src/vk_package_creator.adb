@@ -510,6 +510,40 @@ package body Vk_Package_Creator with SPARK_Mode is
                Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
+      elsif
+        To_String (Category (Type_V)) = "handle" and then
+        Length (Children (Type_V)) = 4
+      then
+         declare
+            Nested_Type_Element   : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
+            Left_Bracket_Element  : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+            Name_Element          : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
+            Right_Bracket_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 3);
+         begin
+            if
+              (Left_Bracket_Element.Kind_Id = Child_XML_Text and then
+               To_String (Left_Bracket_Element.XML_Text_V) = "(") and
+              (Right_Bracket_Element.Kind_Id = Child_XML_Text and then
+               To_String (Right_Bracket_Element.XML_Text_V) = ")") and
+              (Nested_Type_Element.Kind_Id = Child_Nested_Type and then
+              Value (Nested_Type_Element.Nested_Type_V).Exists and then
+                   (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_HANDLE" or To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
+              Name_Element.Kind_Id = Child_Name
+            then
+               declare
+                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
+	                            New_Name => New_Type_Name);
+
+                  Put_Tabs (1);
+                  Put ("type ");
+                  Put (To_String (New_Type_Name));
+                  Put_Line (" is private;");
+                  Put_Line ("");
+               end;
+            end if;
+         end;
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));
@@ -522,18 +556,6 @@ package body Vk_Package_Creator with SPARK_Mode is
       --        Aida.Text_IO.Put ("Out commented message:");
       --        Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Out_Commented_Message_V));
    end Handle_Out_Commented_Message;
-
-   procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T;
-                                 R       : Vk_XML.Registry_Shared_Ptr.T) is
-   begin
-      for I in Positive range First_Index (Children (Types_V))..Last_Index (Children (Types_V)) loop
-         case Element (Children (Types_V), I).Kind_Id is
-            when Child_XML_Dummy             => null;
-            when Child_Type                  => Handle_Child_Type (Element (Children (Types_V), I).Type_V, R);
-            when Child_Out_Commented_Message => Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
-         end case;
-      end loop;
-   end Handle_Child_Types;
 
    procedure Handle_API_Constants_Enum (Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T) is
    begin
@@ -807,19 +829,28 @@ package body Vk_Package_Creator with SPARK_Mode is
    end Handle_Registry_Child_Enums;
 
    procedure Create_Vk_Package (R : Vk_XML.Registry_Shared_Ptr.T) is
-   begin
-      Ada.Text_IO.Create (File => File,
-                          Mode => Ada.Text_IO.Out_File,
-                          Name => "vk.ads");
-      Put_Line ("with Interfaces;");
-      Put_Line ("");
-      Put_Line ("package Vk is");
-      Put_Line ("");
-      Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
-      Put_Line ("");
 
-      for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
-         case Element (Children (R), I).Kind_Id is
+      procedure Generate_Code_For_The_Public_Part  is
+
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T;
+                                       R       : Vk_XML.Registry_Shared_Ptr.T) is
+         begin
+            for I in Positive range First_Index (Children (Types_V))..Last_Index (Children (Types_V)) loop
+               case Element (Children (Types_V), I).Kind_Id is
+               when Child_XML_Dummy             => null;
+               when Child_Type                  => Handle_Child_Type (Element (Children (Types_V), I).Type_V, R);
+               when Child_Out_Commented_Message => Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
+               end case;
+            end loop;
+         end Handle_Child_Types;
+
+      begin
+         Put_Line ("");
+         Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
+         Put_Line ("");
+
+         for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
+            case Element (Children (R), I).Kind_Id is
             when Child_Comment =>
                --                 Aida.Text_IO.Put ("Registry child comment with value:");
                --                 Aida.Text_IO.Put_Line (Vk_XML.Comment.Fs.Value.To_String (Vk_XML.Comment_Shared_Ptr.Value (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).C)));
@@ -846,8 +877,103 @@ package body Vk_Package_Creator with SPARK_Mode is
                null;
             when Child_XML_Text =>
                null;
-         end case;
-      end loop;
+            end case;
+         end loop;
+      end Generate_Code_For_The_Public_Part;
+
+      procedure Generate_Code_For_The_Private_Part is
+
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T;
+                                       R       : Vk_XML.Registry_Shared_Ptr.T)
+         is
+
+            procedure Handle_Child_Type_In_The_Private_Part (Type_V : Vk_XML.Type_Shared_Ptr.T;
+                                                             R      : Vk_XML.Registry_Shared_Ptr.T)
+            is
+            begin
+               if
+                 To_String (Category (Type_V)) = "handle" and then
+                 Length (Children (Type_V)) = 4
+               then
+                  declare
+                     Nested_Type_Element   : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
+                     Left_Bracket_Element  : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+                     Name_Element          : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
+                     Right_Bracket_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 3);
+                  begin
+                     if
+                       (Left_Bracket_Element.Kind_Id = Child_XML_Text and then
+                        To_String (Left_Bracket_Element.XML_Text_V) = "(") and
+                       (Right_Bracket_Element.Kind_Id = Child_XML_Text and then
+                        To_String (Right_Bracket_Element.XML_Text_V) = ")") and
+                       (Nested_Type_Element.Kind_Id = Child_Nested_Type and then
+                        Value (Nested_Type_Element.Nested_Type_V).Exists and then
+                            (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_HANDLE" or To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
+                       Name_Element.Kind_Id = Child_Name
+                     then
+                        declare
+                           New_Type_Name : Aida.Strings.Unbounded_String_Type;
+                        begin
+                           Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
+                                             New_Name => New_Type_Name);
+
+                           declare
+                              Hidden_Type_Name : String := "Hidden_" & To_String (New_Type_Name);
+                           begin
+                              Put_Tabs (1);
+                              Put ("type ");
+                              Put (Hidden_Type_Name);
+                              Put_Line (" is null record;");
+
+                              Put_Tabs (1);
+                              Put ("type ");
+                              Put (To_String (New_Type_Name));
+                              Put (" is access ");
+                              Put (Hidden_Type_Name);
+                              Put_Line (";");
+                              Put_Line ("");
+                           end;
+                        end;
+                     end if;
+                  end;
+               end if;
+            end Handle_Child_Type_In_The_Private_Part;
+
+         begin
+            for I in Positive range First_Index (Children (Types_V))..Last_Index (Children (Types_V)) loop
+               case Element (Children (Types_V), I).Kind_Id is
+                  when Child_Type => Handle_Child_Type_In_The_Private_Part (Element (Children (Types_V), I).Type_V, R);
+                  when others     => null;
+               end case;
+            end loop;
+         end Handle_Child_Types;
+
+      begin
+         for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
+            case Element (Children (R), I).Kind_Id is
+               when Child_Types =>
+                  Handle_Child_Types (Element (Children (R), I).Types_V, R);
+               when others =>
+                  null;
+            end case;
+         end loop;
+      end Generate_Code_For_The_Private_Part;
+
+   begin
+      Ada.Text_IO.Create (File => File,
+                          Mode => Ada.Text_IO.Out_File,
+                          Name => "vk.ads");
+      Put_Line ("with Interfaces;");
+      Put_Line ("");
+      Put_Line ("package Vk is");
+
+      Generate_Code_For_The_Public_Part;
+
+      Put_Line ("");
+      Put_Line ("private");
+      Put_Line ("");
+
+      Generate_Code_For_The_Private_Part;
 
       Put_Line ("");
       Put_Line ("end Vk;");

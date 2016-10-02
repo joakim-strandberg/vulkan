@@ -9,6 +9,8 @@ with Aida.Containers;
 with GNAT.Source_Info;
 with Ada.Containers.Formal_Hashed_Maps;
 with Ada.Strings.Fixed.Hash;
+with Ada.Containers.Generic_Constrained_Array_Sort;
+with Ada.Containers.Formal_Vectors;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
@@ -525,7 +527,136 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Handle_Child_Enums_Enum_Representation_Clause;
 
+   package Enum_Vectors is new Ada.Containers.Formal_Vectors (Index_Type   => Positive,
+                                                              Element_Type => Vk_XML.Enums_Enum_Shared_Ptr.T,
+                                                              "="          => Vk_XML.Enums_Enum_Shared_Ptr."=",
+                                                              Bounded      => True);
+
    procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums_Shared_Ptr.T) is
+
+      procedure Handle_Type_Attribute_Exists is
+         Name_To_Adafy : String := To_String (Name (Enums_V).Value);
+         Adafied_Name : Aida.Strings.Unbounded_String_Type;
+
+         procedure Auto_Generate_Code_For_Enum is
+            Is_First_Enum : Boolean := True;
+            Is_Last_Enum : Boolean;
+
+            Enum_Vector : Enum_Vectors.Vector (1000);
+
+            procedure Populate_Enum_Vector is
+            begin
+               for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
+                  case Element (Children (Enums_V), I).Kind_Id is
+                  when Child_XML_Dummy             => null;
+                  when Child_Enums_Enum            =>
+                     declare
+                        Test : Vk_XML.Enums_Enum_Shared_Ptr.T := Element (Children (Enums_V), I).Enums_Enum_V;
+                     begin
+                        Enum_Vectors.Append (Container => Enum_Vector,
+                                             New_Item  => Test);
+                     end;
+                  when Child_Out_Commented_Message => null;
+                  when Child_Unused                => null;
+                  end case;
+               end loop;
+            end Populate_Enum_Vector;
+
+            procedure Populate_Permutation_Array_And_Then_Generate_Ada_Code is
+
+                 type Array_Index_T is new Integer range Enum_Vectors.First_Index (Enum_Vector)..Enum_Vectors.Last_Index (Enum_Vector);
+
+               type Permutation_Array_T is array (Array_Index_T) of Vk_XML.Enums_Enum_Shared_Ptr.T;
+
+               Permutation_Array : Permutation_Array_T;
+
+               function "<" (L, R : Vk_XML.Enums_Enum_Shared_Ptr.T) return Boolean is
+                  Has_Failed : Boolean;
+                  LI : Integer;
+                  LV : String := To_String (Value (L).Value_V);
+
+                  RI : Integer;
+                  RV : String := To_String (Value (R).Value_V);
+               begin
+                  Std_String.To_Integer (Source => LV,
+                                         Target => LI,
+                                         Has_Failed => Has_Failed);
+
+                  if Has_Failed then
+                     raise Constraint_Error with "Could not convert '" & LV & "' to integer";
+                  else
+                     Std_String.To_Integer (Source => RV,
+                                            Target => RI,
+                                            Has_Failed => Has_Failed);
+
+                     if Has_Failed then
+                        raise Constraint_Error with "Could not convert '" & RV & "' to integer";
+                     else
+                        return LI < RI;
+                     end if;
+                  end if;
+               end "<";
+
+               procedure Sort is new Ada.Containers.Generic_Constrained_Array_Sort (Index_Type   => Array_Index_T,
+                                                                                    Element_Type => Vk_XML.Enums_Enum_Shared_Ptr.T,
+                                                                                    Array_Type   => Permutation_Array_T,
+                                                                                    "<"          => "<");
+
+               procedure Populate_Permutation_Array is
+               begin
+                  for I in Positive range Enum_Vectors.First_Index (Enum_Vector)..Enum_Vectors.Last_Index (Enum_Vector) loop
+                     Permutation_Array (Array_Index_T (I)) := Enum_Vectors.Element (Container => Enum_Vector,
+                                                                                    Index     => I);
+                  end loop;
+
+                  Sort (Permutation_Array);
+               end Populate_Permutation_Array;
+
+            begin
+               Populate_Permutation_Array;
+
+               Put_Tabs (1);
+               Put ("type ");
+               Put (Adafied_Name.To_String);
+               Put_Line (" is (");
+
+               for I in Permutation_Array'Range loop
+                  Is_Last_Enum := (I = Permutation_Array'Last);
+                  Handle_Child_Enums_Enum (Permutation_Array (I), Is_Last_Enum);
+               end loop;
+
+               Put_Tabs (1);
+               Put_Line (");");
+               Put_Tabs (1);
+               Put ("for ");
+               Put (Adafied_Name.To_String);
+               Put_Line (" use (");
+
+               Is_First_Enum := True;
+               for I in Permutation_Array'Range loop
+                  Handle_Child_Enums_Enum_Representation_Clause (Permutation_Array (I), Is_First_Enum);
+               end loop;
+               Put_Line ("");
+               Put_Tabs (1);
+               Put_Line (");");
+               Put_Line ("");
+            end Populate_Permutation_Array_And_Then_Generate_Ada_Code;
+
+         begin
+            Populate_Enum_Vector;
+            Populate_Permutation_Array_And_Then_Generate_Ada_Code;
+         end Auto_Generate_Code_For_Enum;
+
+      begin
+         Adaify_Type_Name (Old_Name => Name_To_Adafy,
+                           New_Name => Adafied_Name);
+
+         case Type_Attribue (Enums_V).Value is
+            when Enum     => Auto_Generate_Code_For_Enum;
+            when Bit_Mask => null; -- The bit mask information is/will be used when generating code for <type>-tags.
+         end case;
+      end Handle_Type_Attribute_Exists;
+
    begin
       if Name (Enums_V).Exists then
          if To_String (Name (Enums_V).Value) = "API Constants" then
@@ -540,58 +671,7 @@ package body Vk_Package_Creator with SPARK_Mode is
             Put_Line ("");
          else
             if Type_Attribue (Enums_V).Exists then
-               declare
-                  Name_To_Adafy : String := To_String (Name (Enums_V).Value);
-                  Adafied_Name : Aida.Strings.Unbounded_String_Type;
-                  Is_First_Enum : Boolean := True;
-                  Is_Last_Enum : Boolean;
-               begin
-                  Adaify_Type_Name (Old_Name => Name_To_Adafy,
-                                    New_Name => Adafied_Name);
-
-                  case Type_Attribue (Enums_V).Value is
-                     when Enum =>
-                        Put_Tabs (1);
-                        Put ("type ");
-                        Put (Adafied_Name.To_String);
-                        Put_Line (" is (");
-
-                        for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
-                           Is_Last_Enum := (if I = Last_Index (Children (Enums_V)) then (Element (Children (Enums_V), Last_Index (Children (Enums_V))).Kind_Id = Child_Enums_Enum)
-                                            else
-                                               (for all J in (I+1)..Last_Index (Children (Enums_V)) => Element (Children (Enums_V), J).Kind_Id /= Child_Enums_Enum));
-                           case Element (Children (Enums_V), I).Kind_Id is
-                              when Child_XML_Dummy             => null;
-                              when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_Last_Enum);
-                              when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
-                              when Child_Unused                => null;
-                           end case;
-                        end loop;
-
-                        Put_Tabs (1);
-                        Put_Line (");");
-                        Put_Tabs (1);
-                        Put ("for ");
-                        Put (Adafied_Name.To_String);
-                        Put_Line (" use (");
-
-                        Is_First_Enum := True;
-                        for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
-                           case Element (Children (Enums_V), I).Kind_Id is
-                              when Child_XML_Dummy             => null;
-                              when Child_Enums_Enum            => Handle_Child_Enums_Enum_Representation_Clause (Element (Children (Enums_V), I).Enums_Enum_V, Is_First_Enum);
-                              when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
-                              when Child_Unused                => null;
-                           end case;
-                        end loop;
-                        Put_Line ("");
-                        Put_Tabs (1);
-                        Put_Line (");");
-                        Put_Line ("");
-                     when Bit_Mask =>
-                        null; -- The bit mask information is/will be used when generating code for <type>-tags.
-                  end case;
-               end;
+               Handle_Type_Attribute_Exists;
             else
                Aida.Text_IO.Put_Line ("A <enums> tag exists without Type attribute!?");
             end if;

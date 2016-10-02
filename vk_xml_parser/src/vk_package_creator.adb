@@ -118,8 +118,8 @@ package body Vk_Package_Creator with SPARK_Mode is
         New_Name.Equals ("Vk_")
       then
          New_Name.Initialize ("");
---        else
---           Aida.Text_IO.Put_Line (New_Name.To_String & " != Vk_");
+         --        else
+         --           Aida.Text_IO.Put_Line (New_Name.To_String & " != Vk_");
       end if;
    end Remove_Initial_Vk;
 
@@ -202,7 +202,127 @@ package body Vk_Package_Creator with SPARK_Mode is
                            Text => T_End);
    end Adaify_Type_Name;
 
-   procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+   function Value_Of_Bit (B : Vk_XML.Enums_Enum.Fs.Bit_Position_T) return Long_Integer is
+   begin
+      return 2 ** Integer (B);
+   end Value_Of_Bit;
+
+   procedure Handle_Child_Type (Type_V : Vk_XML.Type_Shared_Ptr.T;
+                                R      : Vk_XML.Registry_Shared_Ptr.T)
+   is
+
+      procedure Generate_Code_For_Enum_Bitmask_If_Found (Searched_For     : Vk_XML.Type_T.Fs.Requires.T;
+                                                         Parent_Type_Name : Aida.Strings.Unbounded_String_Type) is
+         Shall_Continue_Search : Boolean := True;
+
+         procedure Search_Enum_Tags_And_Generate_Code_If_Found (Enums_V : Vk_XML.Enums_Shared_Ptr.T) is
+
+            procedure Auto_Generate_Code_For_Found_Enum is
+
+               Adafied_Name : Aida.Strings.Unbounded_String_Type;
+
+               procedure Handle_Enum_Bitmask (Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T) is
+               begin
+                  if Name (Enum_V).Exists then
+                     if Bit_Position (Enum_V).Exists then
+                        declare
+                           V : Vk_XML.Enums_Enum.Fs.Bit_Position_T := Bit_Position (Enum_V).Value;
+                           N : String := To_String (Name (Enum_V).Value);
+                        begin
+                           Put_Tabs (1);
+                           Put (Adaify_Constant_Name (N));
+                           Put (" : ");
+                           Put (To_String (Adafied_Name));
+                           Put (" := ");
+                           Put (Value_Of_Bit (V)'Img & ";");
+
+                           if Comment (Enum_V).Exists then
+                              Put (" -- ");
+                              Put (To_String (Comment (Enum_V).Value));
+                           end if;
+                           Put_Line ("");
+                        end;
+                     else
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enum> tag exists without Bit position attribute!?");
+                     end if;
+                  else
+                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enum> tag exists without Name attribute!?");
+                  end if;
+               end Handle_Enum_Bitmask;
+
+               Is_First_Enum : Boolean := True;
+
+               Name_To_Adafy : String := To_String (Name (Enums_V).Value);
+            begin
+               Adaify_Type_Name (Old_Name => Name_To_Adafy,
+                                 New_Name => Adafied_Name);
+
+               Put_Tabs (1);
+               Put ("type ");
+               Put (Adafied_Name.To_String);
+               Put (" is new ");
+               Put (To_String (Parent_Type_Name));
+               Put_Line (";");
+
+               for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
+                  case Element (Children (Enums_V), I).Kind_Id is
+                     when Child_Enums_Enum => Handle_Enum_Bitmask (Element (Children (Enums_V), I).Enums_Enum_V);
+                     when others           => null;
+                  end case;
+               end loop;
+
+--                 Put_Tabs (1);
+--                 Put_Line (");");
+--                 Put_Tabs (1);
+--                 Put ("for ");
+--                 Put (Adafied_Name.To_String);
+--                 Put_Line (" use (");
+--
+--                 Is_First_Enum := True;
+--                 for I in Permutation_Array'Range loop
+--                    Handle_Child_Enums_Enum_Representation_Clause (Permutation_Array (I), Is_First_Enum);
+--                 end loop;
+--                 Put_Line ("");
+--                 Put_Tabs (1);
+--                 Put_Line (");");
+                 Put_Line ("");
+            end Auto_Generate_Code_For_Found_Enum;
+
+         begin
+            if Name (Enums_V).Exists then
+               if To_String (Name (Enums_V).Value) = To_String (Searched_For) then
+                  if Type_Attribue (Enums_V).Exists then
+                     case Type_Attribue (Enums_V).Value is
+                        when Enum     => null;
+                        when Bit_Mask =>
+                           Auto_Generate_Code_For_Found_Enum;
+                           Shall_Continue_Search := False;
+                     end case;
+                  end if;
+               end if;
+            end if;
+         end Search_Enum_Tags_And_Generate_Code_If_Found;
+
+      begin
+         for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
+            case Element (Children (R), I).Kind_Id is
+               when Child_Enums =>
+                  Search_Enum_Tags_And_Generate_Code_If_Found (Element (Children (R), I).Enums_V);
+               when others =>
+                  null;
+            end case;
+
+            if not Shall_Continue_Search then
+               exit;
+            end if;
+         end loop;
+
+         if Shall_Continue_Search then
+            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", could not find enum bitmask with name " & To_String (Searched_For));
+            Aida.Text_IO.Put_Line (To_String (Type_V));
+         end if;
+      end Generate_Code_For_Enum_Bitmask_If_Found;
+
    begin
       if
         To_String (Category (Type_V)) = "include" and then
@@ -302,15 +422,14 @@ package body Vk_Package_Creator with SPARK_Mode is
                                            To_String (Name (Type_V).Value) = "float" or
                                          To_String (Name (Type_V).Value) = "uint8_t" or
                                            To_String (Name (Type_V).Value) = "uint32_t" or
-                                           To_String (Name (Type_V).Value) = "uint64_t" or
-                                         To_String (Name (Type_V).Value) = "int32_t" or
-                                           To_String (Name (Type_V).Value) = "size_t"
+                                         To_String (Name (Type_V).Value) = "uint64_t" or
+                                           To_String (Name (Type_V).Value) = "int32_t" or
+                                         To_String (Name (Type_V).Value) = "size_t"
                                       )
       then
          null;
       elsif
         To_String (Category (Type_V)) = "bitmask" and then
-        not Requires (Type_V).Exists and then
         Length (Children (Type_V)) = 4
       then
          declare
@@ -368,6 +487,11 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                         Key       => C_Type_Name,
                                                                         New_Item  => New_Type_Name);
                            end;
+
+                           if Requires (Type_V).Exists then
+                              Generate_Code_For_Enum_Bitmask_If_Found (Requires (Type_V).Value,
+                                                                       New_Type_Name);
+                           end if;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
                            Aida.Text_IO.Put_Line (To_String (Type_V));
@@ -396,15 +520,16 @@ package body Vk_Package_Creator with SPARK_Mode is
    begin
       null;
       --        Aida.Text_IO.Put ("Out commented message:");
---        Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Out_Commented_Message_V));
+      --        Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Out_Commented_Message_V));
    end Handle_Out_Commented_Message;
 
-   procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T) is
+   procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T;
+                                 R       : Vk_XML.Registry_Shared_Ptr.T) is
    begin
       for I in Positive range First_Index (Children (Types_V))..Last_Index (Children (Types_V)) loop
          case Element (Children (Types_V), I).Kind_Id is
             when Child_XML_Dummy             => null;
-            when Child_Type                  => Handle_Child_Type (Element (Children (Types_V), I).Type_V);
+            when Child_Type                  => Handle_Child_Type (Element (Children (Types_V), I).Type_V, R);
             when Child_Out_Commented_Message => Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message_V);
          end case;
       end loop;
@@ -564,7 +689,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             procedure Populate_Permutation_Array_And_Then_Generate_Ada_Code is
 
-                 type Array_Index_T is new Integer range Enum_Vectors.First_Index (Enum_Vector)..Enum_Vectors.Last_Index (Enum_Vector);
+               type Array_Index_T is new Integer range Enum_Vectors.First_Index (Enum_Vector)..Enum_Vectors.Last_Index (Enum_Vector);
 
                type Permutation_Array_T is array (Array_Index_T) of Vk_XML.Enums_Enum_Shared_Ptr.T;
 
@@ -673,11 +798,11 @@ package body Vk_Package_Creator with SPARK_Mode is
             if Type_Attribue (Enums_V).Exists then
                Handle_Type_Attribute_Exists;
             else
-               Aida.Text_IO.Put_Line ("A <enums> tag exists without Type attribute!?");
+               Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enums> tag exists without Type attribute!?");
             end if;
          end if;
       else
-         Aida.Text_IO.Put_Line ("A <enums> tag exists without Name attribute!?");
+         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enums> tag exists without Name attribute!?");
       end if;
    end Handle_Registry_Child_Enums;
 
@@ -696,19 +821,19 @@ package body Vk_Package_Creator with SPARK_Mode is
       for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
          case Element (Children (R), I).Kind_Id is
             when Child_Comment =>
---                 Aida.Text_IO.Put ("Registry child comment with value:");
---                 Aida.Text_IO.Put_Line (Vk_XML.Comment.Fs.Value.To_String (Vk_XML.Comment_Shared_Ptr.Value (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).C)));
+               --                 Aida.Text_IO.Put ("Registry child comment with value:");
+               --                 Aida.Text_IO.Put_Line (Vk_XML.Comment.Fs.Value.To_String (Vk_XML.Comment_Shared_Ptr.Value (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).C)));
                null;
             when Child_Out_Commented_Message =>
---                 Aida.Text_IO.Put ("Registry child out commented message:");
---                 Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).Out_Commented_Message_V));
+               --                 Aida.Text_IO.Put ("Registry child out commented message:");
+               --                 Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).Out_Commented_Message_V));
                null;
             when Child_Vendor_Ids =>
                null;
             when Child_Tags =>
                null;
             when Child_Types =>
-               Handle_Child_Types (Element (Children (R), I).Types_V);
+               Handle_Child_Types (Element (Children (R), I).Types_V, R);
             when Child_Enums =>
                Handle_Registry_Child_Enums (Element (Children (R), I).Enums_V);
             when Child_Commands =>

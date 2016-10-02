@@ -544,6 +544,13 @@ package body Vk_Package_Creator with SPARK_Mode is
                end;
             end if;
          end;
+      elsif
+        To_String (Category (Type_V)) = "enum" and then
+        Name (Type_V).Exists
+      then
+         null; -- Skip these since they are generated from the enum type definitions
+               -- It should be checked that all expected enum type definitions has been generated in this step!
+               -- TODO: Add this extra nice feature!
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));

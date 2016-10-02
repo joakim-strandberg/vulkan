@@ -1594,7 +1594,7 @@ package body Vk_XML_Reader with SPARK_Mode is
                case Current_Tag_V.Kind_Id is
                   when Current_Tag_Fs.Tag_Id.Comment =>
                      Vk_XML.Comment_Shared_Ptr.Set_Value (This => Current_Tag_V.Comment,
-                                                      Text => Tag_Value);
+                                                          Text => Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
                         XML_Text_V : Vk_XML.XML_Text.T;

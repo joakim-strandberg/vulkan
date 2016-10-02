@@ -60,6 +60,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                                        Equivalent_Keys => Aida.Strings."=",
                                                                                        "="             => Aida.Strings."=");
 
+   use type C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
    C_Type_Name_To_Ada_Name_Map : C_Type_Name_To_Ada_Name_Map_Owner.Map (1000, 1000);
 
    procedure Put_Tabs (N : Natural) is
@@ -225,8 +227,8 @@ package body Vk_Package_Creator with SPARK_Mode is
       then
          declare
             Typedef_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
-            Type_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
-            Name_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
+            Type_Element    : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+            Name_Element    : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
          begin
             if
               Typedef_Element.Kind_Id = Child_XML_Text and then
@@ -277,15 +279,15 @@ package body Vk_Package_Creator with SPARK_Mode is
                         end if;
                      end;
                   else
-                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
                      Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                else
-                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
                   Aida.Text_IO.Put_Line (To_String (Type_V));
                end if;
             else
-               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
                Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
@@ -304,8 +306,86 @@ package body Vk_Package_Creator with SPARK_Mode is
                                       )
       then
          null;
+      elsif
+        To_String (Category (Type_V)) = "bitmask" and then
+        not Requires (Type_V).Exists and then
+        Length (Children (Type_V)) = 4
+      then
+         declare
+            Typedef_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
+            Type_Element    : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+            Name_Element    : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
+         begin
+            if
+              Typedef_Element.Kind_Id = Child_XML_Text and then
+              To_String (Typedef_Element.XML_Text_V) = "typedef "
+            then
+               if
+                 Name_Element.Kind_Id = Child_Name
+               then
+                  if
+                    Type_Element.Kind_Id = Child_Nested_Type and then
+                    Value (Type_Element.Nested_Type_V).Exists
+                  then
+                     declare
+                        New_Type_Name : Aida.Strings.Unbounded_String_Type;
+                        Parent_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+                        Searched_For : Aida.Strings.Unbounded_String_Type;
+
+                        Cursor_V : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                     begin
+                        Aida.Strings.Initialize (This => Searched_For,
+                                                 Text => To_String (Value (Type_Element.Nested_Type_V).Value_V));
+
+                        Cursor_V := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                            Key       => Searched_For);
+
+                        if Cursor_V /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                           Adaify_Type_Name (Old_Name => To_String (Value (Type_Element.Nested_Type_V).Value_V),
+                                             New_Name => Parent_Type_Name);
+                        end if;
+
+                        if Aida.Strings.Length (Parent_Type_Name) > 0 then
+                           Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
+                                             New_Name => New_Type_Name);
+                           Put_Tabs (1);
+                           Put ("type ");
+                           Put (To_String (New_Type_Name));
+                           Put (" is new ");
+                           Put (To_String (Parent_Type_Name));
+                           Put_Line (";");
+                           Put_Line ("");
+
+                           declare
+                              C_Type_Name : Aida.Strings.Unbounded_String_Type;
+                           begin
+                              Aida.Strings.Initialize (This => C_Type_Name,
+                                                       Text => To_String (Value (Name_Element.Name_V)));
+                              C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                        Key       => C_Type_Name,
+                                                                        New_Item  => New_Type_Name);
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
+                     end;
+                  else
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
+                  end if;
+               else
+                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                  Aida.Text_IO.Put_Line (To_String (Type_V));
+               end if;
+            else
+               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+               Aida.Text_IO.Put_Line (To_String (Type_V));
+            end if;
+         end;
       else
-         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skiping conversion of ");
+         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));
       end if;
    end Handle_Child_Type;
@@ -477,7 +557,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                         Put_Line (" is (");
 
                         for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
-                           Is_Last_Enum := I = Last_Index (Children (Enums_V));
+                           Is_Last_Enum := (if I = Last_Index (Children (Enums_V)) then (Element (Children (Enums_V), Last_Index (Children (Enums_V))).Kind_Id = Child_Enums_Enum)
+                                            else
+                                               (for all J in (I+1)..Last_Index (Children (Enums_V)) => Element (Children (Enums_V), J).Kind_Id /= Child_Enums_Enum));
                            case Element (Children (Enums_V), I).Kind_Id is
                               when Child_XML_Dummy             => null;
                               when Child_Enums_Enum            => Handle_Child_Enums_Enum (Element (Children (Enums_V), I).Enums_Enum_V, Is_Last_Enum);
@@ -524,6 +606,7 @@ package body Vk_Package_Creator with SPARK_Mode is
       Ada.Text_IO.Create (File => File,
                           Mode => Ada.Text_IO.Out_File,
                           Name => "vk.ads");
+      Put_Line ("with Interfaces;");
       Put_Line ("");
       Put_Line ("package Vk is");
       Put_Line ("");

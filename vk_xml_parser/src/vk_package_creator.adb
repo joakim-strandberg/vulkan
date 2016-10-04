@@ -11,6 +11,7 @@ with Ada.Containers.Formal_Hashed_Maps;
 with Ada.Strings.Fixed.Hash;
 with Ada.Containers.Generic_Constrained_Array_Sort;
 with Ada.Containers.Formal_Vectors;
+with Ada.Strings.Fixed;
 
 package body Vk_Package_Creator with SPARK_Mode is
 
@@ -599,6 +600,113 @@ package body Vk_Package_Creator with SPARK_Mode is
          null; -- Skip these since they are generated from the enum type definitions
                -- It should be checked that all expected enum type definitions has been generated in this step!
                -- TODO: Add this extra nice feature!
+      elsif
+        To_String (Category (Type_V)) = "funcpointer" and then
+        not Name (Type_V).Exists
+      then
+         declare
+            Typedef_Void_VKAPI_Ptr_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
+            Procedure_Name_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
+         begin
+            if (Typedef_Void_VKAPI_Ptr_Element.Kind_Id = Child_XML_Text and then
+                To_String (Typedef_Void_VKAPI_Ptr_Element.XML_Text_V) = "typedef void (VKAPI_PTR *") and
+              Procedure_Name_Element.Kind_Id = Child_Name
+            then
+               declare
+                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  Adaify_Type_Name (Old_Name => To_String (Value (Procedure_Name_Element.Name_V)),
+                                    New_Name => New_Type_Name);
+
+                  if
+                    Length (Children (Type_V)) = 3 and then
+                    Element (Children (Type_V), First_Index (Children (Type_V)) + 2).Kind_Id = Child_XML_Text and then
+                    To_String (Element (Children (Type_V), First_Index (Children (Type_V)) + 2).XML_Text_V) = ")(void);"
+                  then
+                     Put_Tabs (1);
+                     Put ("type ");
+                     Put (To_String (New_Type_Name));
+                     Put_Line (" is access procedure;");
+                     Put_Line ("");
+                  else
+                     Put_Tabs (1);
+                     Put ("type ");
+                     Put (To_String (New_Type_Name));
+                     Put_Line (" is access procedure (");
+                     Put_Tabs (1);
+
+                     for I in Positive range First_Index (Children (Type_V)) + 3..Last_Index (Children (Type_V)) loop
+                        declare
+                           Nested_Type_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), I);
+                           Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+                           Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                        begin
+                           if
+                             Nested_Type_Element.Kind_Id = Child_Nested_Type and then
+                             Value (Nested_Type_Element.Nested_Type_V).Exists
+                           then
+                              Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V));
+
+                              Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                             Key       => Nested_Type_Name);
+
+                              if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                 declare
+                                    C_Var_Name_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), I + 1);
+                                 begin
+                                    if C_Var_Name_Element.Kind_Id = Child_XML_Text then
+                                       declare
+                                          C_Var_Name : Aida.Strings.Unbounded_String_Type;
+                                          Comma_Index : Natural;
+                                          Has_Found : Boolean;
+                                       begin
+                                          C_Var_Name.Initialize (To_String (C_Var_Name_Element.XML_Text_V));
+                                          C_Var_Name.Find_First_Index (To_Search_For => ",",
+                                                                       Found_Index   => Comma_Index,
+                                                                       Has_Found     => Has_Found);
+
+                                          if Has_Found then
+                                             declare
+                                                Total         : String := To_String (C_Var_Name);
+                                                N_With_Spaces : String := Total (Total'First+1..Comma_Index - 1);
+                                                N             : String := Ada.Strings.Fixed.Trim (Source => N_With_Spaces,
+                                                                                                  Side   => Ada.Strings.Both);
+                                             begin
+                                                if Total (Total'First) = '*' then
+                                                   null;
+                                                else
+                                                   Put_Tabs (2);
+                                                   Put (N);
+                                                   Put (" : ");
+                                                   Put_Line (";");
+                                                end if;
+                                             end;
+                                          else
+                                             null; -- May be last parameter
+                                          end if;
+                                       end;
+                                    else
+                                       Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                                    end if;
+                                 end;
+                              else
+                                 Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type: " & Nested_Type_Name.To_String);
+                              end if;
+                           end if;
+                        end;
+                     end loop;
+
+                     Put (");");
+                     Put_Line ("");
+                  end if;
+
+               end;
+            else
+               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+               Aida.Text_IO.Put_Line (To_String (Type_V));
+            end if;
+         end;
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
          Aida.Text_IO.Put_Line (To_String (Type_V));
@@ -1018,7 +1126,7 @@ package body Vk_Package_Creator with SPARK_Mode is
       Ada.Text_IO.Create (File => File,
                           Mode => Ada.Text_IO.Out_File,
                           Name => "vk.ads");
-      Put_Line ("with Interfaces;");
+      Put_Line ("with Interfaces.C;");
       Put_Line ("");
       Put_Line ("package Vk is");
 

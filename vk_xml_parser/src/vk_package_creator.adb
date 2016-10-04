@@ -49,6 +49,12 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Member.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Member.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Member_Shared_Ptr.T;
+   use all type Vk_XML.Validity.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Validity.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Validity_Shared_Ptr.T;
+   use all type Vk_XML.Usage.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Usage.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Usage_Shared_Ptr.T;
 
    T_End  : constant String := "_T";
    AT_End : constant String := "_Ptr";
@@ -1083,6 +1089,34 @@ package body Vk_Package_Creator with SPARK_Mode is
             end loop;
 
             Put_Tabs (2); Put_Line ("end record;");
+
+            for I in Positive range First_Index (Children (Type_V))..Last_Index (Children (Type_V)) loop
+               if Element (Children (Type_V), I).Kind_Id = Child_Validity then
+                  declare
+                     Validity_V : Vk_XML.Validity_Shared_Ptr.T := Element (Children (Type_V), I).Validity_V;
+                  begin
+                     for I in Positive range First_Index (Children (Validity_V))..Last_Index (Children (Validity_V)) loop
+                        if Element (Children (Validity_V), I).Kind_Id = Child_Usage then
+                           declare
+                              Usage_V : Vk_XML.Usage_Shared_Ptr.T := Element (Children (Validity_V), I).Usage_V;
+                           begin
+                              for I in Positive range First_Index (Children (Usage_V))..Last_Index (Children (Usage_V)) loop
+                                 if Element (Children (Usage_V), I).Kind_Id = Child_XML_Text then
+                                    declare
+                                       Text_V : Vk_XML.XML_Text.T := Element (Children (Usage_V), I).XML_Text_V;
+                                    begin
+                                       Put_Tabs (1); Put ("-- ");
+                                       Put_Line (To_String (Text_V));
+                                    end;
+                                 end if;
+                              end loop;
+                           end;
+                        end if;
+                     end loop;
+                  end;
+               end if;
+            end loop;
+
             Put_Line ("");
          end;
       else
@@ -1561,7 +1595,9 @@ package body Vk_Package_Creator with SPARK_Mode is
          C_Type_Name_To_Ada_Name_Map_Owner.Clear (C_Type_Name_To_Ada_Name_Map);
          Add ("size_t", "Interfaces.C.size_t");
          Add ("int32_t", "Interfaces.Integer_32");
+         Add ("uint32_t", "Interfaces.Unsigned_32");
          Add ("uint64_t", "Interfaces.Unsigned_64");
+         Add ("float", "Float");
          Add ("void*", "Void_Ptr");
          Add ("const char*", "Const_Char_Ptr");
       end Initialize_Global_Variables;

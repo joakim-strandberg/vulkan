@@ -1597,10 +1597,12 @@ package body Vk_XML_Reader with SPARK_Mode is
                                                           Text => Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : Vk_XML.XML_Text.T;
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
                         Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                        XML_Text_V => XML_Text_V);
+                                                             XML_Text_V =>  Vk_XML.XML_Text.T (XML_Text_V));
                      begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Tag_Value);
                         Append_Child (This  => Current_Tag_V.Type_V,
                                       Child => Child);
                      end;
@@ -1612,10 +1614,12 @@ package body Vk_XML_Reader with SPARK_Mode is
                                                           Text => Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Usage =>
                      declare
-                        XML_Text_V : Vk_XML.XML_Text.T;
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
                         Child : Vk_XML.Usage.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                        XML_Text_V => XML_Text_V);
+                                                            XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
                      begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Tag_Value);
                         Append_Child (This  => Current_Tag_V.Usage_V,
                                       Child => Child);
                      end;
@@ -1687,54 +1691,54 @@ package body Vk_XML_Reader with SPARK_Mode is
                Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
             begin
                case Current_Tag_V.Kind_Id is
-               when Current_Tag_Fs.Tag_Id.Registry =>
-                  declare
-                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                     Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                        XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
-                  begin
-                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                             Text => Value);
-                     Append_Child (This  => Current_Tag_V.Registry,
-                                   Child => Child);
-                  end;
-               when Current_Tag_Fs.Tag_Id.Type_T =>
-                  declare
-                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                     Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                      XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
-                  begin
-                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                             Text => Value);
-                     Append_Child (This  => Current_Tag_V.Type_V,
-                                   Child => Child);
-                  end;
-               when Current_Tag_Fs.Tag_Id.Member =>
-                  declare
-                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                     Child : Vk_XML.Member.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                      XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
-                  begin
-                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                             Text => Value);
-                     Append_Child (This  => Current_Tag_V.Member_V,
-                                   Child => Child);
-                  end;
-               when Current_Tag_Fs.Tag_Id.Param =>
-                  declare
-                     XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                     Child : Vk_XML.Param.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                     XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
-                  begin
-                     Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                             Text => Value);
-                     Append_Child (This  => Current_Tag_V.Param_V,
-                                   Child => Child);
-                  end;
-               when others =>
-                  Aida.Text_IO.Put ("Text:");
-                  Aida.Text_IO.Put_Line (Value);
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have text, " & To_String (Parent_Tags));
+                  when Current_Tag_Fs.Tag_Id.Registry =>
+                     declare
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                               XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                     begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Value);
+                        Append_Child (This  => Current_Tag_V.Registry,
+                                      Child => Child);
+                     end;
+                  when Current_Tag_Fs.Tag_Id.Type_T =>
+                     declare
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                             XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                     begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Value);
+                        Append_Child (This  => Current_Tag_V.Type_V,
+                                      Child => Child);
+                     end;
+                  when Current_Tag_Fs.Tag_Id.Member =>
+                     declare
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                        Child : Vk_XML.Member.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                             XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                     begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Value);
+                        Append_Child (This  => Current_Tag_V.Member_V,
+                                      Child => Child);
+                     end;
+                  when Current_Tag_Fs.Tag_Id.Param =>
+                     declare
+                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
+                        Child : Vk_XML.Param.Fs.Child_T := (Kind_Id    => Child_XML_Text,
+                                                            XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                     begin
+                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
+                                                                Text => Value);
+                        Append_Child (This  => Current_Tag_V.Param_V,
+                                      Child => Child);
+                     end;
+                  when others =>
+                     Aida.Text_IO.Put ("Text:");
+                     Aida.Text_IO.Put_Line (Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have text, " & To_String (Parent_Tags));
                end case;
             end;
          end if;

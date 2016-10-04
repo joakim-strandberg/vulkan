@@ -1,3 +1,5 @@
+with Aida.Text_IO;
+
 package body Vk_XML with SPARK_Mode is
 
    use type Aida.Containers.Count_Type;
@@ -775,6 +777,39 @@ package body Vk_XML with SPARK_Mode is
          This.My_Bit_Position := (Exists => True, Value => Value);
       end Set_Bit_Position;
 
+      procedure To_Standard_Out (This : T) with
+        SPARK_Mode => Off
+      is
+      begin
+         Aida.Text_IO.Put ("<enum ");
+
+         if This.My_Value.Exists then
+            Aida.Text_IO.Put ("value='");
+            Aida.Text_IO.Put (To_String (This.My_Value.Value));
+            Aida.Text_IO.Put ("' ");
+         end if;
+
+         if This.My_Name.Exists then
+            Aida.Text_IO.Put ("name='");
+            Aida.Text_IO.Put (To_String (This.My_Name.Value));
+            Aida.Text_IO.Put ("' ");
+         end if;
+
+         if This.My_Comment.Exists then
+            Aida.Text_IO.Put ("comment='");
+            Aida.Text_IO.Put (To_String (This.My_Comment.Value));
+            Aida.Text_IO.Put ("' ");
+         end if;
+
+         if This.My_Bit_Position.Exists then
+            Aida.Text_IO.Put ("bitposition='");
+            Aida.Text_IO.Put (This.My_Bit_Position.Value'Img);
+            Aida.Text_IO.Put ("' ");
+         end if;
+
+         Aida.Text_IO.Put_Line ("/>");
+      end To_Standard_Out;
+
    end Enums_Enum;
 
    package body Enums_Enum_Shared_Ptr with SPARK_Mode => Off is
@@ -808,6 +843,11 @@ package body Vk_XML with SPARK_Mode is
          Set_Bit_Position (This  => Smart_Pointers.Value (This.SP).all,
                            Value => Value);
       end Set_Bit_Position;
+
+      procedure To_Standard_Out (This : T) is
+      begin
+         To_Standard_Out (This => Smart_Pointers.Value (This.SP).all);
+      end To_Standard_Out;
 
    end Enums_Enum_Shared_Ptr;
 

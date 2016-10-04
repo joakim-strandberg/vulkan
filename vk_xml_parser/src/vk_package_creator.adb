@@ -242,8 +242,56 @@ package body Vk_Package_Creator with SPARK_Mode is
                            end if;
                            Put_Line ("");
                         end;
+                     elsif Value (Enum_V).Exists then
+                        declare
+                           V : Aida.Strings.Unbounded_String_Type;
+                           N : String := To_String (Name (Enum_V).Value);
+                           Extracted_Text : Aida.Strings.Unbounded_String_Type;
+                        begin
+                           Aida.Strings.Initialize (This => V,
+                                                    Text => To_String (Value (Enum_V).Value_V));
+                           if
+                             Aida.Strings.Starts_With (This         => V,
+                                                       Searched_For => "0x")
+                           then
+                              Aida.Strings.Substring (This        => V,
+                                                      Begin_Index => 3,
+                                                      Result      => Extracted_Text);
+                              Put_Tabs (1);
+                              Put (Adaify_Constant_Name (N));
+                              Put (" : ");
+                              Put (To_String (Adafied_Name));
+                              Put (" := 16#");
+                              Put (To_String (Extracted_Text));
+                              Put ("#;");
+
+                              if Comment (Enum_V).Exists then
+                                 Put (" -- ");
+                                 Put (To_String (Comment (Enum_V).Value));
+                              end if;
+                              Put_Line ("");
+                           elsif Equals (V, "0") then
+                              Put_Tabs (1);
+                              Put (Adaify_Constant_Name (N));
+                              Put (" : ");
+                              Put (To_String (Adafied_Name));
+                              Put (" := ");
+                              Put (To_String (V));
+                              Put (";");
+
+                              if Comment (Enum_V).Exists then
+                                 Put (" -- ");
+                                 Put (To_String (Comment (Enum_V).Value));
+                              end if;
+                              Put_Line ("");
+                           else
+                              Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Cannot interpret value of  <enum> tag!? ");
+                              To_Standard_Out (Enum_V);
+                           end if;
+                        end;
                      else
-                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enum> tag exists without Bit position attribute!?");
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enum> tag exists without Bit position attribute!? ");
+                        To_Standard_Out (Enum_V);
                      end if;
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", A <enum> tag exists without Name attribute!?");

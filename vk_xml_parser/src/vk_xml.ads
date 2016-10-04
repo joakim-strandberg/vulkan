@@ -512,6 +512,9 @@ package Vk_XML with SPARK_Mode is
       function Bit_Position (This : T) return Fs.Nullable_Bit_Position_T with
         Global => null;
 
+      procedure To_Standard_Out (This : T) with
+        Global => null;
+
       procedure Set_Value (This : in out T;
                            Text : String) with
         Global => null;
@@ -607,6 +610,9 @@ package Vk_XML with SPARK_Mode is
         Global => null;
 
       function Bit_Position (This : T) return Enums_Enum.Fs.Nullable_Bit_Position_T with
+        Global => null;
+
+      procedure To_Standard_Out (This : T) with
         Global => null;
 
       procedure Set_Value (This : in out T;

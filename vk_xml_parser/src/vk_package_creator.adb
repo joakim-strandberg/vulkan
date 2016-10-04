@@ -615,8 +615,10 @@ package body Vk_Package_Creator with SPARK_Mode is
               Procedure_Name_Element.Kind_Id = Child_Name
             then
                declare
+                  Old_Name     : Aida.Strings.Unbounded_String_Type;
                   New_Type_Name : Aida.Strings.Unbounded_String_Type;
                begin
+                  Old_Name.Initialize (To_String (Value (Procedure_Name_Element.Name_V)));
                   Adaify_Type_Name (Old_Name => To_String (Value (Procedure_Name_Element.Name_V)),
                                     New_Name => New_Type_Name);
 
@@ -630,11 +632,19 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Put (To_String (New_Type_Name));
                      Put_Line (" is access procedure;");
                      Put_Line ("");
+
+                     C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                               Key       => Old_Name,
+                                                               New_Item  => New_Type_Name);
                   else
                      Put_Tabs (1);
                      Put ("type ");
                      Put (To_String (New_Type_Name));
                      Put_Line (" is access procedure (");
+
+                     C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                               Key       => Old_Name,
+                                                               New_Item  => New_Type_Name);
 
                      for I in Positive range First_Index (Children (Type_V)) + 3..(Last_Index (Children (Type_V)) - 1) loop
                         declare
@@ -713,8 +723,10 @@ package body Vk_Package_Creator with SPARK_Mode is
                                           N_With_Spaces : String := Total (Total'First+1..Comma_Index - 1);
                                           N             : String := Ada.Strings.Fixed.Trim (Source => N_With_Spaces,
                                                                                             Side   => Ada.Strings.Both);
+
                                           Adafied_Name : Aida.Strings.Unbounded_String_Type;
                                        begin
+                                          Old_Name.Initialize (N);
                                           Adaify_Name (Old_Name => N,
                                                        New_Name => Adafied_Name);
                                           if Total (Total'First) = '*' then
@@ -758,10 +770,204 @@ package body Vk_Package_Creator with SPARK_Mode is
                         end;
                      end loop;
 
-                     Put (");");
+                     Put_Tabs (2);
+                     Put_Line (");");
                      Put_Line ("");
                   end if;
+               end;
+            elsif
+              ((Typedef_Void_VKAPI_Ptr_Element.Kind_Id = Child_XML_Text and then
+                To_String (Typedef_Void_VKAPI_Ptr_Element.XML_Text_V) = "typedef void* (VKAPI_PTR *") or
+                 (Typedef_Void_VKAPI_Ptr_Element.Kind_Id = Child_XML_Text and then
+                  To_String (Typedef_Void_VKAPI_Ptr_Element.XML_Text_V) = "typedef VkBool32 (VKAPI_PTR *")) and
+              Procedure_Name_Element.Kind_Id = Child_Name
+            then
+               declare
+                  Return_Type_Name : Aida.Strings.Unbounded_String_Type;
 
+                  Old_Name     : Aida.Strings.Unbounded_String_Type;
+                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  if To_String (Typedef_Void_VKAPI_Ptr_Element.XML_Text_V) = "typedef void* (VKAPI_PTR *" then
+                     Return_Type_Name.Initialize ("void*");
+                  else
+                     Return_Type_Name.Initialize ("VkBool32");
+                  end if;
+
+                  Old_Name.Initialize (To_String (Value (Procedure_Name_Element.Name_V)));
+                  Adaify_Type_Name (Old_Name => To_String (Value (Procedure_Name_Element.Name_V)),
+                                    New_Name => New_Type_Name);
+
+                  Put_Tabs (1);
+                  Put ("type ");
+                  Put (To_String (New_Type_Name));
+                  Put_Line (" is access function (");
+
+                  C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                            Key       => Old_Name,
+                                                            New_Item  => New_Type_Name);
+
+                  for I in Positive range First_Index (Children (Type_V)) + 3..(Last_Index (Children (Type_V)) - 1) loop
+                     declare
+                        Nested_Type_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), I);
+                        Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+                        C_Var_Name_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), I + 1);
+                        Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                     begin
+                        if
+                          Nested_Type_Element.Kind_Id = Child_Nested_Type and then
+                          Value (Nested_Type_Element.Nested_Type_V).Exists and then
+                          C_Var_Name_Element.Kind_Id = Child_XML_Text
+                        then
+                           declare
+                              C_Var_Name : Aida.Strings.Unbounded_String_Type;
+                              Comma_Index : Natural;
+                              Has_Found : Boolean;
+                           begin
+                              C_Var_Name.Initialize (To_String (C_Var_Name_Element.XML_Text_V));
+                              C_Var_Name.Find_First_Index (To_Search_For => ",",
+                                                           Found_Index   => Comma_Index,
+                                                           Has_Found     => Has_Found);
+
+                              if Has_Found then
+                                 declare
+                                    Total         : String := To_String (C_Var_Name);
+                                    N_With_Spaces : String := Total (Total'First+1..Comma_Index - 1);
+                                    N             : String := Ada.Strings.Fixed.Trim (Source => N_With_Spaces,
+                                                                                      Side   => Ada.Strings.Both);
+                                    Adafied_Name : Aida.Strings.Unbounded_String_Type;
+                                 begin
+                                    Adaify_Name (Old_Name => N,
+                                                 New_Name => Adafied_Name);
+                                    if Total (Total'First) = '*' then
+                                       declare
+                                          Prev_Element : Vk_XML.Type_T.Fs.Child_T renames Element (Children (Type_V), I - 1);
+                                       begin
+                                          if
+                                            Prev_Element.Kind_Id = Child_XML_Text
+                                          then
+                                             declare
+                                                P : String := To_String (Prev_Element.XML_Text_V);
+                                             begin
+                                                if P (P'Last-5..P'Last) = "const " then
+                                                   Nested_Type_Name.Initialize ("const " & To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) & "*");
+                                                else
+                                                   Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) & "*");
+                                                end if;
+                                             end;
+                                          else
+                                             Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) & "*");
+                                          end if;
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Put_Tabs (2);
+                                             Put (Adafied_Name.To_String);
+                                             Put (" : ");
+                                             Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                             Put_Line (";");
+                                          else
+                                             Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type " & Nested_Type_Name.To_String & ", skipping conversion of ");
+                                          end if;
+                                       end;
+                                    else
+                                       Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V));
+
+                                       Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                      Key       => Nested_Type_Name);
+
+                                       if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                          Put_Tabs (2);
+                                          Put (Adafied_Name.To_String);
+                                          Put (" : ");
+                                          Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                          Put_Line (";");
+                                       else
+                                          Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type " & Nested_Type_Name.To_String & ", skipping conversion of ");
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                                       end if;
+                                    end if;
+                                 end;
+                              else
+                                 C_Var_Name.Find_First_Index (To_Search_For => ")",
+                                                              Found_Index   => Comma_Index,
+                                                              Has_Found     => Has_Found);
+
+                                 if Has_Found then
+                                    declare
+                                       Total         : String := To_String (C_Var_Name);
+                                       N_With_Spaces : String := Total (Total'First+1..Comma_Index - 1);
+                                       N             : String := Ada.Strings.Fixed.Trim (Source => N_With_Spaces,
+                                                                                         Side   => Ada.Strings.Both);
+
+                                       Adafied_Name : Aida.Strings.Unbounded_String_Type;
+                                    begin
+                                       Old_Name.Initialize (N);
+                                       Adaify_Name (Old_Name => N,
+                                                    New_Name => Adafied_Name);
+                                       if Total (Total'First) = '*' then
+                                          Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) & "*");
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Put_Tabs (2);
+                                             Put (Adafied_Name.To_String);
+                                             Put (" : ");
+                                             Put_Line (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                          else
+                                             Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                                          end if;
+                                       else
+                                          Nested_Type_Name.Initialize (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V));
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Put_Tabs (2);
+                                             Put (Adafied_Name.To_String);
+                                             Put (" : ");
+                                             Put_Line (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                          else
+                                             Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          end if;
+                                       end if;
+                                    end;
+                                 else
+                                    Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", has not found ) for");
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 end if;
+                              end if;
+                           end;
+                        end if;
+                     end;
+                  end loop;
+
+                  Put_Tabs (2);
+                  Put (") return ");
+
+                  declare
+                     Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                  begin
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                    Key       => Return_Type_Name);
+
+                     if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                        Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                     else
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type " & Return_Type_Name.To_String);
+                        Aida.Text_IO.Put_Line (To_String (Type_V));
+                     end if;
+                  end;
+
+                  Put_Line (";");
+                  Put_Line ("");
                end;
             else
                Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
@@ -1243,6 +1449,8 @@ package body Vk_Package_Creator with SPARK_Mode is
       begin
          C_Type_Name_To_Ada_Name_Map_Owner.Clear (C_Type_Name_To_Ada_Name_Map);
          Add ("size_t", "Interfaces.C.size_t");
+         Add ("int32_t", "Interfaces.Integer_32");
+         Add ("uint64_t", "Interfaces.Unsigned_64");
          Add ("void*", "Void_Ptr");
          Add ("const char*", "Const_Char_Ptr");
       end Initialize_Global_Variables;

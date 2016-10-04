@@ -950,6 +950,15 @@ package body Vk_Package_Creator with SPARK_Mode is
                Put_Tabs (1);
                Put_Line (");");
                Put_Line ("");
+
+               declare
+                  C_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  C_Type_Name.Initialize (Name_To_Adafy);
+                  C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                            Key       => C_Type_Name,
+                                                            New_Item  => Adafied_Name);
+               end;
             end Populate_Permutation_Array_And_Then_Generate_Ada_Code;
 
          begin
@@ -1007,10 +1016,24 @@ package body Vk_Package_Creator with SPARK_Mode is
             end loop;
          end Handle_Child_Types;
 
+         procedure Generate_Code_For_The_Enum_Types is
+         begin
+            for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
+               case Element (Children (R), I).Kind_Id is
+                  when Child_Enums =>
+                     Handle_Registry_Child_Enums (Element (Children (R), I).Enums_V);
+                  when others =>
+                     null;
+               end case;
+            end loop;
+         end Generate_Code_For_The_Enum_Types;
+
       begin
          Put_Line ("");
          Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
          Put_Line ("");
+
+         Generate_Code_For_The_Enum_Types;
 
          for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
             case Element (Children (R), I).Kind_Id is
@@ -1029,7 +1052,7 @@ package body Vk_Package_Creator with SPARK_Mode is
             when Child_Types =>
                Handle_Child_Types (Element (Children (R), I).Types_V, R);
             when Child_Enums =>
-               Handle_Registry_Child_Enums (Element (Children (R), I).Enums_V);
+               null;
             when Child_Commands =>
                null;
             when Child_Feature =>
@@ -1122,7 +1145,29 @@ package body Vk_Package_Creator with SPARK_Mode is
          end loop;
       end Generate_Code_For_The_Private_Part;
 
+      procedure Initialize_Global_Variables is
+
+         procedure Add (C_Type_Name : String;
+                        Ada_Type_Name : String)
+         is
+            CN : Aida.Strings.Unbounded_String_Type;
+            AN : Aida.Strings.Unbounded_String_Type;
+         begin
+            CN.Initialize (C_Type_Name);
+            AN.Initialize (Ada_Type_Name);
+            C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                      Key       => CN,
+                                                      New_Item  => AN);
+         end Add;
+
+      begin
+         C_Type_Name_To_Ada_Name_Map_Owner.Clear (C_Type_Name_To_Ada_Name_Map);
+         Add ("size_t", "Interfaces.C.size_t");
+      end Initialize_Global_Variables;
+
    begin
+      Initialize_Global_Variables;
+
       Ada.Text_IO.Create (File => File,
                           Mode => Ada.Text_IO.Out_File,
                           Name => "vk.ads");

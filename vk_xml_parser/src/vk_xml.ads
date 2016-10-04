@@ -808,7 +808,6 @@ package Vk_XML with SPARK_Mode is
       function Children (This : T) return Member.Fs.Child_Vectors.Immutable_T with
         Global => null;
 
-
       function Optional (This : T) return Member.Fs.Optional_T with
         Global => null;
 

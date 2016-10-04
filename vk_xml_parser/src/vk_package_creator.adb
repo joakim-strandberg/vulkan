@@ -46,6 +46,9 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Enums_Enum_Shared_Ptr.T;
    use all type Vk_XML.Enums_Enum.Fs.Value.T;
    use all type Vk_XML.Enums_Enum.Fs.Name.T;
+   use all type Vk_XML.Member.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Member.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Member_Shared_Ptr.T;
 
    T_End  : constant String := "_T";
    AT_End : constant String := "_Ptr";
@@ -66,6 +69,8 @@ package body Vk_Package_Creator with SPARK_Mode is
    use type C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
    C_Type_Name_To_Ada_Name_Map : C_Type_Name_To_Ada_Name_Map_Owner.Map (1000, 1000);
+
+   use all type Member_Vectors.Vector;
 
    procedure Put_Tabs (N : Natural) is
    begin
@@ -199,6 +204,19 @@ package body Vk_Package_Creator with SPARK_Mode is
    begin
       Adaify_Name (Old_Name => Old_Name,
                    New_Name => New_Name);
+
+      declare
+         R : String := New_Name.To_String;
+      begin
+         if
+           R'Length > 2 and then
+           (R (R'Last-2..R'Last) = "2_D" or
+                R (R'Last-2..R'Last) = "3_D")
+         then
+            New_Name.Initialize (R (R'First..R'Last-2) & "D");
+         end if;
+      end;
+
       Aida.Strings.Append (This => New_Name,
                            Text => T_End);
    end Adaify_Type_Name;
@@ -973,6 +991,99 @@ package body Vk_Package_Creator with SPARK_Mode is
                Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
                Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
+         end;
+      elsif
+        To_String (Category (Type_V)) = "struct" and then
+        Name (Type_V).Exists
+      then
+         declare
+            Members : Member_Vectors.Vector (100);
+
+            Old_Name : Aida.Strings.Unbounded_String_Type;
+            New_Type_Name : Aida.Strings.Unbounded_String_Type;
+         begin
+            Old_Name.Initialize (To_String (Name (Type_V).Value));
+            Adaify_Type_Name (Old_Name => To_String (Name (Type_V).Value),
+                              New_Name => New_Type_Name);
+
+            C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                                      Key       => Old_Name,
+                                                      New_Item  => New_Type_Name);
+
+            for I in Positive range First_Index (Children (Type_V))..Last_Index (Children (Type_V)) loop
+               if Element (Children (Type_V), I).Kind_Id = Child_Member then
+                  Append (Container => Members,
+                          New_Item  => Element (Children (Type_V), I).Member_V);
+               end if;
+            end loop;
+
+            Put_Tabs (1);
+            Put ("type ");
+            Put (To_String (New_Type_Name));
+            Put_Line (" is");
+            Put_Tabs (2); Put_Line ("record");
+
+            for I in Positive range First_Index (Members)..Last_Index (Members) loop
+               declare
+                  Member_Children : Vk_XML.Member.Fs.Child_Vectors.Immutable_T renames Children (Element (Members, I));
+               begin
+                  if Length (Member_Children) = 2 then
+                     declare
+                        First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                          Index     => First_Index (Member_Children));
+                        Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                          Index     => First_Index (Member_Children) + 1);
+                     begin
+                        if
+                          First.Kind_Id = Child_Nested_Type and then
+                          Value (First.Nested_Type_V).Exists
+                        then
+                           if
+                             Second.Kind_Id = Child_Name and then
+                             Length (Value (Second.Name_V)) > 0
+                           then
+                              declare
+                                 Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                                 Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+                                 Adafied_Name : Aida.Strings.Unbounded_String_Type;
+                              begin
+                                 Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                              New_Name => Adafied_Name);
+
+                                 Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V));
+
+                                 Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                Key       => Nested_Type_Name);
+
+                                 if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                    Put_Tabs (3);
+                                    Put (Adafied_Name.To_String);
+                                    Put (" : ");
+                                    Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                    Put_Line (";");
+                                 else
+                                    Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 end if;
+                              end;
+                           else
+                              Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
+                           end if;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
+                     end;
+                  else
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
+                  end if;
+               end;
+            end loop;
+
+            Put_Tabs (2); Put_Line ("end record;");
+            Put_Line ("");
          end;
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");

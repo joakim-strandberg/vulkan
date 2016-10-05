@@ -62,6 +62,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
    T_End  : constant String := "_T";
    AT_End : constant String := "_Ptr";
+   CAT_End : constant String := "_Const_Ptr";
 
    File : Ada.Text_IO.File_Type;
 
@@ -247,6 +248,28 @@ package body Vk_Package_Creator with SPARK_Mode is
       Aida.Strings.Append (This => New_Name,
                            Text => T_End);
    end Adaify_Type_Name;
+
+   procedure Adaify_Constant_Access_Type_Name (Old_Name : String;
+                                               New_Name : in out Aida.Strings.Unbounded_String_Type) is
+   begin
+      Adaify_Name (Old_Name => Old_Name,
+                   New_Name => New_Name);
+
+      declare
+         R : String := New_Name.To_String;
+      begin
+         if
+           R'Length > 2 and then
+           (R (R'Last-2..R'Last) = "2_D" or
+                R (R'Last-2..R'Last) = "3_D")
+         then
+            New_Name.Initialize (R (R'First..R'Last-2) & "D");
+         end if;
+      end;
+
+      Aida.Strings.Append (This => New_Name,
+                           Text => CAT_End);
+   end Adaify_Constant_Access_Type_Name;
 
    function Value_Of_Bit (B : Vk_XML.Enums_Enum.Fs.Bit_Position_T) return Long_Integer is
    begin
@@ -1161,16 +1184,16 @@ package body Vk_Package_Creator with SPARK_Mode is
             begin
                for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
                   case Element (Children (Enums_V), I).Kind_Id is
-                  when Child_XML_Dummy             => null;
-                  when Child_Enums_Enum            =>
-                     declare
-                        Test : Vk_XML.Enums_Enum_Shared_Ptr.T := Element (Children (Enums_V), I).Enums_Enum_V;
-                     begin
-                        Enum_Vectors.Append (Container => Enum_Vector,
-                                             New_Item  => Test);
-                     end;
-                  when Child_Out_Commented_Message => null;
-                  when Child_Unused                => null;
+                     when Child_XML_Dummy             => null;
+                     when Child_Enums_Enum            =>
+                        declare
+                           Test : Vk_XML.Enums_Enum_Shared_Ptr.T := Element (Children (Enums_V), I).Enums_Enum_V;
+                        begin
+                           Enum_Vectors.Append (Container => Enum_Vector,
+                                                New_Item  => Test);
+                        end;
+                     when Child_Out_Commented_Message => null;
+                     when Child_Unused                => null;
                   end case;
                end loop;
             end Populate_Enum_Vector;
@@ -1665,8 +1688,65 @@ package body Vk_Package_Creator with SPARK_Mode is
                   end if;
                end Generate_The_Code;
 
+               procedure Generate_Potential_Constant_Access_Type (Variable_Name        : String;
+                                                                  The_Nested_Type_Name : String;
+                                                                  First                : String;
+                                                                  Third                : String;
+                                                                  Type_V               : Vk_XML.Type_Shared_Ptr.T)
+               is
+                  Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+                  Nested_Type_Name                  : Aida.Strings.Unbounded_String_Type;
+                  Adafied_Constant_Access_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  if
+                    First = "const " and then
+                    Ada.Strings.Fixed.Trim (Source => Third,
+                                            Side   => Ada.Strings.Both) = "*"
+                  then
+                     Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+
+                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                  Key       => Nested_Type_Name);
+
+                     if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                        Nested_Type_Name.Initialize (The_Nested_Type_Name);
+
+                        Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                     Key       => Nested_Type_Name);
+
+                        if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                           Adaify_Constant_Access_Type_Name (Old_Name => The_Nested_Type_Name,
+                                                             New_Name => Adafied_Constant_Access_Type_Name);
+
+                           Put_Tabs (1);
+                           Put ("type ");
+                           Put (Adafied_Constant_Access_Type_Name.To_String);
+                           Put (" is access constant ");
+                           Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                           Put_Line (";");
+                           Put_Line ("");
+
+                           Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+                           Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                   Key       => Nested_Type_Name,
+                                   New_Item  => Adafied_Constant_Access_Type_Name);
+                        else
+                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
+                     end if;
+                  else
+                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
+                  end if;
+               end Generate_Potential_Constant_Access_Type;
+
                Members : Member_Vectors.Vector (100);
 
+               -- This subprogram also generates code for constant access types if they are not already defined for a member.
                procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML.Type_Shared_Ptr.T) is
                begin
                   for I in Positive range First_Index (Members)..Last_Index (Members) loop
@@ -1697,6 +1777,32 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                        V (V'First + 1 .. V'Last - 1),
                                                        Type_V);
                                  end;
+                              end if;
+                           end;
+                        elsif Length (Member_Children) = 4 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                              Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                               Index     => First_Index (Member_Children) + 2);
+                              Fourth : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 3);
+                           begin
+                              if
+                                First.Kind_Id = Child_XML_Text and then
+                                Second.Kind_Id = Child_Nested_Type and then
+                                Value (Second.Nested_Type_V).Exists and then
+                                Third.Kind_Id = Child_XML_Text and then
+                                Fourth.Kind_Id = Child_Name and then
+                                Length (Value (Fourth.Name_V)) > 0
+                              then
+                                 Generate_Potential_Constant_Access_Type (To_String (Value (Fourth.Name_V)),
+                                                                          To_String (Value (Second.Nested_Type_V).Value_V),
+                                                                          To_String (First.XML_Text_V),
+                                                                          To_String (Third.XML_Text_V),
+                                                                          Type_V);
                               end if;
                            end;
                         elsif Length (Member_Children) = 5 then

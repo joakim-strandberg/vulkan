@@ -252,8 +252,13 @@ package body Vk_Package_Creator with SPARK_Mode is
    procedure Adaify_Constant_Access_Type_Name (Old_Name : String;
                                                New_Name : in out Aida.Strings.Unbounded_String_Type) is
    begin
-      Adaify_Name (Old_Name => Old_Name,
-                   New_Name => New_Name);
+      if Old_Name (Old_Name'Last-1..Old_Name'Last) /= "_t" then
+         Adaify_Name (Old_Name => Old_Name,
+                      New_Name => New_Name);
+      else
+         Adaify_Name (Old_Name => Old_Name (Old_Name'First..Old_Name'Last-2),
+                      New_Name => New_Name);
+      end if;
 
       declare
          R : String := New_Name.To_String;
@@ -1997,6 +2002,70 @@ package body Vk_Package_Creator with SPARK_Mode is
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
                                  Aida.Text_IO.Put_Line (To_String (Type_V));
+                              end if;
+                           end;
+                        elsif Length (Member_Children) = 4 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                              Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                               Index     => First_Index (Member_Children) + 2);
+                              Fourth : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 3);
+                           begin
+                              if
+                                First.Kind_Id = Child_XML_Text and then
+                                Second.Kind_Id = Child_Nested_Type and then
+                                Value (Second.Nested_Type_V).Exists and then
+                                Third.Kind_Id = Child_XML_Text and then
+                                Fourth.Kind_Id = Child_Name and then
+                                Length (Value (Fourth.Name_V)) > 0
+                              then
+--                                   Generate_Potential_Constant_Access_Type (To_String (Value (Fourth.Name_V)),
+--                                                                            To_String (Value (Second.Nested_Type_V).Value_V),
+--                                                                            To_String (First.XML_Text_V),
+--                                                                            To_String (Third.XML_Text_V),
+--                                                                            Type_V);
+                                 declare
+                                    Adafied_Name      : Aida.Strings.Unbounded_String_Type;
+
+                                    Star : String := To_String (Third.XML_Text_V);
+                                 begin
+                                    if
+                                      To_String (First.XML_Text_V) = "const " and then
+                                      Star (Star'First) = '*'
+                                    then
+                                       Adaify_Name (Old_Name => To_String (Value (Fourth.Name_V)),
+                                                    New_Name => Adafied_Name);
+
+                                       declare
+                                          Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+                                          Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+                                       begin
+                                          Nested_Type_Name.Initialize (To_String (Value (Second.Nested_Type_V).Value_V) & "*");
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Put_Tabs (3);
+                                             Put (Adafied_Name.To_String);
+                                             Put (" : ");
+                                             Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                             Put_Line (";");
+                                          else
+                                             Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          end if;
+                                       end;
+                                    else
+                                       Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    end if;
+                                 end;
                               end if;
                            end;
                         elsif Length (Member_Children) = 5 then

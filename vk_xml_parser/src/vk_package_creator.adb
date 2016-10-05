@@ -608,7 +608,7 @@ package body Vk_Package_Creator with SPARK_Mode is
               (Right_Bracket_Element.Kind_Id = Child_XML_Text and then
                To_String (Right_Bracket_Element.XML_Text_V) = ")") and
               (Nested_Type_Element.Kind_Id = Child_Nested_Type and then
-              Value (Nested_Type_Element.Nested_Type_V).Exists and then
+               Value (Nested_Type_Element.Nested_Type_V).Exists and then
                    (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_HANDLE" or To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
               Name_Element.Kind_Id = Child_Name
             then
@@ -616,7 +616,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                   New_Type_Name : Aida.Strings.Unbounded_String_Type;
                begin
                   Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
-	                            New_Name => New_Type_Name);
+                                    New_Name => New_Type_Name);
 
                   Put_Tabs (1);
                   Put ("type ");
@@ -631,8 +631,8 @@ package body Vk_Package_Creator with SPARK_Mode is
         Name (Type_V).Exists
       then
          null; -- Skip these since they are generated from the enum type definitions
-               -- It should be checked that all expected enum type definitions has been generated in this step!
-               -- TODO: Add this extra nice feature!
+         -- It should be checked that all expected enum type definitions has been generated in this step!
+         -- TODO: Add this extra nice feature!
       elsif
         To_String (Category (Type_V)) = "funcpointer" and then
         not Name (Type_V).Exists
@@ -1467,9 +1467,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                               Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
                                                                                                                 Index     => First_Index (Member_Children) + 1);
                               Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                      Index     => First_Index (Member_Children) + 2);
+                                                                                                               Index     => First_Index (Member_Children) + 2);
                               Fourth : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                      Index     => First_Index (Member_Children) + 3);
+                                                                                                                Index     => First_Index (Member_Children) + 3);
                            begin
                               if
                                 First.Kind_Id = Child_XML_Text and then
@@ -1551,7 +1551,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Populate_The_Members_Vector;
 
                      for I in Positive range First_Index (Members)..Last_Index (Members) loop
-                         Analyze_Member (Children (Element (Members, I)));
+                        Analyze_Member (Children (Element (Members, I)));
                      end loop;
 
                      if Are_All_Member_Types_Known then
@@ -1570,9 +1570,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                      Key       => Old_Name,
                                                                      New_Item  => New_Type_Name);
                         end;
---                       else
---                          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                        --                       else
+                        --                          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle ");
+                        --                          Aida.Text_IO.Put_Line (To_String (Type_V));
                      end if;
                   end Add_Struct_If_All_Member_Types_Are_Known;
 
@@ -1618,128 +1618,164 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             procedure Generate_Code_For_The_Sorted_Structs is
 
-               procedure Generate_Code_For_Struct (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+               procedure Generate_The_Code (Variable_Name        : String;
+                                            The_Nested_Type_Name : String;
+                                            Last_Range_Index     : String;
+                                            Type_V               : Vk_XML.Type_Shared_Ptr.T)
+               is
+                  Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
-                  Members : Member_Vectors.Vector (100);
+                  Nested_Type_Name              : Aida.Strings.Unbounded_String_Type;
+                  Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
+                  Adafied_Array_Index_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  Adaify_Array_Type_Name (Old_Name => Variable_Name,
+                                          New_Name => Adafied_Array_Type_Name);
 
-                  procedure Generate_Code_For_The_Array_Declarations_If_Any is
+                  Adaify_Array_Index_Type_Name (Old_Name => Variable_Name,
+                                                New_Name => Adafied_Array_Index_Type_Name);
 
-                     procedure Generate_The_Code (Variable_Name        : String;
-                                                  The_Nested_Type_Name : String;
-                                                  Last_Range_Index     : String)
-                     is
-                        Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                  Nested_Type_Name.Initialize (The_Nested_Type_Name);
 
-                        Nested_Type_Name              : Aida.Strings.Unbounded_String_Type;
-                        Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
-                        Adafied_Array_Index_Type_Name : Aida.Strings.Unbounded_String_Type;
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                 Key       => Nested_Type_Name);
+
+
+                  if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                     Put_Tabs (1);
+                     Put ("type ");
+                     Put (Adafied_Array_Index_Type_Name.To_String);
+                     Put (" is range 0..");
+                     Put (Last_Range_Index);
+                     Put_Line (";");
+                     Put_Line ("");
+
+                     Put_Tabs (1);
+                     Put ("type ");
+                     Put (Adafied_Array_Type_Name.To_String);
+                     Put (" is array (");
+                     Put (Adafied_Array_Index_Type_Name.To_String);
+                     Put (") of ");
+                     Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                     Put_Line (";");
+                     Put_Line ("");
+                  else
+                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
+                  end if;
+               end Generate_The_Code;
+
+               Members : Member_Vectors.Vector (100);
+
+               procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+               begin
+                  for I in Positive range First_Index (Members)..Last_Index (Members) loop
+                     declare
+                        Member_Children : Vk_XML.Member.Fs.Child_Vectors.Immutable_T renames Children (Element (Members, I));
                      begin
-                        Adaify_Array_Type_Name (Old_Name => Variable_Name,
-                                                New_Name => Adafied_Array_Type_Name);
-
-                        Adaify_Array_Index_Type_Name (Old_Name => Variable_Name,
-                                                      New_Name => Adafied_Array_Index_Type_Name);
-
-                        Nested_Type_Name.Initialize (The_Nested_Type_Name);
-
-                        Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                                                       Key       => Nested_Type_Name);
-
-
-                        if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                           Put_Tabs (1);
-                           Put ("type ");
-                           Put (Adafied_Array_Index_Type_Name.To_String);
-                           Put (" is range 0..");
-                           Put (Last_Range_Index);
-                           Put_Line (";");
-                           Put_Line ("");
-
-                           Put_Tabs (1);
-                           Put ("type ");
-                           Put (Adafied_Array_Type_Name.To_String);
-                           Put (" is array (");
-                           Put (Adafied_Array_Index_Type_Name.To_String);
-                           Put (") of ");
-                           Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
-                           Put_Line (";");
-                           Put_Line ("");
-                        else
-                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Type_V));
-                        end if;
-                     end Generate_The_Code;
-
-                  begin
-                     for I in Positive range First_Index (Members)..Last_Index (Members) loop
-                        declare
-                           Member_Children : Vk_XML.Member.Fs.Child_Vectors.Immutable_T renames Children (Element (Members, I));
-                        begin
-                           if Length (Member_Children) = 3 then
-                              declare
-                                 First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
-                                                                                   Index     => First_Index (Member_Children));
-                                 Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                   Index     => First_Index (Member_Children) + 1);
-                                 Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                  Index     => First_Index (Member_Children) + 2);
-                              begin
-                                 if
-                                   First.Kind_Id = Child_Nested_Type and then
-                                   Value (First.Nested_Type_V).Exists and then
-                                   Second.Kind_Id = Child_Name and then
-                                   Length (Value (Second.Name_V)) > 0 and then
-                                   Third.Kind_Id = Child_XML_Text
-                                 then
-                                    declare
-                                       V : String := To_String (Third.XML_Text_V);
-                                    begin
-                                       Generate_The_Code (To_String (Value (Second.Name_V)),
-                                                          To_String (Value (First.Nested_Type_V).Value_V),
-                                                          V (V'First + 1 .. V'Last - 1));
-                                    end;
-                                 end if;
-                              end;
-                           elsif Length (Member_Children) = 5 then
-                              declare
-                                 First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
-                                                                                   Index     => First_Index (Member_Children));
-                                 Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                   Index     => First_Index (Member_Children) + 1);
-                                 Left_Bracket : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                         Index     => First_Index (Member_Children) + 2);
-                                 Enum_Element : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                         Index     => First_Index (Member_Children) + 3);
-                                 Right_Bracket : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
-                                                                                                                          Index     => First_Index (Member_Children) + 4);
-                              begin
-                                 if
-                                   First.Kind_Id = Child_Nested_Type and then
-                                   Value (First.Nested_Type_V).Exists and then
-                                   Left_Bracket.Kind_Id = Child_XML_Text and then
-                                   Right_Bracket.Kind_Id = Child_XML_Text and then
-                                   To_String (Left_Bracket.XML_Text_V) = "[" and then
-                                   To_String (Right_Bracket.XML_Text_V) = "]" and then
-                                   Enum_Element.Kind_Id = Child_Enum and then
-                                   Second.Kind_Id = Child_Name and then
-                                   Length (Value (Second.Name_V)) > 0
-                                 then
+                        if Length (Member_Children) = 3 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                              Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                               Index     => First_Index (Member_Children) + 2);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0 and then
+                                Third.Kind_Id = Child_XML_Text
+                              then
+                                 declare
+                                    V : String := To_String (Third.XML_Text_V);
+                                 begin
                                     Generate_The_Code (To_String (Value (Second.Name_V)),
                                                        To_String (Value (First.Nested_Type_V).Value_V),
-                                                       Adaify_Constant_Name (To_String (Value (Enum_Element.Enum_V))));
-                                 end if;
-                              end;
-                           end if;
-                        end;
-                     end loop;
-                  end Generate_Code_For_The_Array_Declarations_If_Any;
+                                                       V (V'First + 1 .. V'Last - 1),
+                                                       Type_V);
+                                 end;
+                              end if;
+                           end;
+                        elsif Length (Member_Children) = 5 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                              Left_Bracket : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                      Index     => First_Index (Member_Children) + 2);
+                              Enum_Element : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                      Index     => First_Index (Member_Children) + 3);
+                              Right_Bracket : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                       Index     => First_Index (Member_Children) + 4);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Left_Bracket.Kind_Id = Child_XML_Text and then
+                                Right_Bracket.Kind_Id = Child_XML_Text and then
+                                To_String (Left_Bracket.XML_Text_V) = "[" and then
+                                To_String (Right_Bracket.XML_Text_V) = "]" and then
+                                Enum_Element.Kind_Id = Child_Enum and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0
+                              then
+                                 Generate_The_Code (To_String (Value (Second.Name_V)),
+                                                    To_String (Value (First.Nested_Type_V).Value_V),
+                                                    Adaify_Constant_Name (To_String (Value (Enum_Element.Enum_V))),
+                                                    Type_V);
+                              end if;
+                           end;
+                        end if;
+                     end;
+                  end loop;
+               end Generate_Code_For_The_Array_Declarations_If_Any;
 
-                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
-
+               procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML.Type_Shared_Ptr.T) is
                begin
-                  Adaify_Type_Name (Old_Name => To_String (Name (Type_V).Value),
-                                    New_Name => New_Type_Name);
+                  for I in Positive range First_Index (Children (Type_V))..Last_Index (Children (Type_V)) loop
+                     if Element (Children (Type_V), I).Kind_Id = Child_Validity then
+                        declare
+                           Validity_V : Vk_XML.Validity_Shared_Ptr.T := Element (Children (Type_V), I).Validity_V;
+                        begin
+                           for I in Positive range First_Index (Children (Validity_V))..Last_Index (Children (Validity_V)) loop
+                              if Element (Children (Validity_V), I).Kind_Id = Child_Usage then
+                                 declare
+                                    Usage_V : Vk_XML.Usage_Shared_Ptr.T := Element (Children (Validity_V), I).Usage_V;
+                                 begin
+                                    for I in Positive range First_Index (Children (Usage_V))..Last_Index (Children (Usage_V)) loop
+                                       if Element (Children (Usage_V), I).Kind_Id = Child_XML_Text then
+                                          declare
+                                             Text_V : String := To_String (Element (Children (Usage_V), I).XML_Text_V);
+                                             N : Natural := Text_V'Last;
+                                          begin
+                                             for J in Positive range Text_V'First..Text_V'Last loop
+                                                if Text_V (J) = Ada.Characters.Latin_1.LF or Text_V (J) = Ada.Characters.Latin_1.CR then
+                                                   N := J - 1;
+                                                   exit;
+                                                end if;
+                                             end loop;
 
+                                             -- TODO: Handle text containing new-lines better!
+                                             Put_Tabs (1); Put ("-- ");
+                                             Put_Line (Text_V (Text_V'First..N));
+                                          end;
+                                       end if;
+                                    end loop;
+                                 end;
+                              end if;
+                           end loop;
+                        end;
+                     end if;
+                  end loop;
+               end Generate_Usage_Comments_After_Record_Definition_If_Any;
+
+               procedure Populate_Members_Vector (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+               begin
+                  Clear (Members);
 
                   for I in Positive range First_Index (Children (Type_V))..Last_Index (Children (Type_V)) loop
                      if Element (Children (Type_V), I).Kind_Id = Child_Member then
@@ -1747,8 +1783,19 @@ package body Vk_Package_Creator with SPARK_Mode is
                                 New_Item  => Element (Children (Type_V), I).Member_V);
                      end if;
                   end loop;
+               end Populate_Members_Vector;
 
-                  Generate_Code_For_The_Array_Declarations_If_Any;
+               procedure Generate_Code_For_Struct (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+
+                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+               begin
+                  Adaify_Type_Name (Old_Name => To_String (Name (Type_V).Value),
+                                    New_Name => New_Type_Name);
+
+                  Populate_Members_Vector (Type_V);
+
+                  Generate_Code_For_The_Array_Declarations_If_Any (Type_V);
 
                   Put_Tabs (1);
                   Put ("type ");
@@ -1900,52 +1947,246 @@ package body Vk_Package_Creator with SPARK_Mode is
 
                   Put_Tabs (2); Put_Line ("end record;");
 
-                  for I in Positive range First_Index (Children (Type_V))..Last_Index (Children (Type_V)) loop
-                     if Element (Children (Type_V), I).Kind_Id = Child_Validity then
-                        declare
-                           Validity_V : Vk_XML.Validity_Shared_Ptr.T := Element (Children (Type_V), I).Validity_V;
-                        begin
-                           for I in Positive range First_Index (Children (Validity_V))..Last_Index (Children (Validity_V)) loop
-                              if Element (Children (Validity_V), I).Kind_Id = Child_Usage then
-                                 declare
-                                    Usage_V : Vk_XML.Usage_Shared_Ptr.T := Element (Children (Validity_V), I).Usage_V;
-                                 begin
-                                    for I in Positive range First_Index (Children (Usage_V))..Last_Index (Children (Usage_V)) loop
-                                       if Element (Children (Usage_V), I).Kind_Id = Child_XML_Text then
-                                          declare
-                                             Text_V : String := To_String (Element (Children (Usage_V), I).XML_Text_V);
-                                             N : Natural := Text_V'Last;
-                                          begin
-                                             for J in Positive range Text_V'First..Text_V'Last loop
-                                                if Text_V (J) = Ada.Characters.Latin_1.LF or Text_V (J) = Ada.Characters.Latin_1.CR then
-                                                   N := J - 1;
-                                                   exit;
-                                                end if;
-                                             end loop;
-
-                                             -- TODO: Handle text containing new-lines better!
-                                             Put_Tabs (1); Put ("-- ");
-                                             Put_Line (Text_V (Text_V'First..N));
-                                          end;
-                                       end if;
-                                    end loop;
-                                 end;
-                              end if;
-                           end loop;
-                        end;
-                     end if;
-                  end loop;
+                  Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V);
 
                   Put_Line ("");
                end Generate_Code_For_Struct;
+
+               procedure Generate_Code_For_Union (Type_V : Vk_XML.Type_Shared_Ptr.T) is
+
+                  New_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+                  procedure Generate_Code_For_Discriminant is
+                     Prefix : Aida.Strings.Unbounded_String_Type;
+                  begin
+                     Adaify_Name (Old_Name => To_String (Name (Type_V).Value),
+                                  New_Name => Prefix);
+
+                     Put_Tabs (1);
+                     Put ("type ");
+                     Put (Prefix.To_String & "_Kind_Id_T");
+                     Put_Line (" is (");
+
+                     for I in Positive range First_Index (Members)..Last_Index (Members) loop
+                        declare
+                           Member_Children : Vk_XML.Member.Fs.Child_Vectors.Immutable_T renames Children (Element (Members, I));
+                        begin
+                           if Length (Member_Children) = 2 then
+                              declare
+                                 First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                   Index     => First_Index (Member_Children));
+                                 Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                   Index     => First_Index (Member_Children) + 1);
+                              begin
+                                 if
+                                   First.Kind_Id = Child_Nested_Type and then
+                                   Value (First.Nested_Type_V).Exists and then
+                                   Second.Kind_Id = Child_Name and then
+                                   Length (Value (Second.Name_V)) > 0
+                                 then
+                                    declare
+                                       Adafied_Discriminant_Value : Aida.Strings.Unbounded_String_Type;
+                                    begin
+                                       Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                    New_Name => Adafied_Discriminant_Value);
+
+                                       Put_Tabs (2);
+                                       Put (Prefix.To_String & "_" & Adafied_Discriminant_Value.To_String);
+                                       if I = Last_Index (Members) then
+                                          Put_Line ("");
+                                       else
+                                          Put_Line (",");
+                                       end if;
+                                    end;
+                                 else
+                                    Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 end if;
+                              end;
+                           elsif Length (Member_Children) = 3 then
+                              declare
+                                 First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                   Index     => First_Index (Member_Children));
+                                 Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                   Index     => First_Index (Member_Children) + 1);
+                                 Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                  Index     => First_Index (Member_Children) + 2);
+                              begin
+                                 if
+                                   First.Kind_Id = Child_Nested_Type and then
+                                   Value (First.Nested_Type_V).Exists and then
+                                   Second.Kind_Id = Child_Name and then
+                                   Length (Value (Second.Name_V)) > 0 and then
+                                   Third.Kind_Id = Child_XML_Text
+                                 then
+                                    declare
+                                       Adafied_Discriminant_Value : Aida.Strings.Unbounded_String_Type;
+                                    begin
+                                       Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                    New_Name => Adafied_Discriminant_Value);
+
+                                       Put_Tabs (2);
+                                       Put (Prefix.To_String & "_" & Adafied_Discriminant_Value.To_String);
+                                       if I = Last_Index (Members) then
+                                          Put_Line ("");
+                                       else
+                                          Put_Line (",");
+                                       end if;
+                                    end;
+                                 end if;
+                              end;
+                           end if;
+                        end;
+                     end loop;
+                     Put_Tabs (2); Put_Line (");");
+                     Put_Line ("");
+                  end Generate_Code_For_Discriminant;
+
+                  Prefix : Aida.Strings.Unbounded_String_Type;
+               begin
+                  Adaify_Name (Old_Name => To_String (Name (Type_V).Value),
+                               New_Name => Prefix);
+
+                  Adaify_Type_Name (Old_Name => To_String (Name (Type_V).Value),
+                                    New_Name => New_Type_Name);
+
+                  Populate_Members_Vector (Type_V);
+
+                  Generate_Code_For_The_Array_Declarations_If_Any (Type_V);
+
+                  Generate_Code_For_Discriminant;
+
+                  Put_Tabs (1);
+                  Put ("type ");
+                  Put (To_String (New_Type_Name));
+                  Put_Line (" (Kind_Id : " & Prefix.To_String & "_Kind_Id_T := " & Prefix.To_String & "_Kind_Id_T'First) is");
+                  Put_Tabs (2); Put_Line ("record");
+                  Put_Tabs (3); Put_Line ("case Kind_Id is");
+
+                  for I in Positive range First_Index (Members)..Last_Index (Members) loop
+                     declare
+                        Member_Children : Vk_XML.Member.Fs.Child_Vectors.Immutable_T renames Children (Element (Members, I));
+                     begin
+                        if Length (Member_Children) = 2 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0
+                              then
+                                 declare
+                                    Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+                                    Nested_Type_Name           : Aida.Strings.Unbounded_String_Type;
+                                    Adafied_Name               : Aida.Strings.Unbounded_String_Type;
+                                    Adafied_Discriminant_Value : Aida.Strings.Unbounded_String_Type;
+                                 begin
+                                    Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                 New_Name => Adafied_Discriminant_Value);
+
+                                    Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                 New_Name => Adafied_Name);
+
+                                    Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V));
+
+                                    Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                   Key       => Nested_Type_Name);
+
+                                    if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                       Put_Tabs (4); Put_Line ("when " & Prefix.To_String & "_" & Adafied_Discriminant_Value.To_String & " =>");
+                                       Put_Tabs (5);
+                                       Put (Adafied_Name.To_String);
+                                       Put (" : ");
+                                       Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                       Put_Line (";");
+                                    else
+                                       Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    end if;
+                                 end;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Type_V));
+                              end if;
+                           end;
+
+                        elsif Length (Member_Children) = 3 then
+                           declare
+                              First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
+                                                                                Index     => First_Index (Member_Children));
+                              Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                                Index     => First_Index (Member_Children) + 1);
+                              Third : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
+                                                                                                               Index     => First_Index (Member_Children) + 2);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0 and then
+                                Third.Kind_Id = Child_XML_Text
+                              then
+                                 declare
+                                    Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
+
+                                    Adafied_Name      : Aida.Strings.Unbounded_String_Type;
+
+                                    Adafied_Discriminant_Value : Aida.Strings.Unbounded_String_Type;
+                                 begin
+                                    Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                 New_Name => Adafied_Discriminant_Value);
+
+                                    Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                 New_Name => Adafied_Name);
+
+                                    Adaify_Array_Type_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                            New_Name => Adafied_Array_Type_Name);
+
+                                    Put_Tabs (4); Put_Line ("when " & Prefix.To_String & "_" & Adafied_Discriminant_Value.To_String & " =>");
+                                    Put_Tabs (5);
+                                    Put (Adafied_Name.To_String);
+                                    Put (" : ");
+                                    Put (Adafied_Array_Type_Name.To_String);
+                                    Put_Line (";");
+                                 end;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Type_V));
+                              end if;
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
+                     end;
+                  end loop;
+
+                  Put_Tabs (3); Put_Line ("end case;");
+                  Put_Tabs (2); Put_Line ("end record;");
+                  Put_Tabs (1); Put ("pragma Unchecked_Union (");
+                  Put (New_Type_Name.To_String);
+                  Put_Line (");");
+                  Put_Tabs (1); Put ("pragma Convention (C, ");
+                  Put (New_Type_Name.To_String);
+                  Put_Line (");");
+
+                  Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V);
+
+                  Put_Line ("");
+               end Generate_Code_For_Union;
 
             begin
                for I in Positive range First_Index (Sorted_Structs)..Last_Index (Sorted_Structs) loop
                   if To_String (Category (Element (Sorted_Structs, I))) = "struct" then
                      Generate_Code_For_Struct (Element (Sorted_Structs, I));
                   else
-                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
-                     Aida.Text_IO.Put_Line (To_String (Element (Sorted_Structs, I)));
+                     Generate_Code_For_Union (Element (Sorted_Structs, I));
                   end if;
                end loop;
             end Generate_Code_For_The_Sorted_Structs;

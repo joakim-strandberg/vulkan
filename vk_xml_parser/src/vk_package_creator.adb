@@ -2466,6 +2466,15 @@ package body Vk_Package_Creator with SPARK_Mode is
                   when Child_XML_Dummy => null;
                end case;
             end loop;
+
+            if Length (Children (Command_V)) > 1 then
+               if Is_Function then
+                  Put_Line (") return " & Return_Type.To_String & ";");
+               else
+                  Put_Line (");");
+               end if;
+            end if;
+            Put_Line ("");
          end Handle_Command;
 
          procedure Handle_Commands (Commands_V : Vk_XML.Commands_Shared_Ptr.T)

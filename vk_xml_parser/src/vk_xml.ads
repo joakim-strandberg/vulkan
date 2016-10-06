@@ -2509,6 +2509,9 @@ package Vk_XML with SPARK_Mode is
       function Command_Buffer_Levels (This : T) return Fs.Command_Buffer_Level_Vector.Immutable_T with
         Global => null;
 
+      function To_String (This : T) return String with
+        Global => null;
+
       procedure Append_Success_Code (This : in out T;
                                      Text : String) with
         Global => null;
@@ -2609,6 +2612,9 @@ package Vk_XML with SPARK_Mode is
         Global => null;
 
       function Command_Buffer_Levels (This : T) return Command.Fs.Command_Buffer_Level_Vector.Immutable_T with
+        Global => null;
+
+      function To_String (This : T) return String with
         Global => null;
 
       procedure Append_Success_Code (This : in out T;

@@ -55,6 +55,15 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Usage.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Usage.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Usage_Shared_Ptr.T;
+   use all type Vk_XML.Commands.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Commands.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Commands_Shared_Ptr.T;
+   use all type Vk_XML.Command.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Command.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Command_Shared_Ptr.T;
+   use all type Vk_XML.Proto.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Proto.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Proto_Shared_Ptr.T;
 
    use all type Member_Vectors.Vector;
    use all type Struct_Type_Vectors.Vector;
@@ -1333,7 +1342,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
    procedure Create_Vk_Package (R : Vk_XML.Registry_Shared_Ptr.T) is
 
-      procedure Generate_Code_For_The_Public_Part  is
+      procedure Generate_Code_For_The_Public_Part is
 
          procedure Handle_Child_Types (Types_V : Vk_XML.Types_Shared_Ptr.T;
                                        R       : Vk_XML.Registry_Shared_Ptr.T)
@@ -2023,11 +2032,6 @@ package body Vk_Package_Creator with SPARK_Mode is
                                 Fourth.Kind_Id = Child_Name and then
                                 Length (Value (Fourth.Name_V)) > 0
                               then
---                                   Generate_Potential_Constant_Access_Type (To_String (Value (Fourth.Name_V)),
---                                                                            To_String (Value (Second.Nested_Type_V).Value_V),
---                                                                            To_String (First.XML_Text_V),
---                                                                            To_String (Third.XML_Text_V),
---                                                                            Type_V);
                                  declare
                                     Adafied_Name      : Aida.Strings.Unbounded_String_Type;
 
@@ -2394,6 +2398,89 @@ package body Vk_Package_Creator with SPARK_Mode is
             Put_Line ("");
          end Generate_Code_For_Special_Types;
 
+         procedure Handle_Command (Command_V : Vk_XML.Command_Shared_Ptr.T) is
+
+            Is_Function : Boolean := False;
+            Return_Type : Aida.Strings.Unbounded_String_Type;
+
+            procedure Handle_Proto (Proto_V : Vk_XML.Proto_Shared_Ptr.T) is
+
+               procedure Handle_Proto_Children is
+                  First  : Vk_XML.Proto.Fs.Child_T renames Element (Children (Proto_V), First_Index (Children (Proto_V)));
+                  Second : Vk_XML.Proto.Fs.Child_T renames Element (Children (Proto_V), First_Index (Children (Proto_V)) + 1);
+
+                  procedure Generate_Code_For_Subprogram is
+                     Subprogram_Name : Aida.Strings.Unbounded_String_Type;
+                  begin
+                     if To_String (Value (First.Nested_Type_V).Value_V) = "void" then
+                        Is_Function := False;
+                        Put_Tabs (1); Put ("procedure ");
+                     else
+                        Is_Function := True;
+                        Adaify_Type_Name (Old_Name => To_String (Value (First.Nested_Type_V).Value_V),
+                                          New_Name => Return_Type);
+                        Put_Tabs (1); Put ("function ");
+                     end if;
+
+                     Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                  New_Name => Subprogram_Name);
+
+                     Put (Subprogram_Name.To_String);
+
+                     if Length (Children (Command_V)) > 1 then
+                        Put_Line (" (");
+                     else
+                        Put_Line (";");
+                     end if;
+                  end Generate_Code_For_Subprogram;
+
+               begin
+                  if
+                    First.Kind_Id = Child_Nested_Type and then
+                    Value (First.Nested_Type_V).Exists and then
+                    Second.Kind_Id = Child_Name
+                  then
+                     Generate_Code_For_Subprogram;
+                  else
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                     Aida.Text_IO.Put_Line (To_String (Command_V));
+                  end if;
+               end Handle_Proto_Children;
+
+            begin
+               if Length (Children (Proto_V)) = 2 then
+                  Handle_Proto_Children;
+               else
+                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
+               end if;
+            end Handle_Proto;
+
+         begin
+            for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
+               case Element (Children (Command_V), I).Kind_Id is
+                  when Child_Proto => Handle_Proto (Element (Children (Command_V), I).Proto_V);
+                  when Child_Param => null;
+                  when Child_Validity => null;
+                  when Child_Implicit_External_Sync_Parameters => null;
+                  when Child_XML_Dummy => null;
+               end case;
+            end loop;
+         end Handle_Command;
+
+         procedure Handle_Commands (Commands_V : Vk_XML.Commands_Shared_Ptr.T)
+         is
+         begin
+            for I in Positive range First_Index (Children (Commands_V))..Last_Index (Children (Commands_V)) loop
+               case Element (Children (Commands_V), I).Kind_Id is
+                  when Child_Command =>
+                     Handle_Command (Element (Children (Commands_V), I).Command_V);
+                  when others =>
+                     null;
+               end case;
+            end loop;
+         end Handle_Commands;
+
       begin
          Put_Line ("");
          Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
@@ -2405,32 +2492,28 @@ package body Vk_Package_Creator with SPARK_Mode is
 
          for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
             case Element (Children (R), I).Kind_Id is
-            when Child_Comment =>
-               --                 Aida.Text_IO.Put ("Registry child comment with value:");
-               --                 Aida.Text_IO.Put_Line (Vk_XML.Comment.Fs.Value.To_String (Vk_XML.Comment_Shared_Ptr.Value (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).C)));
-               null;
-            when Child_Out_Commented_Message =>
-               --                 Aida.Text_IO.Put ("Registry child out commented message:");
-               --                 Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message_Shared_Ptr.To_String (Vk_XML.Registry.Fs.Child_Vectors.Element (Children (R), I).Out_Commented_Message_V));
-               null;
-            when Child_Vendor_Ids =>
-               null;
-            when Child_Tags =>
-               null;
-            when Child_Types =>
-               Handle_Child_Types (Element (Children (R), I).Types_V, R);
-            when Child_Enums =>
-               null;
-            when Child_Commands =>
-               null;
-            when Child_Feature =>
-               null;
-            when Child_Extensions =>
-               null;
-            when Child_XML_Dummy =>
-               null;
-            when Child_XML_Text =>
-               null;
+               when Child_Comment =>
+                  null;
+               when Child_Out_Commented_Message =>
+                  null;
+               when Child_Vendor_Ids =>
+                  null;
+               when Child_Tags =>
+                  null;
+               when Child_Types =>
+                  Handle_Child_Types (Element (Children (R), I).Types_V, R);
+               when Child_Enums =>
+                  null;
+               when Child_Commands =>
+                  Handle_Commands (Element (Children (R), I).Commands_V);
+               when Child_Feature =>
+                  null;
+               when Child_Extensions =>
+                  null;
+               when Child_XML_Dummy =>
+                  null;
+               when Child_XML_Text =>
+                  null;
             end case;
          end loop;
       end Generate_Code_For_The_Public_Part;

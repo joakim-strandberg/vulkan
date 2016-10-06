@@ -4,6 +4,15 @@ package body Vk_XML with SPARK_Mode is
 
    use type Aida.Containers.Count_Type;
 
+   use all type Proto.Fs.Child_Kind_Id_T;
+   use all type Proto.Fs.Child_Vectors.Immutable_T;
+   use all type Proto_Shared_Ptr.T;
+   use all type Command.Fs.Child_Kind_Id_T;
+   use all type Command.Fs.Child_Vectors.Immutable_T;
+   use all type Nested_Type.Fs.Value.T;
+   use all type Nested_Type_Shared_Ptr.T;
+   use all type Name.Fs.Value.T;
+
    package Mutable_XML_Text is new XML_Text.Mutable;
 
    package body Tag with SPARK_Mode is
@@ -1064,6 +1073,57 @@ package body Vk_XML with SPARK_Mode is
                  New_Item  => Value);
       end Append_Command_Buffer_Level;
 
+      function To_String (This : T) return String is
+         R : Aida.Strings.Unbounded_String_Type;
+
+         procedure Handle_Proto (Proto_V : Vk_XML.Proto_Shared_Ptr.T) is
+
+            procedure Handle_Nested_Type (Nested_Type_V : Nested_Type_Shared_Ptr.T) is
+            begin
+               R.Append ("<type>");
+
+               if Nested_Type_Shared_Ptr.Value (Nested_Type_V).Exists then
+                  R.Append (To_String (Nested_Type_Shared_Ptr.Value (Nested_Type_V).Value_V));
+               end if;
+
+               R.Append ("</type>");
+            end Handle_Nested_Type;
+
+            procedure Handle_Name (Name_V : Name_Shared_Ptr.T) is
+            begin
+               R.Append ("<name>");
+
+               R.Append (To_String (Name_Shared_Ptr.Value (Name_V)));
+
+               R.Append ("</name>");
+            end Handle_Name;
+
+         begin
+            for I in Positive range First_Index (Proto_Shared_Ptr.Children (Proto_V))..Last_Index (Proto_Shared_Ptr.Children (Proto_V)) loop
+               case Element (Proto_Shared_Ptr.Children (Proto_V), I).Kind_Id is
+                  when Child_XML_Dummy   => null;
+                  when Child_Nested_Type => Handle_Nested_Type (Element (Proto_Shared_Ptr.Children (Proto_V), I).Nested_Type_V);
+                  when Child_Name        => Handle_Name (Element (Proto_Shared_Ptr.Children (Proto_V), I).Name_V);
+               end case;
+            end loop;
+         end Handle_Proto;
+
+      begin
+         R.Append ("<command >");
+         for I in Positive range First_Index (Children (This))..Last_Index (Children (This)) loop
+            case Element (Children (This), I).Kind_Id is
+               when Child_Proto => Handle_Proto (Element (Children (This), I).Proto_V);
+               when Child_Param => null;
+               when Child_Validity => null;
+               when Child_Implicit_External_Sync_Parameters => null;
+               when Child_XML_Dummy => null;
+            end case;
+         end loop;
+         R.Append ("</command>");
+
+         return R.To_String;
+      end To_String;
+
    end Command;
 
    package body Command_Shared_Ptr with SPARK_Mode => Off is
@@ -1111,6 +1171,11 @@ package body Vk_XML with SPARK_Mode is
          Append_Command_Buffer_Level (This  => Smart_Pointers.Value (This.SP).all,
                                       Value => Value);
       end Append_Command_Buffer_Level;
+
+      function To_String (This : T) return String is
+      begin
+         return To_String (Smart_Pointers.Value (This.SP).all);
+      end To_String;
 
    end Command_Shared_Ptr;
 

@@ -214,6 +214,14 @@ package body Vk_Package_Creator with SPARK_Mode is
          end if;
 
       end loop;
+
+      if New_Name.To_String = "Range" then
+         New_Name.Initialize ("The_Range");
+      end if;
+
+      if New_Name.To_String = "Type" then
+         New_Name.Initialize ("The_Type");
+      end if;
    end Adaify_Name;
 
    procedure Adaify_Array_Index_Type_Name (Old_Name : String;
@@ -1953,8 +1961,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                  Type_V               => Type_V);
                               end if;
                            end;
-                     elsif Length (Member_Children) = 4 then
-                        declare
+                        elsif Length (Member_Children) = 4 then
+                           declare
                               First : Vk_XML.Member.Fs.Child_T renames Element (Container => Member_Children,
                                                                                 Index     => First_Index (Member_Children));
                               Second : Vk_XML.Member.Fs.Child_T renames Vk_XML.Member.Fs.Child_Vectors.Element (Container => Member_Children,
@@ -2641,7 +2649,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
                      Put (Subprogram_Name.To_String);
 
-                     if Length (Params) > 1 then
+                     if Length (Params) > 0 then
                         Put_Line (" (");
                      else
                         Put_Line (";");
@@ -2838,6 +2846,55 @@ package body Vk_Package_Creator with SPARK_Mode is
                end if;
             end Generate_Potential_Access_Type;
 
+            procedure Generate_Code_For_Array_Declarations (Variable_Name        : String;
+                                                            The_Nested_Type_Name : String;
+                                                            Array_Length         : String;
+                                                            Command_V            : Vk_XML.Command_Shared_Ptr.T)
+            is
+               Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+               Nested_Type_Name              : Aida.Strings.Unbounded_String_Type;
+               Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
+               Adafied_Array_Index_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+               Last_Range_Index : Positive := Positive'Value (Array_Length) - 1;
+            begin
+               Adaify_Array_Type_Name (Old_Name => Variable_Name,
+                                       New_Name => Adafied_Array_Type_Name);
+
+               Adaify_Array_Index_Type_Name (Old_Name => Variable_Name,
+                                             New_Name => Adafied_Array_Index_Type_Name);
+
+               Nested_Type_Name.Initialize (The_Nested_Type_Name);
+
+               Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                              Key       => Nested_Type_Name);
+
+               if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                  Put_Tabs (1);
+                  Put ("type ");
+                  Put (Adafied_Array_Index_Type_Name.To_String);
+                  Put (" is range 0..");
+                  Put (Ada.Strings.Fixed.Trim (Source => Last_Range_Index'Img,
+                                               Side   => Ada.Strings.Both));
+                  Put_Line (";");
+                  Put_Line ("");
+
+                  Put_Tabs (1);
+                  Put ("type ");
+                  Put (Adafied_Array_Type_Name.To_String);
+                  Put (" is array (");
+                  Put (Adafied_Array_Index_Type_Name.To_String);
+                  Put (") of ");
+                  Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                  Put_Line (";");
+                  Put_Line ("");
+               else
+                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
+               end if;
+            end Generate_Code_For_Array_Declarations;
+
             procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML.Command_Shared_Ptr.T) is
             begin
                for I in Positive range First_Index (Params)..Last_Index (Params) loop
@@ -2889,6 +2946,22 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                        To_String (First.XML_Text_V),
                                                                        To_String (Third.XML_Text_V),
                                                                        Command_V);
+                           elsif
+                             First.Kind_Id = Child_XML_Text and then
+                             Second.Kind_Id = Child_Nested_Type and then
+                             Value (Second.Nested_Type_V).Exists and then
+                             Third.Kind_Id = Child_Name and then
+                             Length (Value (Third.Name_V)) > 0 and then
+                             Fourth.Kind_Id = Child_XML_Text
+                           then
+                              declare
+                                 V : String := To_String (Fourth.XML_Text_V);
+                              begin
+                                 Generate_Code_For_Array_Declarations (To_String (Value (Third.Name_V)),
+                                                                       To_String (Value (Second.Nested_Type_V).Value_V),
+                                                                       V (V'First + 1 .. V'Last - 1),
+                                                                       Command_V);
+                              end;
                            end if;
                         end;
                      end if;
@@ -2899,7 +2972,8 @@ package body Vk_Package_Creator with SPARK_Mode is
             procedure Generate_Code_For_The_Subprogram_Parameters_If_Any is
 
                procedure Generate_Code_For_Parameter (Param   : Vk_XML.Param_Shared_Ptr.T;
-                                                      Is_Last : Boolean) is
+                                                      Is_Last : Boolean)
+               is
                   Param_Children : Vk_XML.Param.Fs.Child_Vectors.Immutable_T renames Children (Param);
                begin
                   if Length (Param_Children) = 2 then
@@ -3079,7 +3153,11 @@ package body Vk_Package_Creator with SPARK_Mode is
                                        Put (Adafied_Name.To_String);
                                        Put (" : ");
                                        Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
-                                       Put_Line (";");
+                                       if Is_Last then
+                                          Put_Line ("");
+                                       else
+                                          Put_Line (";");
+                                       end if;
                                     else
                                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
                                        Aida.Text_IO.Put_Line (To_String (Command_V));
@@ -3090,6 +3168,37 @@ package body Vk_Package_Creator with SPARK_Mode is
                                  Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
+                        elsif
+                          First.Kind_Id = Child_XML_Text and then
+                          Second.Kind_Id = Child_Nested_Type and then
+                          Value (Second.Nested_Type_V).Exists and then
+                          Third.Kind_Id = Child_Name and then
+                          Length (Value (Third.Name_V)) > 0 and then
+                          Fourth.Kind_Id = Child_XML_Text
+                        then
+                           declare
+                              Adafied_Array_Type_Name : Aida.Strings.Unbounded_String_Type;
+
+                              Adafied_Name : Aida.Strings.Unbounded_String_Type;
+                           begin
+                              Adaify_Name (Old_Name => To_String (Value (Third.Name_V)),
+                                           New_Name => Adafied_Name);
+                              Adaify_Array_Type_Name (Old_Name => To_String (Value (Third.Name_V)),
+                                                      New_Name => Adafied_Array_Type_Name);
+
+                              Put_Tabs (3);
+                              Put (Adafied_Name.To_String);
+                              Put (" : ");
+                              Put (Adafied_Array_Type_Name.To_String);
+                              if Is_Last then
+                                 Put_Line ("");
+                              else
+                                 Put_Line (";");
+                              end if;
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
                   else
@@ -3106,7 +3215,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             procedure Generate_Code_For_The_Subprogram_Ending is
             begin
-               if Length (Params) > 1 then
+               if Length (Params) > 0 then
                   if Is_Function then
                      Put_Line (") return " & Return_Type.To_String & ";");
                   else
@@ -3115,7 +3224,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                else
                   Put_Line (";");
                end if;
-               Put_Line ("pragma Import (C, " & C_Subprogram_Name.To_String & ", """ & Subprogram_Name.To_String & """);");
+               Put_Line ("pragma Import (C, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
 
                Put_Line ("");
             end Generate_Code_For_The_Subprogram_Ending;

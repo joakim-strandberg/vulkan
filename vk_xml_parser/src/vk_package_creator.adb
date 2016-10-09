@@ -2613,6 +2613,9 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             Params : Param_Vectors.Vector (30);
 
+            C_Subprogram_Name : Aida.Strings.Unbounded_String_Type;
+            Subprogram_Name   : Aida.Strings.Unbounded_String_Type;
+
             procedure Handle_Proto (Proto_V : Vk_XML.Proto_Shared_Ptr.T) is
 
                procedure Handle_Proto_Children is
@@ -2620,7 +2623,6 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Second : Vk_XML.Proto.Fs.Child_T renames Element (Children (Proto_V), First_Index (Children (Proto_V)) + 1);
 
                   procedure Generate_Code_For_Subprogram is
-                     Subprogram_Name : Aida.Strings.Unbounded_String_Type;
                   begin
                      if To_String (Value (First.Nested_Type_V).Value_V) = "void" then
                         Is_Function := False;
@@ -2631,6 +2633,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                                           New_Name => Return_Type);
                         Put_Tabs (1); Put ("function ");
                      end if;
+
+                     C_Subprogram_Name.Initialize (To_String (Value (Second.Name_V)));
 
                      Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
                                   New_Name => Subprogram_Name);
@@ -3023,7 +3027,6 @@ package body Vk_Package_Creator with SPARK_Mode is
                                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
                                  Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
-
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
@@ -3112,6 +3115,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                else
                   Put_Line (";");
                end if;
+               Put_Line ("pragma Import (C, " & C_Subprogram_Name.To_String & ", """ & Subprogram_Name.To_String & """);");
+
                Put_Line ("");
             end Generate_Code_For_The_Subprogram_Ending;
 

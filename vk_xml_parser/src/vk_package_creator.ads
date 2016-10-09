@@ -16,6 +16,11 @@ private
                                                                 "="          => Vk_XML.Member_Shared_Ptr."=",
                                                                 Bounded      => False);
 
+   package Param_Vectors is new Ada.Containers.Formal_Vectors (Index_Type   => Positive,
+                                                               Element_Type => Vk_XML.Param_Shared_Ptr.T,
+                                                               "="          => Vk_XML.Param_Shared_Ptr."=",
+                                                               Bounded      => False);
+
    function Hash_Of_Unbounded_String (Key : Aida.Strings.Unbounded_String_Type) return Ada.Containers.Hash_Type;
 
    package C_Type_Name_To_Ada_Name_Map_Owner is new Ada.Containers.Formal_Hashed_Maps (Key_Type        => Aida.Strings.Unbounded_String_Type,

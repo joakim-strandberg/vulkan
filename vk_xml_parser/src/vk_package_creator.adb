@@ -64,9 +64,13 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Proto.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Proto.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Proto_Shared_Ptr.T;
+   use all type Vk_XML.Param.Fs.Child_Kind_Id_T;
+   use all type Vk_XML.Param.Fs.Child_Vectors.Immutable_T;
+   use all type Vk_XML.Param_Shared_Ptr.T;
 
    use all type Member_Vectors.Vector;
    use all type Struct_Type_Vectors.Vector;
+   use all type Param_Vectors.Vector;
    use all type C_Type_Name_To_Ada_Name_Map_Owner.Map;
 
    T_End  : constant String := "_T";
@@ -397,6 +401,15 @@ package body Vk_Package_Creator with SPARK_Mode is
                Put (To_String (Parent_Type_Name));
                Put_Line (";");
 
+               declare
+                  Old_Type_Name : Aida.Strings.Unbounded_String_Type;
+               begin
+                  Old_Type_Name.Initialize (Name_To_Adafy);
+                  Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                          Key       => Old_Type_Name,
+                          New_Item  => Adafied_Name);
+               end;
+
                for I in Positive range First_Index (Children (Enums_V))..Last_Index (Children (Enums_V)) loop
                   case Element (Children (Enums_V), I).Kind_Id is
                      when Child_Enums_Enum => Handle_Enum_Bitmask (Element (Children (Enums_V), I).Enums_Enum_V);
@@ -650,6 +663,7 @@ package body Vk_Package_Creator with SPARK_Mode is
               Name_Element.Kind_Id = Child_Name
             then
                declare
+                  Old_Type_Name : Aida.Strings.Unbounded_String_Type;
                   New_Type_Name : Aida.Strings.Unbounded_String_Type;
                begin
                   Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
@@ -660,6 +674,12 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Put (To_String (New_Type_Name));
                   Put_Line (" is private;");
                   Put_Line ("");
+
+                  Old_Type_Name.Initialize (To_String (Value (Name_Element.Name_V)));
+
+                  Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                          Key       => Old_Type_Name,
+                          New_Item  => New_Type_Name);
                end;
             end if;
          end;
@@ -1468,7 +1488,22 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                                                    Key       => Nested_Type_Name);
 
                                     if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                                       Are_All_Member_Types_Known := False;
+                                       if
+                                         Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V),
+                                                                 Side   => Ada.Strings.Both) = "*"
+                                       then
+                                          Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V) & "*");
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Are_All_Member_Types_Known := False;
+                                          end if;
+                                       else
+                                          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                                       end if;
                                     end if;
                                  end;
                               elsif
@@ -1527,7 +1562,22 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                                                    Key       => Nested_Type_Name);
 
                                     if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                                       Are_All_Member_Types_Known := False;
+                                       if
+                                         Ada.Strings.Fixed.Trim (Source => To_String (Third.XML_Text_V),
+                                                                  Side   => Ada.Strings.Both) = "*"
+                                       then
+                                          Nested_Type_Name.Initialize (To_String (Value (Second.Nested_Type_V).Value_V) & "*");
+
+                                          Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                         Key       => Nested_Type_Name);
+
+                                          if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                             Are_All_Member_Types_Known := False;
+                                          end if;
+                                       else
+                                          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                                       end if;
                                     end if;
                                  end;
                               else
@@ -1589,6 +1639,11 @@ package body Vk_Package_Creator with SPARK_Mode is
 
                      for I in Positive range First_Index (Members)..Last_Index (Members) loop
                         Analyze_Member (Children (Element (Members, I)));
+
+                        if To_String (Name (Type_V).Value) = "VkAndroidSurfaceCreateInfoKHR" then
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle " & Are_All_Member_Types_Known'Img);
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
+                        end if;
                      end loop;
 
                      if Are_All_Member_Types_Known then
@@ -1607,9 +1662,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                      Key       => Old_Name,
                                                                      New_Item  => New_Type_Name);
                         end;
-                        --                       else
-                        --                          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle ");
-                        --                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                     else
+                        Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle ");
+                        Aida.Text_IO.Put_Line (To_String (Type_V));
                      end if;
                   end Add_Struct_If_All_Member_Types_Are_Known;
 
@@ -1639,9 +1694,16 @@ package body Vk_Package_Creator with SPARK_Mode is
                         Add_Struct_If_All_Member_Types_Are_Known (Element (Left_Over_Structs, I));
                      end loop;
 
+                     Aida.Text_IO.Put_Line ("loop " & Number_Of_Structs_Before_Sorting_Session'Img);
+                     Aida.Text_IO.Put_Line ("total " & Length (Left_Over_Structs)'Img);
+
                      if Number_Of_Structs_Before_Sorting_Session = Length (Sorted_Structs) then
                         Shall_Continue := False;
-                        Aida.Text_IO.Put_Line ("Good news! No circular dependencies detected between the struct types (including the union types)!");
+                        if Length (Sorted_Structs) = Length (Unsorted_Structs) then
+                           Aida.Text_IO.Put_Line ("Good news! No circular dependencies detected between the struct types (including the union types)!");
+                        else
+                           Aida.Text_IO.Put_Line ("Bad news! Not all circular dependencies could be resolved! This needs investigation.");
+                        end if;
                      else
                         Shall_Continue := Length (Unsorted_Structs) /= Length (Sorted_Structs);
                      end if;
@@ -2362,6 +2424,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             begin
                for I in Positive range First_Index (Sorted_Structs)..Last_Index (Sorted_Structs) loop
+
                   if To_String (Category (Element (Sorted_Structs, I))) = "struct" then
                      Generate_Code_For_Struct (Element (Sorted_Structs, I));
                   else
@@ -2394,14 +2457,14 @@ package body Vk_Package_Creator with SPARK_Mode is
             Put_Line ("");
             Put_Tabs (1); Put_Line ("type Const_Char_Ptr is access all Interfaces.C.char;");
             Put_Line ("");
-            Put_Tabs (1); Put_Line ("type Physical_Device_Limits_T;");
-            Put_Line ("");
          end Generate_Code_For_Special_Types;
 
          procedure Handle_Command (Command_V : Vk_XML.Command_Shared_Ptr.T) is
 
             Is_Function : Boolean := False;
             Return_Type : Aida.Strings.Unbounded_String_Type;
+
+            Params : Param_Vectors.Vector (30);
 
             procedure Handle_Proto (Proto_V : Vk_XML.Proto_Shared_Ptr.T) is
 
@@ -2427,7 +2490,7 @@ package body Vk_Package_Creator with SPARK_Mode is
 
                      Put (Subprogram_Name.To_String);
 
-                     if Length (Children (Command_V)) > 1 then
+                     if Length (Params) > 1 then
                         Put_Line (" (");
                      else
                         Put_Line (";");
@@ -2456,25 +2519,264 @@ package body Vk_Package_Creator with SPARK_Mode is
                end if;
             end Handle_Proto;
 
-         begin
-            for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
-               case Element (Children (Command_V), I).Kind_Id is
-                  when Child_Proto => Handle_Proto (Element (Children (Command_V), I).Proto_V);
-                  when Child_Param => null;
-                  when Child_Validity => null;
-                  when Child_Implicit_External_Sync_Parameters => null;
-                  when Child_XML_Dummy => null;
-               end case;
-            end loop;
+            procedure Populate_Params_Vector is
+            begin
+               for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
+                  case Element (Children (Command_V), I).Kind_Id is
+                     when Child_Param => Param_Vectors.Append (Container => Params,
+                                                               New_Item  => Element (Children (Command_V), I).Param_V);
+                     when others => null;
+                  end case;
+               end loop;
+            end Populate_Params_Vector;
 
-            if Length (Children (Command_V)) > 1 then
-               if Is_Function then
-                  Put_Line (") return " & Return_Type.To_String & ";");
+            procedure Generate_Code_For_The_Subprogram_Name is
+            begin
+               for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
+                  case Element (Children (Command_V), I).Kind_Id is
+                     when Child_Proto => Handle_Proto (Element (Children (Command_V), I).Proto_V);
+                     when others      => null;
+                  end case;
+               end loop;
+            end Generate_Code_For_The_Subprogram_Name;
+
+            procedure Generate_Potential_Constant_Access_Type (Variable_Name        : String;
+                                                               The_Nested_Type_Name : String;
+                                                               First                : String;
+                                                               Third                : String;
+                                                               Command_V            : Vk_XML.Command_Shared_Ptr.T)
+            is
+               Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+               Nested_Type_Name                  : Aida.Strings.Unbounded_String_Type;
+               Adafied_Constant_Access_Type_Name : Aida.Strings.Unbounded_String_Type;
+            begin
+               if
+                 First = "const " and then
+                 Ada.Strings.Fixed.Trim (Source => Third,
+                                         Side   => Ada.Strings.Both) = "*"
+               then
+                  Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+
+                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                               Key       => Nested_Type_Name);
+
+                  if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                     Nested_Type_Name.Initialize (The_Nested_Type_Name);
+
+                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                  Key       => Nested_Type_Name);
+
+                     if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                        Adaify_Constant_Access_Type_Name (Old_Name => The_Nested_Type_Name,
+                                                          New_Name => Adafied_Constant_Access_Type_Name);
+
+                        Put_Tabs (1);
+                        Put ("type ");
+                        Put (Adafied_Constant_Access_Type_Name.To_String);
+                        Put (" is access constant ");
+                        Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                        Put_Line (";");
+                        Put_Line ("");
+
+                        Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                Key       => Nested_Type_Name,
+                                New_Item  => Adafied_Constant_Access_Type_Name);
+                     else
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
+                     end if;
+                  end if;
                else
-                  Put_Line (");");
+                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
-            end if;
-            Put_Line ("");
+            end Generate_Potential_Constant_Access_Type;
+
+            procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML.Command_Shared_Ptr.T) is
+            begin
+               for I in Positive range First_Index (Params)..Last_Index (Params) loop
+                  declare
+                     Param_Children : Vk_XML.Param.Fs.Child_Vectors.Immutable_T renames Children (Element (Params, I));
+                  begin
+                     if Length (Param_Children) = 4 then
+                        declare
+                           First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                            Index     => First_Index (Param_Children));
+                           Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                             Index     => First_Index (Param_Children) + 1);
+                           Third : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                            Index     => First_Index (Param_Children) + 2);
+                           Fourth : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                             Index     => First_Index (Param_Children) + 3);
+                        begin
+                           if
+                             First.Kind_Id = Child_XML_Text and then
+                             Second.Kind_Id = Child_Nested_Type and then
+                             Value (Second.Nested_Type_V).Exists and then
+                             Third.Kind_Id = Child_XML_Text and then
+                             Fourth.Kind_Id = Child_Name and then
+                             Length (Value (Fourth.Name_V)) > 0
+                           then
+                              Generate_Potential_Constant_Access_Type (To_String (Value (Fourth.Name_V)),
+                                                                       To_String (Value (Second.Nested_Type_V).Value_V),
+                                                                       To_String (First.XML_Text_V),
+                                                                       To_String (Third.XML_Text_V),
+                                                                       Command_V);
+                           end if;
+                        end;
+                     end if;
+                  end;
+               end loop;
+            end Generate_Code_For_The_Constant_Access_Types_If_Any;
+
+            procedure Generate_Code_For_The_Subprogram_Parameters_If_Any is
+
+               procedure Generate_Code_For_Parameter (Param   : Vk_XML.Param_Shared_Ptr.T;
+                                                      Is_Last : Boolean) is
+                  Param_Children : Vk_XML.Param.Fs.Child_Vectors.Immutable_T renames Children (Param);
+               begin
+                  if Length (Param_Children) = 2 then
+                     declare
+                        First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                          Index     => First_Index (Param_Children));
+                        Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                          Index     => First_Index (Param_Children) + 1);
+                     begin
+                        if
+                          First.Kind_Id = Child_Nested_Type and then
+                          Value (First.Nested_Type_V).Exists and then
+                          Second.Kind_Id = Child_Name and then
+                          Length (Value (Second.Name_V)) > 0
+                        then
+                           declare
+                              Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+                              Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+                              Adafied_Name     : Aida.Strings.Unbounded_String_Type;
+                           begin
+                              Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                           New_Name => Adafied_Name);
+
+                              Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V));
+
+                              Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                             Key       => Nested_Type_Name);
+
+                              if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                 Put_Tabs (2);
+                                 Put (Adafied_Name.To_String);
+                                 Put (" : ");
+                                 Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                 if Is_Last then
+                                    Put_Line ("");
+                                 else
+                                    Put_Line (";");
+                                 end if;
+                              else
+                                 Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                              end if;
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
+                        end if;
+                     end;
+                  elsif Length (Param_Children) = 4 then
+                     declare
+                        First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                         Index     => First_Index (Param_Children));
+                        Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                          Index     => First_Index (Param_Children) + 1);
+                        Third : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                         Index     => First_Index (Param_Children) + 2);
+                        Fourth : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                          Index     => First_Index (Param_Children) + 3);
+                     begin
+                        if
+                          First.Kind_Id = Child_XML_Text and then
+                          Second.Kind_Id = Child_Nested_Type and then
+                          Value (Second.Nested_Type_V).Exists and then
+                          Third.Kind_Id = Child_XML_Text and then
+                          Fourth.Kind_Id = Child_Name and then
+                          Length (Value (Fourth.Name_V)) > 0
+                        then
+                           declare
+                              Adafied_Name : Aida.Strings.Unbounded_String_Type;
+
+                              Star : String := To_String (Third.XML_Text_V);
+                           begin
+                              if
+                                To_String (First.XML_Text_V) = "const " and then
+                                Star (Star'First) = '*'
+                              then
+                                 Adaify_Name (Old_Name => To_String (Value (Fourth.Name_V)),
+                                              New_Name => Adafied_Name);
+
+                                 declare
+                                    Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+
+                                    Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+                                 begin
+                                    Nested_Type_Name.Initialize (To_String (Value (Second.Nested_Type_V).Value_V) & "*");
+
+                                    Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                   Key       => Nested_Type_Name);
+
+                                    if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                       Put_Tabs (3);
+                                       Put (Adafied_Name.To_String);
+                                       Put (" : ");
+                                       Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                                       Put_Line (";");
+                                    else
+                                       Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                       Aida.Text_IO.Put_Line (To_String (Command_V));
+                                    end if;
+                                 end;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                              end if;
+                           end;
+                        end if;
+                     end;
+                  else
+                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                     Aida.Text_IO.Put_Line (To_String (Command_V));
+                  end if;
+               end Generate_Code_For_Parameter;
+
+            begin
+               for I in Positive range First_Index (Params)..Last_Index (Params) loop
+                  Generate_Code_For_Parameter (Element (Params, I), I = Last_Index (Params));
+               end loop;
+            end Generate_Code_For_The_Subprogram_Parameters_If_Any;
+
+            procedure Generate_Code_For_The_Subprogram_Ending is
+            begin
+               if Length (Params) > 1 then
+                  if Is_Function then
+                     Put_Line (") return " & Return_Type.To_String & ";");
+                  else
+                     Put_Line (");");
+                  end if;
+               else
+                  Put_Line (";");
+               end if;
+               Put_Line ("");
+            end Generate_Code_For_The_Subprogram_Ending;
+
+         begin
+            Populate_Params_Vector;
+            Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V);
+            Generate_Code_For_The_Subprogram_Name;
+            Generate_Code_For_The_Subprogram_Parameters_If_Any;
+            Generate_Code_For_The_Subprogram_Ending;
          end Handle_Command;
 
          procedure Handle_Commands (Commands_V : Vk_XML.Commands_Shared_Ptr.T)

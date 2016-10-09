@@ -73,6 +73,12 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Param_Vectors.Vector;
    use all type C_Type_Name_To_Ada_Name_Map_Owner.Map;
 
+   type Generating_Code_For_OS_T is (
+                                     Windows
+                                    );
+
+   Generating_Code_For_OS : Generating_Code_For_OS_T := Windows;
+
    T_End  : constant String := "_T";
    AT_End : constant String := "_Ptr";
    CAT_End : constant String := "_Const_Ptr";
@@ -754,6 +760,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Put ("type ");
                      Put (To_String (New_Type_Name));
                      Put_Line (" is access procedure;");
+                     if Generating_Code_For_OS = Windows then
+                        Put_Tabs (1); Put_Line ("pragma Convention (Stdcall, " & To_String (New_Type_Name) & ");");
+                     end if;
                      Put_Line ("");
 
                      C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
@@ -895,6 +904,9 @@ package body Vk_Package_Creator with SPARK_Mode is
 
                      Put_Tabs (2);
                      Put_Line (");");
+                     if Generating_Code_For_OS = Windows then
+                        Put_Tabs (1); Put_Line ("pragma Convention (Stdcall, " & To_String (New_Type_Name) & ");");
+                     end if;
                      Put_Line ("");
                   end if;
                end;
@@ -2946,22 +2958,22 @@ package body Vk_Package_Creator with SPARK_Mode is
                                                                        To_String (First.XML_Text_V),
                                                                        To_String (Third.XML_Text_V),
                                                                        Command_V);
-                           elsif
-                             First.Kind_Id = Child_XML_Text and then
-                             Second.Kind_Id = Child_Nested_Type and then
-                             Value (Second.Nested_Type_V).Exists and then
-                             Third.Kind_Id = Child_Name and then
-                             Length (Value (Third.Name_V)) > 0 and then
-                             Fourth.Kind_Id = Child_XML_Text
-                           then
-                              declare
-                                 V : String := To_String (Fourth.XML_Text_V);
-                              begin
-                                 Generate_Code_For_Array_Declarations (To_String (Value (Third.Name_V)),
-                                                                       To_String (Value (Second.Nested_Type_V).Value_V),
-                                                                       V (V'First + 1 .. V'Last - 1),
-                                                                       Command_V);
-                              end;
+--                             elsif
+--                               First.Kind_Id = Child_XML_Text and then
+--                               Second.Kind_Id = Child_Nested_Type and then
+--                               Value (Second.Nested_Type_V).Exists and then
+--                               Third.Kind_Id = Child_Name and then
+--                               Length (Value (Third.Name_V)) > 0 and then
+--                               Fourth.Kind_Id = Child_XML_Text
+--                             then
+--                                declare
+--                                   V : String := To_String (Fourth.XML_Text_V);
+--                                begin
+--                                   Generate_Code_For_Array_Declarations (To_String (Value (Third.Name_V)),
+--                                                                         To_String (Value (Second.Nested_Type_V).Value_V),
+--                                                                         V (V'First + 1 .. V'Last - 1),
+--                                                                         Command_V);
+--                                end;
                            end if;
                         end;
                      end if;

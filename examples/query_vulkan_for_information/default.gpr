@@ -1,0 +1,12 @@
+with "../../vulkan.gpr";
+
+project Default is
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Main use ("main.adb");
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-LC:/VulkanSDK/1.0.21.1/Bin32/", "-lvulkan-1");
+   end Linker;
+
+end Default;

@@ -5,8 +5,16 @@ project Default is
    for Object_Dir use "obj";
    for Main use ("main.adb");
 
+   package Compiler is
+      for Default_Switches ("Ada") use ("-g", "-pedantic");
+   end Compiler;
+
    package Linker is
-      for Default_Switches ("Ada") use ("-LC:/VulkanSDK/1.0.21.1/Bin32/", "-lvulkan-1");
+      for Default_Switches ("Ada") use ("-lvulkan_ada", "C:\VulkanSDK\1.0.21.1\Bin32\vulkan-1.lib");
    end Linker;
+
+   package Binder is
+      for Default_Switches ("Ada") use ("-E");
+   end Binder;
 
 end Default;

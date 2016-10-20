@@ -762,6 +762,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Put_Line (" is access procedure;");
                      if Generating_Code_For_OS = Windows then
                         Put_Tabs (1); Put_Line ("pragma Convention (Stdcall, " & To_String (New_Type_Name) & ");");
+                     else
+                        Put_Tabs (1); Put_Line ("pragma Convention (C, " & To_String (New_Type_Name) & ");");
                      end if;
                      Put_Line ("");
 
@@ -906,6 +908,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Put_Line (");");
                      if Generating_Code_For_OS = Windows then
                         Put_Tabs (1); Put_Line ("pragma Convention (Stdcall, " & To_String (New_Type_Name) & ");");
+                     else
+                        Put_Tabs (1); Put_Line ("pragma Convention (C, " & To_String (New_Type_Name) & ");");
                      end if;
                      Put_Line ("");
                   end if;
@@ -1102,6 +1106,11 @@ package body Vk_Package_Creator with SPARK_Mode is
                   end;
 
                   Put_Line (";");
+                  if Generating_Code_For_OS = Windows then
+                     Put_Tabs (1); Put_Line ("pragma Convention (Stdcall, " & To_String (New_Type_Name) & ");");
+                  else
+                     Put_Tabs (1); Put_Line ("pragma Convention (C, " & To_String (New_Type_Name) & ");");
+                  end if;
                   Put_Line ("");
                end;
             else
@@ -1356,6 +1365,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                Put_Line ("");
                Put_Tabs (1);
                Put_Line (");");
+               Put_Tabs (1);
+               Put_Line ("for " & Adafied_Name.To_String & "'Size use Interfaces.C.int'Size;");
                Put_Line ("");
 
                declare
@@ -1802,8 +1813,10 @@ package body Vk_Package_Creator with SPARK_Mode is
                      Put (" is array (");
                      Put (Adafied_Array_Index_Type_Name.To_String);
                      Put (") of ");
-                     Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                     Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
                      Put_Line (";");
+                     Put_Tabs (1);
+                     Put_Line ("pragma Convention (C, " & Adafied_Array_Type_Name.To_String & ");");
                      Put_Line ("");
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
@@ -2115,41 +2128,42 @@ package body Vk_Package_Creator with SPARK_Mode is
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
-                                Value (First.Nested_Type_V).Exists
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0
                               then
-                                 if
-                                   Second.Kind_Id = Child_Name and then
-                                   Length (Value (Second.Name_V)) > 0
-                                 then
-                                    declare
-                                       Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
+                                 declare
+                                    Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
-                                       Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
-                                       Adafied_Name     : Aida.Strings.Unbounded_String_Type;
-                                    begin
-                                       Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
-                                                    New_Name => Adafied_Name);
+                                    Nested_Type_Name : Aida.Strings.Unbounded_String_Type;
+                                    Adafied_Name     : Aida.Strings.Unbounded_String_Type;
+                                 begin
+                                    Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
+                                                 New_Name => Adafied_Name);
 
-                                       Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V));
+                                    Nested_Type_Name.Initialize (To_String (Value (First.Nested_Type_V).Value_V));
 
-                                       Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                                                                      Key       => Nested_Type_Name);
+                                    Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                                                                   Key       => Nested_Type_Name);
 
-                                       if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                                          Put_Tabs (3);
-                                          Put (Adafied_Name.To_String);
-                                          Put (" : ");
-                                          Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
-                                          Put_Line (";");
+                                    if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+                                       Put_Tabs (3);
+                                       Put (Adafied_Name.To_String);
+                                       Put (" : ");
+                                       if
+                                         To_String (Value (Second.Name_V)) = "apiVersion" and then
+                                         Nested_Type_Name.Equals ("uint32_t")
+                                       then
+                                          Put ("Version_T");
                                        else
-                                          Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
                                        end if;
-                                    end;
-                                 else
-                                    Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Type_V));
-                                 end if;
+                                       Put_Line (";");
+                                    else
+                                       Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    end if;
+                                 end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
                                  Aida.Text_IO.Put_Line (To_String (Type_V));
@@ -2344,9 +2358,9 @@ package body Vk_Package_Creator with SPARK_Mode is
                                 Length (Value (Second.Name_V)) > 0
                               then
                                  declare
-                                    Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
+                                    Adafied_Array_Type_Name : Aida.Strings.Unbounded_String_Type;
 
-                                    Adafied_Name      : Aida.Strings.Unbounded_String_Type;
+                                    Adafied_Name : Aida.Strings.Unbounded_String_Type;
                                  begin
                                     Adaify_Name (Old_Name => To_String (Value (Second.Name_V)),
                                                  New_Name => Adafied_Name);
@@ -2610,7 +2624,6 @@ package body Vk_Package_Creator with SPARK_Mode is
 
             begin
                for I in Positive range First_Index (Sorted_Structs)..Last_Index (Sorted_Structs) loop
-
                   if To_String (Category (Element (Sorted_Structs, I))) = "struct" then
                      Generate_Code_For_Struct (Element (Sorted_Structs, I));
                   else
@@ -2639,17 +2652,17 @@ package body Vk_Package_Creator with SPARK_Mode is
 
          procedure Generate_Code_For_Special_Types is
          begin
-            Put_Tabs (1); Put_Line ("type Void_Ptr is private;");
+            Put_Tabs (1); Put_Line ("subtype Void_Ptr is System.Address;");
             Put_Line ("");
-            Put_Tabs (1); Put_Line ("type Void_Ptr_Array_T is array (Interfaces.C.size_t range <>) of Void_Ptr;");
-            Put_Line ("pragma Pack (Void_Ptr_Array_T);");
+            Put_Tabs (1); Put_Line ("type Void_Ptr_Array_T is array (Interfaces.C.size_t range 0..1000) of Void_Ptr;");
+            Put_Line ("pragma Convention (C, Void_Ptr_Array_T);");
             Put_Line ("");
-            Put_Tabs (1); Put_Line ("type Void_Ptr_Array_Ptr is access all Void_Ptr_Array_T;");
+            Put_Tabs (1); Put_Line ("package Void_Ptr_Array_Conversions is new Generic_Address_To_Access_Conversions (Void_Ptr_Array_T);");
             Put_Line ("");
-            Put_Tabs (1); Put_Line ("type Const_Char_Array_T is array (Interfaces.C.size_t range <>) of Interfaces.C.Strings.chars_ptr;");
-            Put_Line ("pragma Pack (Const_Char_Array_T);");
+            Put_Tabs (1); Put_Line ("type Char_Ptr_Array_T is array (Interfaces.C.size_t range 0..1000) of Interfaces.C.Strings.chars_ptr;");
+            Put_Line ("pragma Convention (C, Char_Ptr_Array_T);");
             Put_Line ("");
-            Put_Tabs (1); Put_Line ("type Const_Char_Array_Ptr is access all Const_Char_Array_T;");
+            Put_Tabs (1); Put_Line ("package Char_Ptr_Array_Conversions is new Generic_Address_To_Access_Conversions (Char_Ptr_Array_T);");
             Put_Line ("");
          end Generate_Code_For_Special_Types;
 
@@ -2925,8 +2938,10 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Put (" is array (");
                   Put (Adafied_Array_Index_Type_Name.To_String);
                   Put (") of ");
-                  Put (C_Type_Name_To_Ada_Name_Map_Owner.Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                  Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
                   Put_Line (";");
+                  Put_Tabs (1);
+                  Put_Line ("pragma Convention (C, " & Adafied_Array_Type_Name.To_String & ");");
                   Put_Line ("");
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
@@ -3247,7 +3262,12 @@ package body Vk_Package_Creator with SPARK_Mode is
                else
                   Put_Line (";");
                end if;
-               Put_Line ("pragma Import (C, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
+
+               if Generating_Code_For_OS = Windows then
+                  Put_Line ("pragma Import (StdCall, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
+               else
+                  Put_Line ("pragma Import (C, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
+               end if;
 
                Put_Line ("");
             end Generate_Code_For_The_Subprogram_Ending;
@@ -3276,6 +3296,27 @@ package body Vk_Package_Creator with SPARK_Mode is
       begin
          Put_Line ("");
          Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
+         Put_Line ("");
+         Put_Tabs (1);Put_Line ("type Major_Version_T is range 0..2**9;");
+         Put_Tabs (1);Put_Line ("type Minor_Version_T is range 0..2**9;");
+         Put_Tabs (1);Put_Line ("type Patch_Version_T is range 0..2**11;");
+         Put_Line ("");
+         Put_Tabs (1);Put_Line ("type Version_T is");
+         Put_Tabs (1);Put_Line ("   record");
+         Put_Tabs (1);Put_Line ("      Major : Major_Version_T;");
+         Put_Tabs (1);Put_Line ("      Minor : Minor_Version_T;");
+         Put_Tabs (1);Put_Line ("      Patch : Patch_Version_T;");
+         Put_Tabs (1);Put_Line ("   end record;");
+         Put_Tabs (1);Put_Line ("pragma Pack (Version_T);");
+         Put_Tabs (1);Put_Line ("for Version_T'Size use 32;");
+         Put_Tabs (1);Put_Line ("for Version_T use");
+         Put_Tabs (1);Put_Line ("   record");
+         Put_Tabs (1);Put_Line ("      Major at 0 range 22 .. 31;");
+         Put_Tabs (1);Put_Line ("      Minor at 0 range 12 .. 21;");
+         Put_Tabs (1);Put_Line ("      Patch at 0 range 0  .. 11;");
+         Put_Tabs (1);Put_Line ("   end record;");
+         Put_Line ("");
+         Put_Tabs (1);Put_Line ("API_Version : constant Version_T := (Major => 1, Minor => 0, Patch => 21);");
          Put_Line ("");
 
          Generate_Code_For_Special_Types;
@@ -3379,9 +3420,10 @@ package body Vk_Package_Creator with SPARK_Mode is
 
          procedure Generate_Code_For_Private_Part_Of_Special_Types is
          begin
-            Put_Tabs (1); Put_Line ("type Void_Record_T is null record;");
-            Put_Tabs (1); Put_Line ("type Void_Ptr is access all Void_Record_T;");
-            Put_Line ("");
+--              Put_Tabs (1); Put_Line ("type Void_Record_T is null record;");
+--              Put_Tabs (1); Put_Line ("type Void_Ptr is access all Void_Record_T;");
+--              Put_Line ("");
+            null;
          end Generate_Code_For_Private_Part_Of_Special_Types;
 
       begin
@@ -3423,10 +3465,10 @@ package body Vk_Package_Creator with SPARK_Mode is
          Add ("char", "Interfaces.C.char");
          Add ("void*", "Void_Ptr");
          Add ("const void*", "Void_Ptr");
-         Add ("void**", "Void_Ptr_Array_Ptr");
+         Add ("void**", "Void_Ptr_Array_Conversions.Object_Address");
          Add ("char*", "Interfaces.C.Strings.chars_ptr");
          Add ("const char*", "Interfaces.C.Strings.chars_ptr");
-         Add ("const char* const*", "Const_Char_Array_Ptr");
+         Add ("const char* const*", "Char_Ptr_Array_Conversions.Object_Address");
       end Initialize_Global_Variables;
 
    begin
@@ -3436,6 +3478,8 @@ package body Vk_Package_Creator with SPARK_Mode is
                           Mode => Ada.Text_IO.Out_File,
                           Name => "vk.ads");
       Put_Line ("with Interfaces.C.Strings;");
+      Put_Line ("with Generic_Address_To_Access_Conversions;");
+      Put_Line ("with System;");
       Put_Line ("");
       Put_Line ("package Vk is");
 

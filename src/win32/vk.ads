@@ -1,6 +1,6 @@
 with Interfaces.C.Strings;
-with System;
 with Generic_Address_To_Access_Conversions;
+with System;
 
 package Vk is
 
@@ -1466,110 +1466,110 @@ package Vk is
    DEBUG_REPORT_ERROR_BIT_EXT               : Debug_Report_Flag_Bits_Ext_T := 8;
    DEBUG_REPORT_DEBUG_BIT_EXT               : Debug_Report_Flag_Bits_Ext_T := 16;
 
-   type Instance_T is private;
+   type Instance_T is new System.Address;
 
-   type Physical_Device_T is private;
+   type Physical_Device_T is new System.Address;
 
-   type Device_T is private;
+   type Device_T is new System.Address;
 
-   type Queue_T is private;
+   type Queue_T is new System.Address;
 
-   type Command_Buffer_T is private;
+   type Command_Buffer_T is new System.Address;
 
-   type Device_Memory_T is private;
+   type Device_Memory_T is new System.Address;
 
-   type Command_Pool_T is private;
+   type Command_Pool_T is new System.Address;
 
-   type Buffer_T is private;
+   type Buffer_T is new System.Address;
 
-   type Buffer_View_T is private;
+   type Buffer_View_T is new System.Address;
 
-   type Image_T is private;
+   type Image_T is new System.Address;
 
-   type Image_View_T is private;
+   type Image_View_T is new System.Address;
 
-   type Shader_Module_T is private;
+   type Shader_Module_T is new System.Address;
 
-   type Pipeline_T is private;
+   type Pipeline_T is new System.Address;
 
-   type Pipeline_Layout_T is private;
+   type Pipeline_Layout_T is new System.Address;
 
-   type Sampler_T is private;
+   type Sampler_T is new System.Address;
 
-   type Descriptor_Set_T is private;
+   type Descriptor_Set_T is new System.Address;
 
-   type Descriptor_Set_Layout_T is private;
+   type Descriptor_Set_Layout_T is new System.Address;
 
-   type Descriptor_Pool_T is private;
+   type Descriptor_Pool_T is new System.Address;
 
-   type Fence_T is private;
+   type Fence_T is new System.Address;
 
-   type Semaphore_T is private;
+   type Semaphore_T is new System.Address;
 
-   type Event_T is private;
+   type Event_T is new System.Address;
 
-   type Query_Pool_T is private;
+   type Query_Pool_T is new System.Address;
 
-   type Framebuffer_T is private;
+   type Framebuffer_T is new System.Address;
 
-   type Render_Pass_T is private;
+   type Render_Pass_T is new System.Address;
 
-   type Pipeline_Cache_T is private;
+   type Pipeline_Cache_T is new System.Address;
 
-   type Display_Khr_T is private;
+   type Display_Khr_T is new System.Address;
 
-   type Display_Mode_Khr_T is private;
+   type Display_Mode_Khr_T is new System.Address;
 
-   type Surface_Khr_T is private;
+   type Surface_Khr_T is new System.Address;
 
-   type Swapchain_Khr_T is private;
+   type Swapchain_Khr_T is new System.Address;
 
-   type Debug_Report_Callback_Ext_T is private;
+   type Debug_Report_Callback_Ext_T is new System.Address;
 
    type Pfn_Vk_Internal_Allocation_Notification_T is access procedure
-     (Puser_Data       : Void_Ptr;
+     (User_Data        : Void_Ptr;
       Size             : Interfaces.C.size_t;
       Allocation_Type  : Internal_Allocation_Type_T;
       Allocation_Scope : System_Allocation_Scope_T);
    pragma Convention (Stdcall, Pfn_Vk_Internal_Allocation_Notification_T);
 
    type Pfn_Vk_Internal_Free_Notification_T is access procedure
-     (Puser_Data       : Void_Ptr;
+     (User_Data        : Void_Ptr;
       Size             : Interfaces.C.size_t;
       Allocation_Type  : Internal_Allocation_Type_T;
       Allocation_Scope : System_Allocation_Scope_T);
    pragma Convention (Stdcall, Pfn_Vk_Internal_Free_Notification_T);
 
    type Pfn_Vk_Reallocation_Function_T is access function
-     (Puser_Data       : Void_Ptr;
-      Poriginal        : Void_Ptr;
+     (User_Data        : Void_Ptr;
+      Original         : Void_Ptr;
       Size             : Interfaces.C.size_t;
       Alignment        : Interfaces.C.size_t;
       Allocation_Scope : System_Allocation_Scope_T) return Void_Ptr;
    pragma Convention (Stdcall, Pfn_Vk_Reallocation_Function_T);
 
    type Pfn_Vk_Allocation_Function_T is access function
-     (Puser_Data       : Void_Ptr;
+     (User_Data        : Void_Ptr;
       Size             : Interfaces.C.size_t;
       Alignment        : Interfaces.C.size_t;
       Allocation_Scope : System_Allocation_Scope_T) return Void_Ptr;
    pragma Convention (Stdcall, Pfn_Vk_Allocation_Function_T);
 
-   type Pfn_Vk_Free_Function_T is access procedure (Puser_Data : Void_Ptr; Pmemory : Void_Ptr);
+   type Pfn_Vk_Free_Function_T is access procedure (User_Data : Void_Ptr; Memory : Void_Ptr);
    pragma Convention (Stdcall, Pfn_Vk_Free_Function_T);
 
    type Pfn_Vk_Void_Function_T is access procedure;
    pragma Convention (Stdcall, Pfn_Vk_Void_Function_T);
 
    type Pfn_Vk_Debug_Report_Callback_Ext_T is access function
-     (Flags         : Debug_Report_Flags_Ext_T;
-      Object_Type   : Debug_Report_Object_Type_Ext_T;
-      Object        : Interfaces.Unsigned_64;
-      Location      : Interfaces.C.size_t;
-      Message_Code  : Interfaces.Integer_32;
-      Player_Prefix : Interfaces.C.Strings.chars_ptr;
-      Pmessage      : Interfaces.C.Strings.chars_ptr;
-      Puser_Data    : Void_Ptr) return Bool_32_T;
+     (Flags        : Debug_Report_Flags_Ext_T;
+      Object_Type  : Debug_Report_Object_Type_Ext_T;
+      Object       : Interfaces.Unsigned_64;
+      Location     : Interfaces.C.size_t;
+      Message_Code : Interfaces.Integer_32;
+      Layer_Prefix : Interfaces.C.Strings.chars_ptr;
+      Message      : Interfaces.C.Strings.chars_ptr;
+      User_Data    : Void_Ptr) return Bool_32_T;
    pragma Convention (Stdcall, Pfn_Vk_Debug_Report_Callback_Ext_T);
 
    type Offset_2D_T is record
@@ -1673,10 +1673,10 @@ package Vk is
 
    type Application_Info_T is record
       Stype               : Structure_Type_T;
-      Pnext               : Void_Ptr;
-      Papplication_Name   : Interfaces.C.Strings.chars_ptr;
+      Next                : Void_Ptr;
+      Application_Name    : Interfaces.C.Strings.chars_ptr;
       Application_Version : Interfaces.Unsigned_32;
-      Pengine_Name        : Interfaces.C.Strings.chars_ptr;
+      Engine_Name         : Interfaces.C.Strings.chars_ptr;
       Engine_Version      : Interfaces.Unsigned_32;
       Api_Version         : Version_T;
    end record;
@@ -1684,7 +1684,7 @@ package Vk is
    -- pname:apiVersion must: be zero, or otherwise it must: be a version that the implementation supports, or supports an effective substitute for
 
    type Allocation_Callbacks_T is record
-      Puser_Data              : Void_Ptr;
+      User_Data               : Void_Ptr;
       Pfn_Allocation          : Pfn_Vk_Allocation_Function_T;
       Pfn_Reallocation        : Pfn_Vk_Reallocation_Function_T;
       Pfn_Free                : Pfn_Vk_Free_Function_T;
@@ -1701,11 +1701,11 @@ package Vk is
 
    type Device_Queue_Create_Info_T is record
       Stype              : Structure_Type_T;
-      Pnext              : Void_Ptr;
+      Next               : Void_Ptr;
       Flags              : Device_Queue_Create_Flags_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
       Queue_Count        : Interfaces.Unsigned_32;
-      Pqueue_Priorities  : Float_Const_Ptr;
+      Queue_Priorities   : Float_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Device_Queue_Create_Info_T);
    -- pname:queueFamilyIndex must: be less than pname:pQueueFamilyPropertyCount returned by fname:vkGetPhysicalDeviceQueueFamilyProperties
@@ -1715,14 +1715,14 @@ package Vk is
    type Application_Info_Const_Ptr is access constant Application_Info_T;
 
    type Instance_Create_Info_T is record
-      Stype                      : Structure_Type_T;
-      Pnext                      : Void_Ptr;
-      Flags                      : Instance_Create_Flags_T;
-      Papplication_Info          : Application_Info_Const_Ptr;
-      Enabled_Layer_Count        : Interfaces.Unsigned_32;
-      Pp_Enabled_Layer_Names     : Char_Ptr_Array_Conversions.Object_Address;
-      Enabled_Extension_Count    : Interfaces.Unsigned_32;
-      Pp_Enabled_Extension_Names : Char_Ptr_Array_Conversions.Object_Address;
+      Stype                   : Structure_Type_T;
+      Next                    : Void_Ptr;
+      Flags                   : Instance_Create_Flags_T;
+      Application_Info        : Application_Info_Const_Ptr;
+      Enabled_Layer_Count     : Interfaces.Unsigned_32;
+      Enabled_Layer_Names     : Char_Ptr_Array_Conversions.Object_Address;
+      Enabled_Extension_Count : Interfaces.Unsigned_32;
+      Enabled_Extension_Names : Char_Ptr_Array_Conversions.Object_Address;
    end record;
    pragma Convention (C_Pass_By_Copy, Instance_Create_Info_T);
    -- Any given element of pname:ppEnabledLayerNames must: be the name of a layer present on the system, exactly matching a string returned in the sname:VkLayerProperties structure by fname:vkEnumerateInstanceLayerProperties
@@ -1739,7 +1739,7 @@ package Vk is
 
    type Memory_Allocate_Info_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Allocation_Size   : Device_Size_T;
       Memory_Type_Index : Interfaces.Unsigned_32;
    end record;
@@ -1784,7 +1784,7 @@ package Vk is
 
    type Mapped_Memory_Range_T is record
       Stype  : Structure_Type_T;
-      Pnext  : Void_Ptr;
+      Next   : Void_Ptr;
       Memory : Device_Memory_T;
       Offset : Device_Size_T;
       Size   : Device_Size_T;
@@ -1836,16 +1836,16 @@ package Vk is
    type Buffer_View_Const_Ptr is access constant Buffer_View_T;
 
    type Write_Descriptor_Set_T is record
-      Stype              : Structure_Type_T;
-      Pnext              : Void_Ptr;
-      Dst_Set            : Descriptor_Set_T;
-      Dst_Binding        : Interfaces.Unsigned_32;
-      Dst_Array_Element  : Interfaces.Unsigned_32;
-      Descriptor_Count   : Interfaces.Unsigned_32;
-      Descriptor_Type    : Descriptor_Type_T;
-      Pimage_Info        : Descriptor_Image_Info_Const_Ptr;
-      Pbuffer_Info       : Descriptor_Buffer_Info_Const_Ptr;
-      Ptexel_Buffer_View : Buffer_View_Const_Ptr;
+      Stype             : Structure_Type_T;
+      Next              : Void_Ptr;
+      Dst_Set           : Descriptor_Set_T;
+      Dst_Binding       : Interfaces.Unsigned_32;
+      Dst_Array_Element : Interfaces.Unsigned_32;
+      Descriptor_Count  : Interfaces.Unsigned_32;
+      Descriptor_Type   : Descriptor_Type_T;
+      Image_Info        : Descriptor_Image_Info_Const_Ptr;
+      Buffer_Info       : Descriptor_Buffer_Info_Const_Ptr;
+      Texel_Buffer_View : Buffer_View_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Write_Descriptor_Set_T);
    -- pname:dstBinding must: be a valid binding point within pname:dstSet
@@ -1868,7 +1868,7 @@ package Vk is
 
    type Copy_Descriptor_Set_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Src_Set           : Descriptor_Set_T;
       Src_Binding       : Interfaces.Unsigned_32;
       Src_Array_Element : Interfaces.Unsigned_32;
@@ -1888,13 +1888,13 @@ package Vk is
 
    type Buffer_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Buffer_Create_Flags_T;
       Size                     : Device_Size_T;
       Usage                    : Buffer_Usage_Flags_T;
       Sharing_Mode             : Sharing_Mode_T;
       Queue_Family_Index_Count : Interfaces.Unsigned_32;
-      Pqueue_Family_Indices    : Uint_32_Const_Ptr;
+      Queue_Family_Indices     : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Buffer_Create_Info_T);
    -- pname:size must: be greater than `0`
@@ -1907,7 +1907,7 @@ package Vk is
 
    type Buffer_View_Create_Info_T is record
       Stype     : Structure_Type_T;
-      Pnext     : Void_Ptr;
+      Next      : Void_Ptr;
       Flags     : Buffer_View_Create_Flags_T;
       Buffer    : Buffer_T;
       Format    : Format_T;
@@ -1956,7 +1956,7 @@ package Vk is
 
    type Memory_Barrier_T is record
       Stype           : Structure_Type_T;
-      Pnext           : Void_Ptr;
+      Next            : Void_Ptr;
       Src_Access_Mask : Access_Flags_T;
       Dst_Access_Mask : Access_Flags_T;
    end record;
@@ -1964,7 +1964,7 @@ package Vk is
 
    type Buffer_Memory_Barrier_T is record
       Stype                  : Structure_Type_T;
-      Pnext                  : Void_Ptr;
+      Next                   : Void_Ptr;
       Src_Access_Mask        : Access_Flags_T;
       Dst_Access_Mask        : Access_Flags_T;
       Src_Queue_Family_Index : Interfaces.Unsigned_32;
@@ -1983,7 +1983,7 @@ package Vk is
 
    type Image_Memory_Barrier_T is record
       Stype                  : Structure_Type_T;
-      Pnext                  : Void_Ptr;
+      Next                   : Void_Ptr;
       Src_Access_Mask        : Access_Flags_T;
       Dst_Access_Mask        : Access_Flags_T;
       Old_Layout             : Image_Layout_T;
@@ -2010,7 +2010,7 @@ package Vk is
 
    type Image_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Image_Create_Flags_T;
       Image_Type               : Image_Type_T;
       Format                   : Format_T;
@@ -2022,7 +2022,7 @@ package Vk is
       Usage                    : Image_Usage_Flags_T;
       Sharing_Mode             : Sharing_Mode_T;
       Queue_Family_Index_Count : Interfaces.Unsigned_32;
-      Pqueue_Family_Indices    : Uint_32_Const_Ptr;
+      Queue_Family_Indices     : Uint_32_Const_Ptr;
       Initial_Layout           : Image_Layout_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Create_Info_T);
@@ -2084,7 +2084,7 @@ package Vk is
 
    type Image_View_Create_Info_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Flags             : Image_View_Create_Flags_T;
       Image             : Image_T;
       View_Type         : Image_View_Type_T;
@@ -2158,14 +2158,14 @@ package Vk is
    type Sparse_Buffer_Memory_Bind_Info_T is record
       Buffer     : Buffer_T;
       Bind_Count : Interfaces.Unsigned_32;
-      Pbinds     : Sparse_Memory_Bind_Const_Ptr;
+      Binds      : Sparse_Memory_Bind_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Buffer_Memory_Bind_Info_T);
 
    type Sparse_Image_Opaque_Memory_Bind_Info_T is record
       Image      : Image_T;
       Bind_Count : Interfaces.Unsigned_32;
-      Pbinds     : Sparse_Memory_Bind_Const_Ptr;
+      Binds      : Sparse_Memory_Bind_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Image_Opaque_Memory_Bind_Info_T);
    -- For any given element of pname:pBinds, if the pname:flags member of that element contains ename:VK_SPARSE_MEMORY_BIND_METADATA_BIT, the binding range defined must: be within the mip tail region of the metadata aspect of pname:image
@@ -2175,7 +2175,7 @@ package Vk is
    type Sparse_Image_Memory_Bind_Info_T is record
       Image      : Image_T;
       Bind_Count : Interfaces.Unsigned_32;
-      Pbinds     : Sparse_Image_Memory_Bind_Const_Ptr;
+      Binds      : Sparse_Image_Memory_Bind_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Image_Memory_Bind_Info_T);
 
@@ -2189,17 +2189,17 @@ package Vk is
 
    type Bind_Sparse_Info_T is record
       Stype                   : Structure_Type_T;
-      Pnext                   : Void_Ptr;
+      Next                    : Void_Ptr;
       Wait_Semaphore_Count    : Interfaces.Unsigned_32;
-      Pwait_Semaphores        : Semaphore_Const_Ptr;
+      Wait_Semaphores         : Semaphore_Const_Ptr;
       Buffer_Bind_Count       : Interfaces.Unsigned_32;
-      Pbuffer_Binds           : Sparse_Buffer_Memory_Bind_Info_Const_Ptr;
+      Buffer_Binds            : Sparse_Buffer_Memory_Bind_Info_Const_Ptr;
       Image_Opaque_Bind_Count : Interfaces.Unsigned_32;
-      Pimage_Opaque_Binds     : Sparse_Image_Opaque_Memory_Bind_Info_Const_Ptr;
+      Image_Opaque_Binds      : Sparse_Image_Opaque_Memory_Bind_Info_Const_Ptr;
       Image_Bind_Count        : Interfaces.Unsigned_32;
-      Pimage_Binds            : Sparse_Image_Memory_Bind_Info_Const_Ptr;
+      Image_Binds             : Sparse_Image_Memory_Bind_Info_Const_Ptr;
       Signal_Semaphore_Count  : Interfaces.Unsigned_32;
-      Psignal_Semaphores      : Semaphore_Const_Ptr;
+      Signal_Semaphores       : Semaphore_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Bind_Sparse_Info_T);
 
@@ -2291,10 +2291,10 @@ package Vk is
 
    type Shader_Module_Create_Info_T is record
       Stype     : Structure_Type_T;
-      Pnext     : Void_Ptr;
+      Next      : Void_Ptr;
       Flags     : Shader_Module_Create_Flags_T;
       Code_Size : Interfaces.C.size_t;
-      Pcode     : Uint_32_Const_Ptr;
+      Code      : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Shader_Module_Create_Info_T);
    -- pname:codeSize must: be greater than 0
@@ -2308,11 +2308,11 @@ package Vk is
    type Sampler_Const_Ptr is access constant Sampler_T;
 
    type Descriptor_Set_Layout_Binding_T is record
-      Binding             : Interfaces.Unsigned_32;
-      Descriptor_Type     : Descriptor_Type_T;
-      Descriptor_Count    : Interfaces.Unsigned_32;
-      Stage_Flags         : Shader_Stage_Flags_T;
-      Pimmutable_Samplers : Sampler_Const_Ptr;
+      Binding            : Interfaces.Unsigned_32;
+      Descriptor_Type    : Descriptor_Type_T;
+      Descriptor_Count   : Interfaces.Unsigned_32;
+      Stage_Flags        : Shader_Stage_Flags_T;
+      Immutable_Samplers : Sampler_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Set_Layout_Binding_T);
    -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_SAMPLER or ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, and pname:descriptorCount is not `0` and pname:pImmutableSamplers is not `NULL`, pname:pImmutableSamplers must: be a pointer to an array of pname:descriptorCount valid sname:VkSampler handles
@@ -2322,10 +2322,10 @@ package Vk is
 
    type Descriptor_Set_Layout_Create_Info_T is record
       Stype         : Structure_Type_T;
-      Pnext         : Void_Ptr;
+      Next          : Void_Ptr;
       Flags         : Descriptor_Set_Layout_Create_Flags_T;
       Binding_Count : Interfaces.Unsigned_32;
-      Pbindings     : Descriptor_Set_Layout_Binding_Const_Ptr;
+      Bindings      : Descriptor_Set_Layout_Binding_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Set_Layout_Create_Info_T);
 
@@ -2340,11 +2340,11 @@ package Vk is
 
    type Descriptor_Pool_Create_Info_T is record
       Stype           : Structure_Type_T;
-      Pnext           : Void_Ptr;
+      Next            : Void_Ptr;
       Flags           : Descriptor_Pool_Create_Flags_T;
       Max_Sets        : Interfaces.Unsigned_32;
       Pool_Size_Count : Interfaces.Unsigned_32;
-      Ppool_Sizes     : Descriptor_Pool_Size_Const_Ptr;
+      Pool_Sizes      : Descriptor_Pool_Size_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Pool_Create_Info_T);
    -- pname:maxSets must: be greater than `0`
@@ -2353,10 +2353,10 @@ package Vk is
 
    type Descriptor_Set_Allocate_Info_T is record
       Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
+      Next                 : Void_Ptr;
       Descriptor_Pool      : Descriptor_Pool_T;
       Descriptor_Set_Count : Interfaces.Unsigned_32;
-      Pset_Layouts         : Descriptor_Set_Layout_Const_Ptr;
+      Set_Layouts          : Descriptor_Set_Layout_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Set_Allocate_Info_T);
    -- pname:descriptorSetCount mustnot: be greater than the number of sets that are currently available for allocation in pname:descriptorPool
@@ -2373,9 +2373,9 @@ package Vk is
 
    type Specialization_Info_T is record
       Map_Entry_Count : Interfaces.Unsigned_32;
-      Pmap_Entries    : Specialization_Map_Entry_Const_Ptr;
+      Map_Entries     : Specialization_Map_Entry_Const_Ptr;
       Data_Size       : Interfaces.C.size_t;
-      Pdata           : Void_Ptr;
+      Data            : Void_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Specialization_Info_T);
    -- The pname:offset member of any given element of pname:pMapEntries must: be less than pname:dataSize
@@ -2384,13 +2384,13 @@ package Vk is
    type Specialization_Info_Const_Ptr is access constant Specialization_Info_T;
 
    type Pipeline_Shader_Stage_Create_Info_T is record
-      Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
-      Flags                : Pipeline_Shader_Stage_Create_Flags_T;
-      Stage                : Shader_Stage_Flag_Bits_T;
-      Module               : Shader_Module_T;
-      Pname                : Interfaces.C.Strings.chars_ptr;
-      Pspecialization_Info : Specialization_Info_Const_Ptr;
+      Stype               : Structure_Type_T;
+      Next                : Void_Ptr;
+      Flags               : Pipeline_Shader_Stage_Create_Flags_T;
+      Stage               : Shader_Stage_Flag_Bits_T;
+      Module              : Shader_Module_T;
+      Name                : Interfaces.C.Strings.chars_ptr;
+      Specialization_Info : Specialization_Info_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Shader_Stage_Create_Info_T);
    -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, pname:stage mustnot: be ename:VK_SHADER_STAGE_GEOMETRY_BIT
@@ -2412,7 +2412,7 @@ package Vk is
 
    type Compute_Pipeline_Create_Info_T is record
       Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
+      Next                 : Void_Ptr;
       Flags                : Pipeline_Create_Flags_T;
       Stage                : Pipeline_Shader_Stage_Create_Info_T;
       Layout               : Pipeline_Layout_T;
@@ -2456,12 +2456,12 @@ package Vk is
 
    type Pipeline_Vertex_Input_State_Create_Info_T is record
       Stype                              : Structure_Type_T;
-      Pnext                              : Void_Ptr;
+      Next                               : Void_Ptr;
       Flags                              : Pipeline_Vertex_Input_State_Create_Flags_T;
       Vertex_Binding_Description_Count   : Interfaces.Unsigned_32;
-      Pvertex_Binding_Descriptions       : Vertex_Input_Binding_Description_Const_Ptr;
+      Vertex_Binding_Descriptions        : Vertex_Input_Binding_Description_Const_Ptr;
       Vertex_Attribute_Description_Count : Interfaces.Unsigned_32;
-      Pvertex_Attribute_Descriptions     : Vertex_Input_Attribute_Description_Const_Ptr;
+      Vertex_Attribute_Descriptions      : Vertex_Input_Attribute_Description_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Vertex_Input_State_Create_Info_T);
    -- pname:vertexBindingDescriptionCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxVertexInputBindings
@@ -2472,7 +2472,7 @@ package Vk is
 
    type Pipeline_Input_Assembly_State_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Pipeline_Input_Assembly_State_Create_Flags_T;
       Topology                 : Primitive_Topology_T;
       Primitive_Restart_Enable : Bool_32_T;
@@ -2484,7 +2484,7 @@ package Vk is
 
    type Pipeline_Tessellation_State_Create_Info_T is record
       Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
+      Next                 : Void_Ptr;
       Flags                : Pipeline_Tessellation_State_Create_Flags_T;
       Patch_Control_Points : Interfaces.Unsigned_32;
    end record;
@@ -2497,12 +2497,12 @@ package Vk is
 
    type Pipeline_Viewport_State_Create_Info_T is record
       Stype          : Structure_Type_T;
-      Pnext          : Void_Ptr;
+      Next           : Void_Ptr;
       Flags          : Pipeline_Viewport_State_Create_Flags_T;
       Viewport_Count : Interfaces.Unsigned_32;
-      Pviewports     : Viewport_Const_Ptr;
+      Viewports      : Viewport_Const_Ptr;
       Scissor_Count  : Interfaces.Unsigned_32;
-      Pscissors      : Rect_2D_Const_Ptr;
+      Scissors       : Rect_2D_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Viewport_State_Create_Info_T);
    -- If the &lt;&lt;features-features-multiViewport,multiple viewports&gt;&gt; feature is not enabled, pname:viewportCount must: be `1`
@@ -2513,7 +2513,7 @@ package Vk is
 
    type Pipeline_Rasterization_State_Create_Info_T is record
       Stype                      : Structure_Type_T;
-      Pnext                      : Void_Ptr;
+      Next                       : Void_Ptr;
       Flags                      : Pipeline_Rasterization_State_Create_Flags_T;
       Depth_Clamp_Enable         : Bool_32_T;
       Rasterizer_Discard_Enable  : Bool_32_T;
@@ -2534,12 +2534,12 @@ package Vk is
 
    type Pipeline_Multisample_State_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Pipeline_Multisample_State_Create_Flags_T;
       Rasterization_Samples    : Sample_Count_Flag_Bits_T;
       Sample_Shading_Enable    : Bool_32_T;
       Min_Sample_Shading       : Interfaces.C.C_float;
-      Psample_Mask             : Sample_Mask_Const_Ptr;
+      Sample_Mask              : Sample_Mask_Const_Ptr;
       Alpha_To_Coverage_Enable : Bool_32_T;
       Alpha_To_One_Enable      : Bool_32_T;
    end record;
@@ -2573,12 +2573,12 @@ package Vk is
 
    type Pipeline_Color_Blend_State_Create_Info_T is record
       Stype            : Structure_Type_T;
-      Pnext            : Void_Ptr;
+      Next             : Void_Ptr;
       Flags            : Pipeline_Color_Blend_State_Create_Flags_T;
       Logic_Op_Enable  : Bool_32_T;
       Logic_Op         : Logic_Op_T;
       Attachment_Count : Interfaces.Unsigned_32;
-      Pattachments     : Pipeline_Color_Blend_Attachment_State_Const_Ptr;
+      Attachments      : Pipeline_Color_Blend_Attachment_State_Const_Ptr;
       Blend_Constants  : Blend_Constants_Array_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Color_Blend_State_Create_Info_T);
@@ -2590,10 +2590,10 @@ package Vk is
 
    type Pipeline_Dynamic_State_Create_Info_T is record
       Stype               : Structure_Type_T;
-      Pnext               : Void_Ptr;
+      Next                : Void_Ptr;
       Flags               : Pipeline_Dynamic_State_Create_Flags_T;
       Dynamic_State_Count : Interfaces.Unsigned_32;
-      Pdynamic_States     : Dynamic_State_Const_Ptr;
+      Dynamic_States      : Dynamic_State_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Dynamic_State_Create_Info_T);
 
@@ -2610,7 +2610,7 @@ package Vk is
 
    type Pipeline_Depth_Stencil_State_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Pipeline_Depth_Stencil_State_Create_Flags_T;
       Depth_Test_Enable        : Bool_32_T;
       Depth_Write_Enable       : Bool_32_T;
@@ -2649,25 +2649,25 @@ package Vk is
    type Pipeline_Dynamic_State_Create_Info_Const_Ptr is access constant Pipeline_Dynamic_State_Create_Info_T;
 
    type Graphics_Pipeline_Create_Info_T is record
-      Stype                 : Structure_Type_T;
-      Pnext                 : Void_Ptr;
-      Flags                 : Pipeline_Create_Flags_T;
-      Stage_Count           : Interfaces.Unsigned_32;
-      Pstages               : Pipeline_Shader_Stage_Create_Info_Const_Ptr;
-      Pvertex_Input_State   : Pipeline_Vertex_Input_State_Create_Info_Const_Ptr;
-      Pinput_Assembly_State : Pipeline_Input_Assembly_State_Create_Info_Const_Ptr;
-      Ptessellation_State   : Pipeline_Tessellation_State_Create_Info_Const_Ptr;
-      Pviewport_State       : Pipeline_Viewport_State_Create_Info_Const_Ptr;
-      Prasterization_State  : Pipeline_Rasterization_State_Create_Info_Const_Ptr;
-      Pmultisample_State    : Pipeline_Multisample_State_Create_Info_Const_Ptr;
-      Pdepth_Stencil_State  : Pipeline_Depth_Stencil_State_Create_Info_Const_Ptr;
-      Pcolor_Blend_State    : Pipeline_Color_Blend_State_Create_Info_Const_Ptr;
-      Pdynamic_State        : Pipeline_Dynamic_State_Create_Info_Const_Ptr;
-      Layout                : Pipeline_Layout_T;
-      Render_Pass           : Render_Pass_T;
-      Subpass               : Interfaces.Unsigned_32;
-      Base_Pipeline_Handle  : Pipeline_T;
-      Base_Pipeline_Index   : Interfaces.Integer_32;
+      Stype                : Structure_Type_T;
+      Next                 : Void_Ptr;
+      Flags                : Pipeline_Create_Flags_T;
+      Stage_Count          : Interfaces.Unsigned_32;
+      Stages               : Pipeline_Shader_Stage_Create_Info_Const_Ptr;
+      Vertex_Input_State   : Pipeline_Vertex_Input_State_Create_Info_Const_Ptr;
+      Input_Assembly_State : Pipeline_Input_Assembly_State_Create_Info_Const_Ptr;
+      Tessellation_State   : Pipeline_Tessellation_State_Create_Info_Const_Ptr;
+      Viewport_State       : Pipeline_Viewport_State_Create_Info_Const_Ptr;
+      Rasterization_State  : Pipeline_Rasterization_State_Create_Info_Const_Ptr;
+      Multisample_State    : Pipeline_Multisample_State_Create_Info_Const_Ptr;
+      Depth_Stencil_State  : Pipeline_Depth_Stencil_State_Create_Info_Const_Ptr;
+      Color_Blend_State    : Pipeline_Color_Blend_State_Create_Info_Const_Ptr;
+      Dynamic_State        : Pipeline_Dynamic_State_Create_Info_Const_Ptr;
+      Layout               : Pipeline_Layout_T;
+      Render_Pass          : Render_Pass_T;
+      Subpass              : Interfaces.Unsigned_32;
+      Base_Pipeline_Handle : Pipeline_T;
+      Base_Pipeline_Index  : Interfaces.Integer_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Graphics_Pipeline_Create_Info_T);
    -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineIndex is not `-1`, pname:basePipelineHandle must: be sname:VK_NULL_HANDLE
@@ -2711,10 +2711,10 @@ package Vk is
 
    type Pipeline_Cache_Create_Info_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Flags             : Pipeline_Cache_Create_Flags_T;
       Initial_Data_Size : Interfaces.C.size_t;
-      Pinitial_Data     : Void_Ptr;
+      Initial_Data      : Void_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Cache_Create_Info_T);
    -- If pname:initialDataSize is not `0`, it must: be equal to the size of pname:pInitialData, as returned by fname:vkGetPipelineCacheData when pname:pInitialData was originally retrieved
@@ -2735,12 +2735,12 @@ package Vk is
 
    type Pipeline_Layout_Create_Info_T is record
       Stype                     : Structure_Type_T;
-      Pnext                     : Void_Ptr;
+      Next                      : Void_Ptr;
       Flags                     : Pipeline_Layout_Create_Flags_T;
       Set_Layout_Count          : Interfaces.Unsigned_32;
-      Pset_Layouts              : Descriptor_Set_Layout_Const_Ptr;
+      Set_Layouts               : Descriptor_Set_Layout_Const_Ptr;
       Push_Constant_Range_Count : Interfaces.Unsigned_32;
-      Ppush_Constant_Ranges     : Push_Constant_Range_Const_Ptr;
+      Push_Constant_Ranges      : Push_Constant_Range_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Layout_Create_Info_T);
    -- pname:setLayoutCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxBoundDescriptorSets
@@ -2752,7 +2752,7 @@ package Vk is
 
    type Sampler_Create_Info_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Sampler_Create_Flags_T;
       Mag_Filter               : Filter_T;
       Min_Filter               : Filter_T;
@@ -2786,7 +2786,7 @@ package Vk is
 
    type Command_Pool_Create_Info_T is record
       Stype              : Structure_Type_T;
-      Pnext              : Void_Ptr;
+      Next               : Void_Ptr;
       Flags              : Command_Pool_Create_Flags_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
    end record;
@@ -2795,7 +2795,7 @@ package Vk is
 
    type Command_Buffer_Allocate_Info_T is record
       Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
+      Next                 : Void_Ptr;
       Command_Pool         : Command_Pool_T;
       Level                : Command_Buffer_Level_T;
       Command_Buffer_Count : Interfaces.Unsigned_32;
@@ -2805,7 +2805,7 @@ package Vk is
 
    type Command_Buffer_Inheritance_Info_T is record
       Stype                  : Structure_Type_T;
-      Pnext                  : Void_Ptr;
+      Next                   : Void_Ptr;
       Render_Pass            : Render_Pass_T;
       Subpass                : Interfaces.Unsigned_32;
       Framebuffer            : Framebuffer_T;
@@ -2821,10 +2821,10 @@ package Vk is
    type Command_Buffer_Inheritance_Info_Const_Ptr is access constant Command_Buffer_Inheritance_Info_T;
 
    type Command_Buffer_Begin_Info_T is record
-      Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
-      Flags             : Command_Buffer_Usage_Flags_T;
-      Pinheritance_Info : Command_Buffer_Inheritance_Info_Const_Ptr;
+      Stype            : Structure_Type_T;
+      Next             : Void_Ptr;
+      Flags            : Command_Buffer_Usage_Flags_T;
+      Inheritance_Info : Command_Buffer_Inheritance_Info_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Command_Buffer_Begin_Info_T);
    -- If pname:flags contains ename:VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, the pname:renderPass member of pname:pInheritanceInfo must: be a valid sname:VkRenderPass
@@ -2915,13 +2915,13 @@ package Vk is
       Flags                     : Subpass_Description_Flags_T;
       Pipeline_Bind_Point       : Pipeline_Bind_Point_T;
       Input_Attachment_Count    : Interfaces.Unsigned_32;
-      Pinput_Attachments        : Attachment_Reference_Const_Ptr;
+      Input_Attachments         : Attachment_Reference_Const_Ptr;
       Color_Attachment_Count    : Interfaces.Unsigned_32;
-      Pcolor_Attachments        : Attachment_Reference_Const_Ptr;
-      Presolve_Attachments      : Attachment_Reference_Const_Ptr;
-      Pdepth_Stencil_Attachment : Attachment_Reference_Const_Ptr;
+      Color_Attachments         : Attachment_Reference_Const_Ptr;
+      Resolve_Attachments       : Attachment_Reference_Const_Ptr;
+      Depth_Stencil_Attachment  : Attachment_Reference_Const_Ptr;
       Preserve_Attachment_Count : Interfaces.Unsigned_32;
-      Ppreserve_Attachments     : Uint_32_Const_Ptr;
+      Preserve_Attachments      : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Subpass_Description_T);
    -- pname:pipelineBindPoint must: be ename:VK_PIPELINE_BIND_POINT_GRAPHICS
@@ -2962,14 +2962,14 @@ package Vk is
 
    type Render_Pass_Create_Info_T is record
       Stype            : Structure_Type_T;
-      Pnext            : Void_Ptr;
+      Next             : Void_Ptr;
       Flags            : Render_Pass_Create_Flags_T;
       Attachment_Count : Interfaces.Unsigned_32;
-      Pattachments     : Attachment_Description_Const_Ptr;
+      Attachments      : Attachment_Description_Const_Ptr;
       Subpass_Count    : Interfaces.Unsigned_32;
-      Psubpasses       : Subpass_Description_Const_Ptr;
+      Subpasses        : Subpass_Description_Const_Ptr;
       Dependency_Count : Interfaces.Unsigned_32;
-      Pdependencies    : Subpass_Dependency_Const_Ptr;
+      Dependencies     : Subpass_Dependency_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Render_Pass_Create_Info_T);
    -- If any two subpasses operate on attachments with overlapping ranges of the same sname:VkDeviceMemory object, and at least one subpass writes to that area of sname:VkDeviceMemory, a subpass dependency must: be included (either directly or via some intermediate subpasses) between them
@@ -2979,14 +2979,14 @@ package Vk is
 
    type Event_Create_Info_T is record
       Stype : Structure_Type_T;
-      Pnext : Void_Ptr;
+      Next  : Void_Ptr;
       Flags : Event_Create_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Event_Create_Info_T);
 
    type Fence_Create_Info_T is record
       Stype : Structure_Type_T;
-      Pnext : Void_Ptr;
+      Next  : Void_Ptr;
       Flags : Fence_Create_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Fence_Create_Info_T);
@@ -3204,14 +3204,14 @@ package Vk is
 
    type Semaphore_Create_Info_T is record
       Stype : Structure_Type_T;
-      Pnext : Void_Ptr;
+      Next  : Void_Ptr;
       Flags : Semaphore_Create_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Semaphore_Create_Info_T);
 
    type Query_Pool_Create_Info_T is record
       Stype               : Structure_Type_T;
-      Pnext               : Void_Ptr;
+      Next                : Void_Ptr;
       Flags               : Query_Pool_Create_Flags_T;
       Query_Type          : Query_Type_T;
       Query_Count         : Interfaces.Unsigned_32;
@@ -3225,11 +3225,11 @@ package Vk is
 
    type Framebuffer_Create_Info_T is record
       Stype            : Structure_Type_T;
-      Pnext            : Void_Ptr;
+      Next             : Void_Ptr;
       Flags            : Framebuffer_Create_Flags_T;
       Render_Pass      : Render_Pass_T;
       Attachment_Count : Interfaces.Unsigned_32;
-      Pattachments     : Image_View_Const_Ptr;
+      Attachments      : Image_View_Const_Ptr;
       Width            : Interfaces.Unsigned_32;
       Height           : Interfaces.Unsigned_32;
       Layers           : Interfaces.Unsigned_32;
@@ -3286,14 +3286,14 @@ package Vk is
 
    type Submit_Info_T is record
       Stype                  : Structure_Type_T;
-      Pnext                  : Void_Ptr;
+      Next                   : Void_Ptr;
       Wait_Semaphore_Count   : Interfaces.Unsigned_32;
-      Pwait_Semaphores       : Semaphore_Const_Ptr;
-      Pwait_Dst_Stage_Mask   : Pipeline_Stage_Flags_Const_Ptr;
+      Wait_Semaphores        : Semaphore_Const_Ptr;
+      Wait_Dst_Stage_Mask    : Pipeline_Stage_Flags_Const_Ptr;
       Command_Buffer_Count   : Interfaces.Unsigned_32;
-      Pcommand_Buffers       : Command_Buffer_Const_Ptr;
+      Command_Buffers        : Command_Buffer_Const_Ptr;
       Signal_Semaphore_Count : Interfaces.Unsigned_32;
-      Psignal_Semaphores     : Semaphore_Const_Ptr;
+      Signal_Semaphores      : Semaphore_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Submit_Info_T);
    -- Any given element of pname:pSignalSemaphores must: currently be unsignaled
@@ -3340,7 +3340,7 @@ package Vk is
 
    type Display_Mode_Create_Info_Khr_T is record
       Stype      : Structure_Type_T;
-      Pnext      : Void_Ptr;
+      Next       : Void_Ptr;
       Flags      : Display_Mode_Create_Flags_Khr_T;
       Parameters : Display_Mode_Parameters_Khr_T;
    end record;
@@ -3363,7 +3363,7 @@ package Vk is
 
    type Display_Surface_Create_Info_Khr_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Flags             : Display_Surface_Create_Flags_Khr_T;
       Display_Mode      : Display_Mode_Khr_T;
       Plane_Index       : Interfaces.Unsigned_32;
@@ -3382,7 +3382,7 @@ package Vk is
 
    type Display_Present_Info_Khr_T is record
       Stype      : Structure_Type_T;
-      Pnext      : Void_Ptr;
+      Next       : Void_Ptr;
       Src_Rect   : Rect_2D_T;
       Dst_Rect   : Rect_2D_T;
       Persistent : Bool_32_T;
@@ -3414,7 +3414,7 @@ package Vk is
 
    type Swapchain_Create_Info_Khr_T is record
       Stype                    : Structure_Type_T;
-      Pnext                    : Void_Ptr;
+      Next                     : Void_Ptr;
       Flags                    : Swapchain_Create_Flags_Khr_T;
       Surface                  : Surface_Khr_T;
       Min_Image_Count          : Interfaces.Unsigned_32;
@@ -3425,7 +3425,7 @@ package Vk is
       Image_Usage              : Image_Usage_Flags_T;
       Image_Sharing_Mode       : Sharing_Mode_T;
       Queue_Family_Index_Count : Interfaces.Unsigned_32;
-      Pqueue_Family_Indices    : Uint_32_Const_Ptr;
+      Queue_Family_Indices     : Uint_32_Const_Ptr;
       Pre_Transform            : Surface_Transform_Flag_Bits_Khr_T;
       Composite_Alpha          : Composite_Alpha_Flag_Bits_Khr_T;
       Present_Mode             : Present_Mode_Khr_T;
@@ -3453,13 +3453,13 @@ package Vk is
 
    type Present_Info_Khr_T is record
       Stype                : Structure_Type_T;
-      Pnext                : Void_Ptr;
+      Next                 : Void_Ptr;
       Wait_Semaphore_Count : Interfaces.Unsigned_32;
-      Pwait_Semaphores     : Semaphore_Const_Ptr;
+      Wait_Semaphores      : Semaphore_Const_Ptr;
       Swapchain_Count      : Interfaces.Unsigned_32;
-      Pswapchains          : Swapchain_Khr_Const_Ptr;
-      Pimage_Indices       : Uint_32_Const_Ptr;
-      Presults             : Result_Ptr;
+      Swapchains           : Swapchain_Khr_Const_Ptr;
+      Image_Indices        : Uint_32_Const_Ptr;
+      Results              : Result_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Present_Info_Khr_T);
    -- Any given element of pname:pImageIndices must: be the index of a presentable image acquired from the swapchain specified by the corresponding element of the pname:pSwapchains array
@@ -3467,32 +3467,32 @@ package Vk is
 
    type Debug_Report_Callback_Create_Info_Ext_T is record
       Stype        : Structure_Type_T;
-      Pnext        : Void_Ptr;
+      Next         : Void_Ptr;
       Flags        : Debug_Report_Flags_Ext_T;
       Pfn_Callback : Pfn_Vk_Debug_Report_Callback_Ext_T;
-      Puser_Data   : Void_Ptr;
+      User_Data    : Void_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Debug_Report_Callback_Create_Info_Ext_T);
 
    type Pipeline_Rasterization_State_Rasterization_Order_Amd_T is record
       Stype               : Structure_Type_T;
-      Pnext               : Void_Ptr;
+      Next                : Void_Ptr;
       Rasterization_Order : Rasterization_Order_Amd_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Rasterization_State_Rasterization_Order_Amd_T);
 
    type Debug_Marker_Object_Name_Info_Ext_T is record
-      Stype        : Structure_Type_T;
-      Pnext        : Void_Ptr;
-      Object_Type  : Debug_Report_Object_Type_Ext_T;
-      Object       : Interfaces.Unsigned_64;
-      Pobject_Name : Interfaces.C.Strings.chars_ptr;
+      Stype       : Structure_Type_T;
+      Next        : Void_Ptr;
+      Object_Type : Debug_Report_Object_Type_Ext_T;
+      Object      : Interfaces.Unsigned_64;
+      Object_Name : Interfaces.C.Strings.chars_ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Debug_Marker_Object_Name_Info_Ext_T);
 
    type Debug_Marker_Object_Tag_Info_Ext_T is record
       Stype       : Structure_Type_T;
-      Pnext       : Void_Ptr;
+      Next        : Void_Ptr;
       Object_Type : Debug_Report_Object_Type_Ext_T;
       Object      : Interfaces.Unsigned_64;
       Tag_Name    : Interfaces.Unsigned_64;
@@ -3507,10 +3507,10 @@ package Vk is
    pragma Convention (C, Color_Array_T);
 
    type Debug_Marker_Marker_Info_Ext_T is record
-      Stype        : Structure_Type_T;
-      Pnext        : Void_Ptr;
-      Pmarker_Name : Interfaces.C.Strings.chars_ptr;
-      Color        : Color_Array_T;
+      Stype       : Structure_Type_T;
+      Next        : Void_Ptr;
+      Marker_Name : Interfaces.C.Strings.chars_ptr;
+      Color       : Color_Array_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Debug_Marker_Marker_Info_Ext_T);
 
@@ -3542,16 +3542,16 @@ package Vk is
    type Physical_Device_Features_Const_Ptr is access constant Physical_Device_Features_T;
 
    type Device_Create_Info_T is record
-      Stype                      : Structure_Type_T;
-      Pnext                      : Void_Ptr;
-      Flags                      : Device_Create_Flags_T;
-      Queue_Create_Info_Count    : Interfaces.Unsigned_32;
-      Pqueue_Create_Infos        : Device_Queue_Create_Info_Const_Ptr;
-      Enabled_Layer_Count        : Interfaces.Unsigned_32;
-      Pp_Enabled_Layer_Names     : Char_Ptr_Array_Conversions.Object_Address;
-      Enabled_Extension_Count    : Interfaces.Unsigned_32;
-      Pp_Enabled_Extension_Names : Char_Ptr_Array_Conversions.Object_Address;
-      Penabled_Features          : Physical_Device_Features_Const_Ptr;
+      Stype                   : Structure_Type_T;
+      Next                    : Void_Ptr;
+      Flags                   : Device_Create_Flags_T;
+      Queue_Create_Info_Count : Interfaces.Unsigned_32;
+      Queue_Create_Infos      : Device_Queue_Create_Info_Const_Ptr;
+      Enabled_Layer_Count     : Interfaces.Unsigned_32;
+      Enabled_Layer_Names     : Char_Ptr_Array_Conversions.Object_Address;
+      Enabled_Extension_Count : Interfaces.Unsigned_32;
+      Enabled_Extension_Names : Char_Ptr_Array_Conversions.Object_Address;
+      Enabled_Features        : Physical_Device_Features_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Device_Create_Info_T);
    -- pname:ppEnabledLayerNames must: either be sname:NULL or contain the same sequence of layer names that was enabled when creating the parent instance
@@ -3581,12 +3581,12 @@ package Vk is
 
    type Render_Pass_Begin_Info_T is record
       Stype             : Structure_Type_T;
-      Pnext             : Void_Ptr;
+      Next              : Void_Ptr;
       Render_Pass       : Render_Pass_T;
       Framebuffer       : Framebuffer_T;
       Render_Area       : Rect_2D_T;
       Clear_Value_Count : Interfaces.Unsigned_32;
-      Pclear_Values     : Clear_Value_Const_Ptr;
+      Clear_Values      : Clear_Value_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Render_Pass_Begin_Info_T);
    -- pname:clearValueCount must: be greater than or equal to the number of attachments in pname:renderPass that specify a pname:loadOp of ename:VK_ATTACHMENT_LOAD_OP_CLEAR
@@ -3598,81 +3598,94 @@ package Vk is
    type Instance_Ptr is access all Instance_T;
 
    function Create_Instance
-     (Pcreate_Info : Instance_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pinstance    : Instance_Ptr) return Result_T;
+     (Create_Info : Instance_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Instance    : Instance_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Instance, "vkCreateInstance");
 
-   procedure Destroy_Instance (Instance : Instance_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Instance (Instance : Instance_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Instance, "vkDestroyInstance");
 
    type Uint_32_Ptr is access all Interfaces.Unsigned_32;
 
-   type Physical_Device_Ptr is access all Physical_Device_T;
+   MAX_PHYSICAL_DEVICES_INDEX : constant := 100;
+
+   type Physical_Devices_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_PHYSICAL_DEVICES_INDEX) of Physical_Device_T;
+   pragma Convention (C, Physical_Devices_Array_T);
+
+   package Physical_Devices_Array_Conversions is new Generic_Address_To_Access_Conversions (Physical_Devices_Array_T);
 
    function Enumerate_Physical_Devices
-     (Instance               : Instance_T;
-      Pphysical_Device_Count : Uint_32_Ptr;
-      Pphysical_Devices      : Physical_Device_Ptr) return Result_T;
+     (Instance              : Instance_T;
+      Physical_Device_Count : Uint_32_Ptr;
+      Physical_Devices      : Physical_Devices_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Enumerate_Physical_Devices, "vkEnumeratePhysicalDevices");
 
    function Get_Device_Proc_Addr
      (Device : Device_T;
-      Pname  : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
+      Name   : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
    pragma Import (Stdcall, Get_Device_Proc_Addr, "vkGetDeviceProcAddr");
 
    function Get_Instance_Proc_Addr
      (Instance : Instance_T;
-      Pname    : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
+      Name     : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
    pragma Import (Stdcall, Get_Instance_Proc_Addr, "vkGetInstanceProcAddr");
 
    type Physical_Device_Properties_Ptr is access all Physical_Device_Properties_T;
 
    procedure Get_Physical_Device_Properties
      (Physical_Device : Physical_Device_T;
-      Pproperties     : Physical_Device_Properties_Ptr);
+      Properties      : Physical_Device_Properties_Ptr);
    pragma Import (Stdcall, Get_Physical_Device_Properties, "vkGetPhysicalDeviceProperties");
 
-   type Queue_Family_Properties_Ptr is access all Queue_Family_Properties_T;
+   MAX_QUEUE_FAMILY_PROPERTIES_INDEX : constant := 100;
+
+   type Queue_Family_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_QUEUE_FAMILY_PROPERTIES_INDEX) of Queue_Family_Properties_T;
+   pragma Convention (C, Queue_Family_Properties_Array_T);
+
+   package Queue_Family_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Queue_Family_Properties_Array_T);
 
    procedure Get_Physical_Device_Queue_Family_Properties
-     (Physical_Device              : Physical_Device_T;
-      Pqueue_Family_Property_Count : Uint_32_Ptr;
-      Pqueue_Family_Properties     : Queue_Family_Properties_Ptr);
+     (Physical_Device             : Physical_Device_T;
+      Queue_Family_Property_Count : Uint_32_Ptr;
+      Queue_Family_Properties     : Queue_Family_Properties_Array_Conversions.Object_Address);
    pragma Import (Stdcall, Get_Physical_Device_Queue_Family_Properties, "vkGetPhysicalDeviceQueueFamilyProperties");
 
    type Physical_Device_Memory_Properties_Ptr is access all Physical_Device_Memory_Properties_T;
 
    procedure Get_Physical_Device_Memory_Properties
-     (Physical_Device    : Physical_Device_T;
-      Pmemory_Properties : Physical_Device_Memory_Properties_Ptr);
+     (Physical_Device   : Physical_Device_T;
+      Memory_Properties : Physical_Device_Memory_Properties_Ptr);
    pragma Import (Stdcall, Get_Physical_Device_Memory_Properties, "vkGetPhysicalDeviceMemoryProperties");
 
    type Physical_Device_Features_Ptr is access all Physical_Device_Features_T;
 
    procedure Get_Physical_Device_Features
      (Physical_Device : Physical_Device_T;
-      Pfeatures       : Physical_Device_Features_Ptr);
+      Features        : Physical_Device_Features_Ptr);
    pragma Import (Stdcall, Get_Physical_Device_Features, "vkGetPhysicalDeviceFeatures");
 
    type Format_Properties_Ptr is access all Format_Properties_T;
 
    procedure Get_Physical_Device_Format_Properties
-     (Physical_Device    : Physical_Device_T;
-      Format             : Format_T;
-      Pformat_Properties : Format_Properties_Ptr);
+     (Physical_Device   : Physical_Device_T;
+      Format            : Format_T;
+      Format_Properties : Format_Properties_Ptr);
    pragma Import (Stdcall, Get_Physical_Device_Format_Properties, "vkGetPhysicalDeviceFormatProperties");
 
    type Image_Format_Properties_Ptr is access all Image_Format_Properties_T;
 
    function Get_Physical_Device_Image_Format_Properties
-     (Physical_Device          : Physical_Device_T;
-      Format                   : Format_T;
-      The_Type                 : Image_Type_T;
-      Tiling                   : Image_Tiling_T;
-      Usage                    : Image_Usage_Flags_T;
-      Flags                    : Image_Create_Flags_T;
-      Pimage_Format_Properties : Image_Format_Properties_Ptr) return Result_T;
+     (Physical_Device         : Physical_Device_T;
+      Format                  : Format_T;
+      The_Type                : Image_Type_T;
+      Tiling                  : Image_Tiling_T;
+      Usage                   : Image_Usage_Flags_T;
+      Flags                   : Image_Create_Flags_T;
+      Image_Format_Properties : Image_Format_Properties_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Image_Format_Properties, "vkGetPhysicalDeviceImageFormatProperties");
 
    type Device_Create_Info_Const_Ptr is access constant Device_Create_Info_T;
@@ -3681,40 +3694,53 @@ package Vk is
 
    function Create_Device
      (Physical_Device : Physical_Device_T;
-      Pcreate_Info    : Device_Create_Info_Const_Ptr;
-      Pallocator      : Allocation_Callbacks_Const_Ptr;
-      Pdevice         : Device_Ptr) return Result_T;
+      Create_Info     : Device_Create_Info_Const_Ptr;
+      Allocator       : Allocation_Callbacks_Const_Ptr;
+      Device          : Device_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Device, "vkCreateDevice");
 
-   procedure Destroy_Device (Device : Device_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Device (Device : Device_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Device, "vkDestroyDevice");
 
-   type Layer_Properties_Ptr is access all Layer_Properties_T;
+   MAX_LAYER_PROPERTIES_INDEX : constant := 100;
+
+   type Layer_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_LAYER_PROPERTIES_INDEX) of Layer_Properties_T;
+   pragma Convention (C, Layer_Properties_Array_T);
+
+   package Layer_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions (Layer_Properties_Array_T);
 
    function Enumerate_Instance_Layer_Properties
-     (Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Layer_Properties_Ptr) return Result_T;
+     (Property_Count : Uint_32_Ptr;
+      Properties     : Layer_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Enumerate_Instance_Layer_Properties, "vkEnumerateInstanceLayerProperties");
 
-   type Extension_Properties_Ptr is access all Extension_Properties_T;
+   MAX_EXTENSION_PROPERTIES_INDEX : constant := 100;
+
+   type Extension_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_EXTENSION_PROPERTIES_INDEX) of Extension_Properties_T;
+   pragma Convention (C, Extension_Properties_Array_T);
+
+   package Extension_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Extension_Properties_Array_T);
 
    function Enumerate_Instance_Extension_Properties
-     (Player_Name     : Interfaces.C.Strings.chars_ptr;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Extension_Properties_Ptr) return Result_T;
+     (Layer_Name     : Interfaces.C.Strings.chars_ptr;
+      Property_Count : Uint_32_Ptr;
+      Properties     : Extension_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Enumerate_Instance_Extension_Properties, "vkEnumerateInstanceExtensionProperties");
 
    function Enumerate_Device_Layer_Properties
      (Physical_Device : Physical_Device_T;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Layer_Properties_Ptr) return Result_T;
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Layer_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Enumerate_Device_Layer_Properties, "vkEnumerateDeviceLayerProperties");
 
    function Enumerate_Device_Extension_Properties
      (Physical_Device : Physical_Device_T;
-      Player_Name     : Interfaces.C.Strings.chars_ptr;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Extension_Properties_Ptr) return Result_T;
+      Layer_Name      : Interfaces.C.Strings.chars_ptr;
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Extension_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Enumerate_Device_Extension_Properties, "vkEnumerateDeviceExtensionProperties");
 
    type Queue_Ptr is access all Queue_T;
@@ -3723,7 +3749,7 @@ package Vk is
      (Device             : Device_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
       Queue_Index        : Interfaces.Unsigned_32;
-      Pqueue             : Queue_Ptr);
+      Queue              : Queue_Ptr);
    pragma Import (Stdcall, Get_Device_Queue, "vkGetDeviceQueue");
 
    type Submit_Info_Const_Ptr is access constant Submit_Info_T;
@@ -3731,7 +3757,7 @@ package Vk is
    function Queue_Submit
      (Queue        : Queue_T;
       Submit_Count : Interfaces.Unsigned_32;
-      Psubmits     : Submit_Info_Const_Ptr;
+      Submits      : Submit_Info_Const_Ptr;
       Fence        : Fence_T) return Result_T;
    pragma Import (Stdcall, Queue_Submit, "vkQueueSubmit");
 
@@ -3746,22 +3772,22 @@ package Vk is
    type Device_Memory_Ptr is access all Device_Memory_T;
 
    function Allocate_Memory
-     (Device         : Device_T;
-      Pallocate_Info : Memory_Allocate_Info_Const_Ptr;
-      Pallocator     : Allocation_Callbacks_Const_Ptr;
-      Pmemory        : Device_Memory_Ptr) return Result_T;
+     (Device        : Device_T;
+      Allocate_Info : Memory_Allocate_Info_Const_Ptr;
+      Allocator     : Allocation_Callbacks_Const_Ptr;
+      Memory        : Device_Memory_Ptr) return Result_T;
    pragma Import (Stdcall, Allocate_Memory, "vkAllocateMemory");
 
-   procedure Free_Memory (Device : Device_T; Memory : Device_Memory_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Free_Memory (Device : Device_T; Memory : Device_Memory_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Free_Memory, "vkFreeMemory");
 
    function Map_Memory
-     (Device  : Device_T;
-      Memory  : Device_Memory_T;
-      Offset  : Device_Size_T;
-      Size    : Device_Size_T;
-      Flags   : Memory_Map_Flags_T;
-      Pp_Data : Void_Ptr) return Result_T;
+     (Device : Device_T;
+      Memory : Device_Memory_T;
+      Offset : Device_Size_T;
+      Size   : Device_Size_T;
+      Flags  : Memory_Map_Flags_T;
+      Data   : Void_Ptr) return Result_T;
    pragma Import (Stdcall, Map_Memory, "vkMapMemory");
 
    procedure Unmap_Memory (Device : Device_T; Memory : Device_Memory_T);
@@ -3772,29 +3798,29 @@ package Vk is
    function Flush_Mapped_Memory_Ranges
      (Device             : Device_T;
       Memory_Range_Count : Interfaces.Unsigned_32;
-      Pmemory_Ranges     : Mapped_Memory_Range_Const_Ptr) return Result_T;
+      Memory_Ranges      : Mapped_Memory_Range_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Flush_Mapped_Memory_Ranges, "vkFlushMappedMemoryRanges");
 
    function Invalidate_Mapped_Memory_Ranges
      (Device             : Device_T;
       Memory_Range_Count : Interfaces.Unsigned_32;
-      Pmemory_Ranges     : Mapped_Memory_Range_Const_Ptr) return Result_T;
+      Memory_Ranges      : Mapped_Memory_Range_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Invalidate_Mapped_Memory_Ranges, "vkInvalidateMappedMemoryRanges");
 
    type Device_Size_Ptr is access all Device_Size_T;
 
    procedure Get_Device_Memory_Commitment
-     (Device                     : Device_T;
-      Memory                     : Device_Memory_T;
-      Pcommitted_Memory_In_Bytes : Device_Size_Ptr);
+     (Device                    : Device_T;
+      Memory                    : Device_Memory_T;
+      Committed_Memory_In_Bytes : Device_Size_Ptr);
    pragma Import (Stdcall, Get_Device_Memory_Commitment, "vkGetDeviceMemoryCommitment");
 
    type Memory_Requirements_Ptr is access all Memory_Requirements_T;
 
    procedure Get_Buffer_Memory_Requirements
-     (Device               : Device_T;
-      Buffer               : Buffer_T;
-      Pmemory_Requirements : Memory_Requirements_Ptr);
+     (Device              : Device_T;
+      Buffer              : Buffer_T;
+      Memory_Requirements : Memory_Requirements_Ptr);
    pragma Import (Stdcall, Get_Buffer_Memory_Requirements, "vkGetBufferMemoryRequirements");
 
    function Bind_Buffer_Memory
@@ -3805,9 +3831,9 @@ package Vk is
    pragma Import (Stdcall, Bind_Buffer_Memory, "vkBindBufferMemory");
 
    procedure Get_Image_Memory_Requirements
-     (Device               : Device_T;
-      Image                : Image_T;
-      Pmemory_Requirements : Memory_Requirements_Ptr);
+     (Device              : Device_T;
+      Image               : Image_T;
+      Memory_Requirements : Memory_Requirements_Ptr);
    pragma Import (Stdcall, Get_Image_Memory_Requirements, "vkGetImageMemoryRequirements");
 
    function Bind_Image_Memory
@@ -3817,16 +3843,31 @@ package Vk is
       Memory_Offset : Device_Size_T) return Result_T;
    pragma Import (Stdcall, Bind_Image_Memory, "vkBindImageMemory");
 
-   type Sparse_Image_Memory_Requirements_Ptr is access all Sparse_Image_Memory_Requirements_T;
+   MAX_SPARSE_MEMORY_REQUIREMENTS_INDEX : constant := 100;
+
+   type Sparse_Memory_Requirements_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_SPARSE_MEMORY_REQUIREMENTS_INDEX) of Sparse_Image_Memory_Requirements_T;
+   pragma Convention (C, Sparse_Memory_Requirements_Array_T);
+
+   package Sparse_Memory_Requirements_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Sparse_Memory_Requirements_Array_T);
 
    procedure Get_Image_Sparse_Memory_Requirements
-     (Device                           : Device_T;
-      Image                            : Image_T;
-      Psparse_Memory_Requirement_Count : Uint_32_Ptr;
-      Psparse_Memory_Requirements      : Sparse_Image_Memory_Requirements_Ptr);
+     (Device                          : Device_T;
+      Image                           : Image_T;
+      Sparse_Memory_Requirement_Count : Uint_32_Ptr;
+      Sparse_Memory_Requirements      : Sparse_Memory_Requirements_Array_Conversions.Object_Address);
    pragma Import (Stdcall, Get_Image_Sparse_Memory_Requirements, "vkGetImageSparseMemoryRequirements");
 
-   type Sparse_Image_Format_Properties_Ptr is access all Sparse_Image_Format_Properties_T;
+   MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX : constant := 100;
+
+   type Sparse_Image_Format_Properties_Array_T is
+     array
+     (Interfaces.C.size_t range 0 .. MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX) of Sparse_Image_Format_Properties_T;
+   pragma Convention (C, Sparse_Image_Format_Properties_Array_T);
+
+   package Sparse_Image_Format_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Sparse_Image_Format_Properties_Array_T);
 
    procedure Get_Physical_Device_Sparse_Image_Format_Properties
      (Physical_Device : Physical_Device_T;
@@ -3835,8 +3876,8 @@ package Vk is
       Samples         : Sample_Count_Flag_Bits_T;
       Usage           : Image_Usage_Flags_T;
       Tiling          : Image_Tiling_T;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Sparse_Image_Format_Properties_Ptr);
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Sparse_Image_Format_Properties_Array_Conversions.Object_Address);
    pragma Import
      (Stdcall,
       Get_Physical_Device_Sparse_Image_Format_Properties,
@@ -3847,7 +3888,7 @@ package Vk is
    function Queue_Bind_Sparse
      (Queue           : Queue_T;
       Bind_Info_Count : Interfaces.Unsigned_32;
-      Pbind_Info      : Bind_Sparse_Info_Const_Ptr;
+      Bind_Info       : Bind_Sparse_Info_Const_Ptr;
       Fence           : Fence_T) return Result_T;
    pragma Import (Stdcall, Queue_Bind_Sparse, "vkQueueBindSparse");
 
@@ -3856,13 +3897,13 @@ package Vk is
    type Fence_Ptr is access all Fence_T;
 
    function Create_Fence
-     (Device       : Device_T;
-      Pcreate_Info : Fence_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pfence       : Fence_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Fence_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Fence       : Fence_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Fence, "vkCreateFence");
 
-   procedure Destroy_Fence (Device : Device_T; Fence : Fence_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Fence (Device : Device_T; Fence : Fence_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Fence, "vkDestroyFence");
 
    type Fence_Const_Ptr is access constant Fence_T;
@@ -3870,7 +3911,7 @@ package Vk is
    function Reset_Fences
      (Device      : Device_T;
       Fence_Count : Interfaces.Unsigned_32;
-      Pfences     : Fence_Const_Ptr) return Result_T;
+      Fences      : Fence_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Reset_Fences, "vkResetFences");
 
    function Get_Fence_Status (Device : Device_T; Fence : Fence_T) return Result_T;
@@ -3879,7 +3920,7 @@ package Vk is
    function Wait_For_Fences
      (Device      : Device_T;
       Fence_Count : Interfaces.Unsigned_32;
-      Pfences     : Fence_Const_Ptr;
+      Fences      : Fence_Const_Ptr;
       Wait_All    : Bool_32_T;
       Timeout     : Interfaces.Unsigned_64) return Result_T;
    pragma Import (Stdcall, Wait_For_Fences, "vkWaitForFences");
@@ -3889,16 +3930,13 @@ package Vk is
    type Semaphore_Ptr is access all Semaphore_T;
 
    function Create_Semaphore
-     (Device       : Device_T;
-      Pcreate_Info : Semaphore_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Psemaphore   : Semaphore_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Semaphore_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Semaphore   : Semaphore_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Semaphore, "vkCreateSemaphore");
 
-   procedure Destroy_Semaphore
-     (Device     : Device_T;
-      Semaphore  : Semaphore_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Semaphore (Device : Device_T; Semaphore : Semaphore_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Semaphore, "vkDestroySemaphore");
 
    type Event_Create_Info_Const_Ptr is access constant Event_Create_Info_T;
@@ -3906,13 +3944,13 @@ package Vk is
    type Event_Ptr is access all Event_T;
 
    function Create_Event
-     (Device       : Device_T;
-      Pcreate_Info : Event_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pevent       : Event_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Event_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Event       : Event_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Event, "vkCreateEvent");
 
-   procedure Destroy_Event (Device : Device_T; Event : Event_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Event (Device : Device_T; Event : Event_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Event, "vkDestroyEvent");
 
    function Get_Event_Status (Device : Device_T; Event : Event_T) return Result_T;
@@ -3929,16 +3967,16 @@ package Vk is
    type Query_Pool_Ptr is access all Query_Pool_T;
 
    function Create_Query_Pool
-     (Device       : Device_T;
-      Pcreate_Info : Query_Pool_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pquery_Pool  : Query_Pool_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Query_Pool_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Query_Pool  : Query_Pool_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Query_Pool, "vkCreateQueryPool");
 
    procedure Destroy_Query_Pool
      (Device     : Device_T;
       Query_Pool : Query_Pool_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+      Allocator  : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Query_Pool, "vkDestroyQueryPool");
 
    function Get_Query_Pool_Results
@@ -3947,7 +3985,7 @@ package Vk is
       First_Query : Interfaces.Unsigned_32;
       Query_Count : Interfaces.Unsigned_32;
       Data_Size   : Interfaces.C.size_t;
-      Pdata       : Void_Ptr;
+      Data        : Void_Ptr;
       Stride      : Device_Size_T;
       Flags       : Query_Result_Flags_T) return Result_T;
    pragma Import (Stdcall, Get_Query_Pool_Results, "vkGetQueryPoolResults");
@@ -3957,13 +3995,13 @@ package Vk is
    type Buffer_Ptr is access all Buffer_T;
 
    function Create_Buffer
-     (Device       : Device_T;
-      Pcreate_Info : Buffer_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pbuffer      : Buffer_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Buffer_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Buffer      : Buffer_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Buffer, "vkCreateBuffer");
 
-   procedure Destroy_Buffer (Device : Device_T; Buffer : Buffer_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Buffer (Device : Device_T; Buffer : Buffer_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Buffer, "vkDestroyBuffer");
 
    type Buffer_View_Create_Info_Const_Ptr is access constant Buffer_View_Create_Info_T;
@@ -3971,16 +4009,16 @@ package Vk is
    type Buffer_View_Ptr is access all Buffer_View_T;
 
    function Create_Buffer_View
-     (Device       : Device_T;
-      Pcreate_Info : Buffer_View_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pview        : Buffer_View_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Buffer_View_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      View        : Buffer_View_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Buffer_View, "vkCreateBufferView");
 
    procedure Destroy_Buffer_View
      (Device      : Device_T;
       Buffer_View : Buffer_View_T;
-      Pallocator  : Allocation_Callbacks_Const_Ptr);
+      Allocator   : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Buffer_View, "vkDestroyBufferView");
 
    type Image_Create_Info_Const_Ptr is access constant Image_Create_Info_T;
@@ -3988,13 +4026,13 @@ package Vk is
    type Image_Ptr is access all Image_T;
 
    function Create_Image
-     (Device       : Device_T;
-      Pcreate_Info : Image_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pimage       : Image_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Image_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Image       : Image_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Image, "vkCreateImage");
 
-   procedure Destroy_Image (Device : Device_T; Image : Image_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Image (Device : Device_T; Image : Image_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Image, "vkDestroyImage");
 
    type Image_Subresource_Const_Ptr is access constant Image_Subresource_T;
@@ -4002,10 +4040,10 @@ package Vk is
    type Subresource_Layout_Ptr is access all Subresource_Layout_T;
 
    procedure Get_Image_Subresource_Layout
-     (Device       : Device_T;
-      Image        : Image_T;
-      Psubresource : Image_Subresource_Const_Ptr;
-      Playout      : Subresource_Layout_Ptr);
+     (Device      : Device_T;
+      Image       : Image_T;
+      Subresource : Image_Subresource_Const_Ptr;
+      Layout      : Subresource_Layout_Ptr);
    pragma Import (Stdcall, Get_Image_Subresource_Layout, "vkGetImageSubresourceLayout");
 
    type Image_View_Create_Info_Const_Ptr is access constant Image_View_Create_Info_T;
@@ -4013,16 +4051,16 @@ package Vk is
    type Image_View_Ptr is access all Image_View_T;
 
    function Create_Image_View
-     (Device       : Device_T;
-      Pcreate_Info : Image_View_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pview        : Image_View_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Image_View_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      View        : Image_View_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Image_View, "vkCreateImageView");
 
    procedure Destroy_Image_View
      (Device     : Device_T;
       Image_View : Image_View_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+      Allocator  : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Image_View, "vkDestroyImageView");
 
    type Shader_Module_Create_Info_Const_Ptr is access constant Shader_Module_Create_Info_T;
@@ -4030,16 +4068,16 @@ package Vk is
    type Shader_Module_Ptr is access all Shader_Module_T;
 
    function Create_Shader_Module
-     (Device         : Device_T;
-      Pcreate_Info   : Shader_Module_Create_Info_Const_Ptr;
-      Pallocator     : Allocation_Callbacks_Const_Ptr;
-      Pshader_Module : Shader_Module_Ptr) return Result_T;
+     (Device        : Device_T;
+      Create_Info   : Shader_Module_Create_Info_Const_Ptr;
+      Allocator     : Allocation_Callbacks_Const_Ptr;
+      Shader_Module : Shader_Module_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Shader_Module, "vkCreateShaderModule");
 
    procedure Destroy_Shader_Module
      (Device        : Device_T;
       Shader_Module : Shader_Module_T;
-      Pallocator    : Allocation_Callbacks_Const_Ptr);
+      Allocator     : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Shader_Module, "vkDestroyShaderModule");
 
    type Pipeline_Cache_Create_Info_Const_Ptr is access constant Pipeline_Cache_Create_Info_T;
@@ -4047,16 +4085,16 @@ package Vk is
    type Pipeline_Cache_Ptr is access all Pipeline_Cache_T;
 
    function Create_Pipeline_Cache
-     (Device          : Device_T;
-      Pcreate_Info    : Pipeline_Cache_Create_Info_Const_Ptr;
-      Pallocator      : Allocation_Callbacks_Const_Ptr;
-      Ppipeline_Cache : Pipeline_Cache_Ptr) return Result_T;
+     (Device         : Device_T;
+      Create_Info    : Pipeline_Cache_Create_Info_Const_Ptr;
+      Allocator      : Allocation_Callbacks_Const_Ptr;
+      Pipeline_Cache : Pipeline_Cache_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Pipeline_Cache, "vkCreatePipelineCache");
 
    procedure Destroy_Pipeline_Cache
      (Device         : Device_T;
       Pipeline_Cache : Pipeline_Cache_T;
-      Pallocator     : Allocation_Callbacks_Const_Ptr);
+      Allocator      : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Pipeline_Cache, "vkDestroyPipelineCache");
 
    type Size_Ptr is access all Interfaces.C.size_t;
@@ -4064,8 +4102,8 @@ package Vk is
    function Get_Pipeline_Cache_Data
      (Device         : Device_T;
       Pipeline_Cache : Pipeline_Cache_T;
-      Pdata_Size     : Size_Ptr;
-      Pdata          : Void_Ptr) return Result_T;
+      Data_Size      : Size_Ptr;
+      Data           : Void_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Pipeline_Cache_Data, "vkGetPipelineCacheData");
 
    type Pipeline_Cache_Const_Ptr is access constant Pipeline_Cache_T;
@@ -4074,20 +4112,25 @@ package Vk is
      (Device          : Device_T;
       Dst_Cache       : Pipeline_Cache_T;
       Src_Cache_Count : Interfaces.Unsigned_32;
-      Psrc_Caches     : Pipeline_Cache_Const_Ptr) return Result_T;
+      Src_Caches      : Pipeline_Cache_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Merge_Pipeline_Caches, "vkMergePipelineCaches");
 
    type Graphics_Pipeline_Create_Info_Const_Ptr is access constant Graphics_Pipeline_Create_Info_T;
 
-   type Pipeline_Ptr is access all Pipeline_T;
+   MAX_PIPELINES_INDEX : constant := 100;
+
+   type Pipelines_Array_T is array (Interfaces.C.size_t range 0 .. MAX_PIPELINES_INDEX) of Pipeline_T;
+   pragma Convention (C, Pipelines_Array_T);
+
+   package Pipelines_Array_Conversions is new Generic_Address_To_Access_Conversions (Pipelines_Array_T);
 
    function Create_Graphics_Pipelines
      (Device            : Device_T;
       Pipeline_Cache    : Pipeline_Cache_T;
       Create_Info_Count : Interfaces.Unsigned_32;
-      Pcreate_Infos     : Graphics_Pipeline_Create_Info_Const_Ptr;
-      Pallocator        : Allocation_Callbacks_Const_Ptr;
-      Ppipelines        : Pipeline_Ptr) return Result_T;
+      Create_Infos      : Graphics_Pipeline_Create_Info_Const_Ptr;
+      Allocator         : Allocation_Callbacks_Const_Ptr;
+      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Create_Graphics_Pipelines, "vkCreateGraphicsPipelines");
 
    type Compute_Pipeline_Create_Info_Const_Ptr is access constant Compute_Pipeline_Create_Info_T;
@@ -4096,12 +4139,12 @@ package Vk is
      (Device            : Device_T;
       Pipeline_Cache    : Pipeline_Cache_T;
       Create_Info_Count : Interfaces.Unsigned_32;
-      Pcreate_Infos     : Compute_Pipeline_Create_Info_Const_Ptr;
-      Pallocator        : Allocation_Callbacks_Const_Ptr;
-      Ppipelines        : Pipeline_Ptr) return Result_T;
+      Create_Infos      : Compute_Pipeline_Create_Info_Const_Ptr;
+      Allocator         : Allocation_Callbacks_Const_Ptr;
+      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Create_Compute_Pipelines, "vkCreateComputePipelines");
 
-   procedure Destroy_Pipeline (Device : Device_T; Pipeline : Pipeline_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Pipeline (Device : Device_T; Pipeline : Pipeline_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Pipeline, "vkDestroyPipeline");
 
    type Pipeline_Layout_Create_Info_Const_Ptr is access constant Pipeline_Layout_Create_Info_T;
@@ -4109,16 +4152,16 @@ package Vk is
    type Pipeline_Layout_Ptr is access all Pipeline_Layout_T;
 
    function Create_Pipeline_Layout
-     (Device           : Device_T;
-      Pcreate_Info     : Pipeline_Layout_Create_Info_Const_Ptr;
-      Pallocator       : Allocation_Callbacks_Const_Ptr;
-      Ppipeline_Layout : Pipeline_Layout_Ptr) return Result_T;
+     (Device          : Device_T;
+      Create_Info     : Pipeline_Layout_Create_Info_Const_Ptr;
+      Allocator       : Allocation_Callbacks_Const_Ptr;
+      Pipeline_Layout : Pipeline_Layout_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Pipeline_Layout, "vkCreatePipelineLayout");
 
    procedure Destroy_Pipeline_Layout
      (Device          : Device_T;
       Pipeline_Layout : Pipeline_Layout_T;
-      Pallocator      : Allocation_Callbacks_Const_Ptr);
+      Allocator       : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Pipeline_Layout, "vkDestroyPipelineLayout");
 
    type Sampler_Create_Info_Const_Ptr is access constant Sampler_Create_Info_T;
@@ -4126,13 +4169,13 @@ package Vk is
    type Sampler_Ptr is access all Sampler_T;
 
    function Create_Sampler
-     (Device       : Device_T;
-      Pcreate_Info : Sampler_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Psampler     : Sampler_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Sampler_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Sampler     : Sampler_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Sampler, "vkCreateSampler");
 
-   procedure Destroy_Sampler (Device : Device_T; Sampler : Sampler_T; Pallocator : Allocation_Callbacks_Const_Ptr);
+   procedure Destroy_Sampler (Device : Device_T; Sampler : Sampler_T; Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Sampler, "vkDestroySampler");
 
    type Descriptor_Set_Layout_Create_Info_Const_Ptr is access constant Descriptor_Set_Layout_Create_Info_T;
@@ -4140,16 +4183,16 @@ package Vk is
    type Descriptor_Set_Layout_Ptr is access all Descriptor_Set_Layout_T;
 
    function Create_Descriptor_Set_Layout
-     (Device       : Device_T;
-      Pcreate_Info : Descriptor_Set_Layout_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pset_Layout  : Descriptor_Set_Layout_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Descriptor_Set_Layout_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Set_Layout  : Descriptor_Set_Layout_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Descriptor_Set_Layout, "vkCreateDescriptorSetLayout");
 
    procedure Destroy_Descriptor_Set_Layout
      (Device                : Device_T;
       Descriptor_Set_Layout : Descriptor_Set_Layout_T;
-      Pallocator            : Allocation_Callbacks_Const_Ptr);
+      Allocator             : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Descriptor_Set_Layout, "vkDestroyDescriptorSetLayout");
 
    type Descriptor_Pool_Create_Info_Const_Ptr is access constant Descriptor_Pool_Create_Info_T;
@@ -4157,16 +4200,16 @@ package Vk is
    type Descriptor_Pool_Ptr is access all Descriptor_Pool_T;
 
    function Create_Descriptor_Pool
-     (Device           : Device_T;
-      Pcreate_Info     : Descriptor_Pool_Create_Info_Const_Ptr;
-      Pallocator       : Allocation_Callbacks_Const_Ptr;
-      Pdescriptor_Pool : Descriptor_Pool_Ptr) return Result_T;
+     (Device          : Device_T;
+      Create_Info     : Descriptor_Pool_Create_Info_Const_Ptr;
+      Allocator       : Allocation_Callbacks_Const_Ptr;
+      Descriptor_Pool : Descriptor_Pool_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Descriptor_Pool, "vkCreateDescriptorPool");
 
    procedure Destroy_Descriptor_Pool
      (Device          : Device_T;
       Descriptor_Pool : Descriptor_Pool_T;
-      Pallocator      : Allocation_Callbacks_Const_Ptr);
+      Allocator       : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Descriptor_Pool, "vkDestroyDescriptorPool");
 
    function Reset_Descriptor_Pool
@@ -4180,9 +4223,9 @@ package Vk is
    type Descriptor_Set_Ptr is access all Descriptor_Set_T;
 
    function Allocate_Descriptor_Sets
-     (Device           : Device_T;
-      Pallocate_Info   : Descriptor_Set_Allocate_Info_Const_Ptr;
-      Pdescriptor_Sets : Descriptor_Set_Ptr) return Result_T;
+     (Device          : Device_T;
+      Allocate_Info   : Descriptor_Set_Allocate_Info_Const_Ptr;
+      Descriptor_Sets : Descriptor_Set_Ptr) return Result_T;
    pragma Import (Stdcall, Allocate_Descriptor_Sets, "vkAllocateDescriptorSets");
 
    type Descriptor_Set_Const_Ptr is access constant Descriptor_Set_T;
@@ -4191,7 +4234,7 @@ package Vk is
      (Device               : Device_T;
       Descriptor_Pool      : Descriptor_Pool_T;
       Descriptor_Set_Count : Interfaces.Unsigned_32;
-      Pdescriptor_Sets     : Descriptor_Set_Const_Ptr) return Result_T;
+      Descriptor_Sets      : Descriptor_Set_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Free_Descriptor_Sets, "vkFreeDescriptorSets");
 
    type Write_Descriptor_Set_Const_Ptr is access constant Write_Descriptor_Set_T;
@@ -4201,9 +4244,9 @@ package Vk is
    procedure Update_Descriptor_Sets
      (Device                 : Device_T;
       Descriptor_Write_Count : Interfaces.Unsigned_32;
-      Pdescriptor_Writes     : Write_Descriptor_Set_Const_Ptr;
+      Descriptor_Writes      : Write_Descriptor_Set_Const_Ptr;
       Descriptor_Copy_Count  : Interfaces.Unsigned_32;
-      Pdescriptor_Copies     : Copy_Descriptor_Set_Const_Ptr);
+      Descriptor_Copies      : Copy_Descriptor_Set_Const_Ptr);
    pragma Import (Stdcall, Update_Descriptor_Sets, "vkUpdateDescriptorSets");
 
    type Framebuffer_Create_Info_Const_Ptr is access constant Framebuffer_Create_Info_T;
@@ -4211,16 +4254,16 @@ package Vk is
    type Framebuffer_Ptr is access all Framebuffer_T;
 
    function Create_Framebuffer
-     (Device       : Device_T;
-      Pcreate_Info : Framebuffer_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pframebuffer : Framebuffer_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Framebuffer_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Framebuffer : Framebuffer_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Framebuffer, "vkCreateFramebuffer");
 
    procedure Destroy_Framebuffer
      (Device      : Device_T;
       Framebuffer : Framebuffer_T;
-      Pallocator  : Allocation_Callbacks_Const_Ptr);
+      Allocator   : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Framebuffer, "vkDestroyFramebuffer");
 
    type Render_Pass_Create_Info_Const_Ptr is access constant Render_Pass_Create_Info_T;
@@ -4228,21 +4271,21 @@ package Vk is
    type Render_Pass_Ptr is access all Render_Pass_T;
 
    function Create_Render_Pass
-     (Device       : Device_T;
-      Pcreate_Info : Render_Pass_Create_Info_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Prender_Pass : Render_Pass_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Render_Pass_Create_Info_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Render_Pass : Render_Pass_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Render_Pass, "vkCreateRenderPass");
 
    procedure Destroy_Render_Pass
      (Device      : Device_T;
       Render_Pass : Render_Pass_T;
-      Pallocator  : Allocation_Callbacks_Const_Ptr);
+      Allocator   : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Render_Pass, "vkDestroyRenderPass");
 
    type Extent_2D_Ptr is access all Extent_2D_T;
 
-   procedure Get_Render_Area_Granularity (Device : Device_T; Render_Pass : Render_Pass_T; Pgranularity : Extent_2D_Ptr);
+   procedure Get_Render_Area_Granularity (Device : Device_T; Render_Pass : Render_Pass_T; Granularity : Extent_2D_Ptr);
    pragma Import (Stdcall, Get_Render_Area_Granularity, "vkGetRenderAreaGranularity");
 
    type Command_Pool_Create_Info_Const_Ptr is access constant Command_Pool_Create_Info_T;
@@ -4250,16 +4293,16 @@ package Vk is
    type Command_Pool_Ptr is access all Command_Pool_T;
 
    function Create_Command_Pool
-     (Device        : Device_T;
-      Pcreate_Info  : Command_Pool_Create_Info_Const_Ptr;
-      Pallocator    : Allocation_Callbacks_Const_Ptr;
-      Pcommand_Pool : Command_Pool_Ptr) return Result_T;
+     (Device       : Device_T;
+      Create_Info  : Command_Pool_Create_Info_Const_Ptr;
+      Allocator    : Allocation_Callbacks_Const_Ptr;
+      Command_Pool : Command_Pool_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Command_Pool, "vkCreateCommandPool");
 
    procedure Destroy_Command_Pool
      (Device       : Device_T;
       Command_Pool : Command_Pool_T;
-      Pallocator   : Allocation_Callbacks_Const_Ptr);
+      Allocator    : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Command_Pool, "vkDestroyCommandPool");
 
    function Reset_Command_Pool
@@ -4273,23 +4316,23 @@ package Vk is
    type Command_Buffer_Ptr is access all Command_Buffer_T;
 
    function Allocate_Command_Buffers
-     (Device           : Device_T;
-      Pallocate_Info   : Command_Buffer_Allocate_Info_Const_Ptr;
-      Pcommand_Buffers : Command_Buffer_Ptr) return Result_T;
+     (Device          : Device_T;
+      Allocate_Info   : Command_Buffer_Allocate_Info_Const_Ptr;
+      Command_Buffers : Command_Buffer_Ptr) return Result_T;
    pragma Import (Stdcall, Allocate_Command_Buffers, "vkAllocateCommandBuffers");
 
    procedure Free_Command_Buffers
      (Device               : Device_T;
       Command_Pool         : Command_Pool_T;
       Command_Buffer_Count : Interfaces.Unsigned_32;
-      Pcommand_Buffers     : Command_Buffer_Const_Ptr);
+      Command_Buffers      : Command_Buffer_Const_Ptr);
    pragma Import (Stdcall, Free_Command_Buffers, "vkFreeCommandBuffers");
 
    type Command_Buffer_Begin_Info_Const_Ptr is access constant Command_Buffer_Begin_Info_T;
 
    function Begin_Command_Buffer
      (Command_Buffer : Command_Buffer_T;
-      Pbegin_Info    : Command_Buffer_Begin_Info_Const_Ptr) return Result_T;
+      Begin_Info     : Command_Buffer_Begin_Info_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Begin_Command_Buffer, "vkBeginCommandBuffer");
 
    function End_Command_Buffer (Command_Buffer : Command_Buffer_T) return Result_T;
@@ -4310,14 +4353,14 @@ package Vk is
      (Command_Buffer : Command_Buffer_T;
       First_Viewport : Interfaces.Unsigned_32;
       Viewport_Count : Interfaces.Unsigned_32;
-      Pviewports     : Viewport_Const_Ptr);
+      Viewports      : Viewport_Const_Ptr);
    pragma Import (Stdcall, Cmd_Set_Viewport, "vkCmdSetViewport");
 
    procedure Cmd_Set_Scissor
      (Command_Buffer : Command_Buffer_T;
       First_Scissor  : Interfaces.Unsigned_32;
       Scissor_Count  : Interfaces.Unsigned_32;
-      Pscissors      : Rect_2D_Const_Ptr);
+      Scissors       : Rect_2D_Const_Ptr);
    pragma Import (Stdcall, Cmd_Set_Scissor, "vkCmdSetScissor");
 
    procedure Cmd_Set_Line_Width (Command_Buffer : Command_Buffer_T; Line_Width : Interfaces.C.C_float);
@@ -4363,9 +4406,9 @@ package Vk is
       Layout               : Pipeline_Layout_T;
       First_Set            : Interfaces.Unsigned_32;
       Descriptor_Set_Count : Interfaces.Unsigned_32;
-      Pdescriptor_Sets     : Descriptor_Set_Const_Ptr;
+      Descriptor_Sets      : Descriptor_Set_Const_Ptr;
       Dynamic_Offset_Count : Interfaces.Unsigned_32;
-      Pdynamic_Offsets     : Uint_32_Const_Ptr);
+      Dynamic_Offsets      : Uint_32_Const_Ptr);
    pragma Import (Stdcall, Cmd_Bind_Descriptor_Sets, "vkCmdBindDescriptorSets");
 
    procedure Cmd_Bind_Index_Buffer
@@ -4383,8 +4426,8 @@ package Vk is
      (Command_Buffer : Command_Buffer_T;
       First_Binding  : Interfaces.Unsigned_32;
       Binding_Count  : Interfaces.Unsigned_32;
-      Pbuffers       : Buffer_Const_Ptr;
-      Poffsets       : Device_Size_Const_Ptr);
+      Buffers        : Buffer_Const_Ptr;
+      Offsets        : Device_Size_Const_Ptr);
    pragma Import (Stdcall, Cmd_Bind_Vertex_Buffers, "vkCmdBindVertexBuffers");
 
    procedure Cmd_Draw
@@ -4437,7 +4480,7 @@ package Vk is
       Src_Buffer     : Buffer_T;
       Dst_Buffer     : Buffer_T;
       Region_Count   : Interfaces.Unsigned_32;
-      Pregions       : Buffer_Copy_Const_Ptr);
+      Regions        : Buffer_Copy_Const_Ptr);
    pragma Import (Stdcall, Cmd_Copy_Buffer, "vkCmdCopyBuffer");
 
    type Image_Copy_Const_Ptr is access constant Image_Copy_T;
@@ -4449,7 +4492,7 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Pregions         : Image_Copy_Const_Ptr);
+      Regions          : Image_Copy_Const_Ptr);
    pragma Import (Stdcall, Cmd_Copy_Image, "vkCmdCopyImage");
 
    type Image_Blit_Const_Ptr is access constant Image_Blit_T;
@@ -4461,7 +4504,7 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Pregions         : Image_Blit_Const_Ptr;
+      Regions          : Image_Blit_Const_Ptr;
       Filter           : Filter_T);
    pragma Import (Stdcall, Cmd_Blit_Image, "vkCmdBlitImage");
 
@@ -4473,7 +4516,7 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Pregions         : Buffer_Image_Copy_Const_Ptr);
+      Regions          : Buffer_Image_Copy_Const_Ptr);
    pragma Import (Stdcall, Cmd_Copy_Buffer_To_Image, "vkCmdCopyBufferToImage");
 
    procedure Cmd_Copy_Image_To_Buffer
@@ -4482,7 +4525,7 @@ package Vk is
       Src_Image_Layout : Image_Layout_T;
       Dst_Buffer       : Buffer_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Pregions         : Buffer_Image_Copy_Const_Ptr);
+      Regions          : Buffer_Image_Copy_Const_Ptr);
    pragma Import (Stdcall, Cmd_Copy_Image_To_Buffer, "vkCmdCopyImageToBuffer");
 
    procedure Cmd_Update_Buffer
@@ -4490,7 +4533,7 @@ package Vk is
       Dst_Buffer     : Buffer_T;
       Dst_Offset     : Device_Size_T;
       Data_Size      : Device_Size_T;
-      Pdata          : Uint_32_Const_Ptr);
+      Data           : Uint_32_Const_Ptr);
    pragma Import (Stdcall, Cmd_Update_Buffer, "vkCmdUpdateBuffer");
 
    procedure Cmd_Fill_Buffer
@@ -4509,9 +4552,9 @@ package Vk is
      (Command_Buffer : Command_Buffer_T;
       Image          : Image_T;
       Image_Layout   : Image_Layout_T;
-      Pcolor         : Clear_Color_Value_Const_Ptr;
+      Color          : Clear_Color_Value_Const_Ptr;
       Range_Count    : Interfaces.Unsigned_32;
-      Pranges        : Image_Subresource_Range_Const_Ptr);
+      Ranges         : Image_Subresource_Range_Const_Ptr);
    pragma Import (Stdcall, Cmd_Clear_Color_Image, "vkCmdClearColorImage");
 
    type Clear_Depth_Stencil_Value_Const_Ptr is access constant Clear_Depth_Stencil_Value_T;
@@ -4520,9 +4563,9 @@ package Vk is
      (Command_Buffer : Command_Buffer_T;
       Image          : Image_T;
       Image_Layout   : Image_Layout_T;
-      Pdepth_Stencil : Clear_Depth_Stencil_Value_Const_Ptr;
+      Depth_Stencil  : Clear_Depth_Stencil_Value_Const_Ptr;
       Range_Count    : Interfaces.Unsigned_32;
-      Pranges        : Image_Subresource_Range_Const_Ptr);
+      Ranges         : Image_Subresource_Range_Const_Ptr);
    pragma Import (Stdcall, Cmd_Clear_Depth_Stencil_Image, "vkCmdClearDepthStencilImage");
 
    type Clear_Attachment_Const_Ptr is access constant Clear_Attachment_T;
@@ -4532,9 +4575,9 @@ package Vk is
    procedure Cmd_Clear_Attachments
      (Command_Buffer   : Command_Buffer_T;
       Attachment_Count : Interfaces.Unsigned_32;
-      Pattachments     : Clear_Attachment_Const_Ptr;
+      Attachments      : Clear_Attachment_Const_Ptr;
       Rect_Count       : Interfaces.Unsigned_32;
-      Prects           : Clear_Rect_Const_Ptr);
+      Rects            : Clear_Rect_Const_Ptr);
    pragma Import (Stdcall, Cmd_Clear_Attachments, "vkCmdClearAttachments");
 
    type Image_Resolve_Const_Ptr is access constant Image_Resolve_T;
@@ -4546,7 +4589,7 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Pregions         : Image_Resolve_Const_Ptr);
+      Regions          : Image_Resolve_Const_Ptr);
    pragma Import (Stdcall, Cmd_Resolve_Image, "vkCmdResolveImage");
 
    procedure Cmd_Set_Event (Command_Buffer : Command_Buffer_T; Event : Event_T; Stage_Mask : Pipeline_Stage_Flags_T);
@@ -4566,15 +4609,15 @@ package Vk is
    procedure Cmd_Wait_Events
      (Command_Buffer              : Command_Buffer_T;
       Event_Count                 : Interfaces.Unsigned_32;
-      Pevents                     : Event_Const_Ptr;
+      Events                      : Event_Const_Ptr;
       Src_Stage_Mask              : Pipeline_Stage_Flags_T;
       Dst_Stage_Mask              : Pipeline_Stage_Flags_T;
       Memory_Barrier_Count        : Interfaces.Unsigned_32;
-      Pmemory_Barriers            : Memory_Barrier_Const_Ptr;
+      Memory_Barriers             : Memory_Barrier_Const_Ptr;
       Buffer_Memory_Barrier_Count : Interfaces.Unsigned_32;
-      Pbuffer_Memory_Barriers     : Buffer_Memory_Barrier_Const_Ptr;
+      Buffer_Memory_Barriers      : Buffer_Memory_Barrier_Const_Ptr;
       Image_Memory_Barrier_Count  : Interfaces.Unsigned_32;
-      Pimage_Memory_Barriers      : Image_Memory_Barrier_Const_Ptr);
+      Image_Memory_Barriers       : Image_Memory_Barrier_Const_Ptr);
    pragma Import (Stdcall, Cmd_Wait_Events, "vkCmdWaitEvents");
 
    procedure Cmd_Pipeline_Barrier
@@ -4583,11 +4626,11 @@ package Vk is
       Dst_Stage_Mask              : Pipeline_Stage_Flags_T;
       Dependency_Flags            : Dependency_Flags_T;
       Memory_Barrier_Count        : Interfaces.Unsigned_32;
-      Pmemory_Barriers            : Memory_Barrier_Const_Ptr;
+      Memory_Barriers             : Memory_Barrier_Const_Ptr;
       Buffer_Memory_Barrier_Count : Interfaces.Unsigned_32;
-      Pbuffer_Memory_Barriers     : Buffer_Memory_Barrier_Const_Ptr;
+      Buffer_Memory_Barriers      : Buffer_Memory_Barrier_Const_Ptr;
       Image_Memory_Barrier_Count  : Interfaces.Unsigned_32;
-      Pimage_Memory_Barriers      : Image_Memory_Barrier_Const_Ptr);
+      Image_Memory_Barriers       : Image_Memory_Barrier_Const_Ptr);
    pragma Import (Stdcall, Cmd_Pipeline_Barrier, "vkCmdPipelineBarrier");
 
    procedure Cmd_Begin_Query
@@ -4634,15 +4677,15 @@ package Vk is
       Stage_Flags    : Shader_Stage_Flags_T;
       Offset         : Interfaces.Unsigned_32;
       Size           : Interfaces.Unsigned_32;
-      Pvalues        : Void_Ptr);
+      Values         : Void_Ptr);
    pragma Import (Stdcall, Cmd_Push_Constants, "vkCmdPushConstants");
 
    type Render_Pass_Begin_Info_Const_Ptr is access constant Render_Pass_Begin_Info_T;
 
    procedure Cmd_Begin_Render_Pass
-     (Command_Buffer     : Command_Buffer_T;
-      Prender_Pass_Begin : Render_Pass_Begin_Info_Const_Ptr;
-      Contents           : Subpass_Contents_T);
+     (Command_Buffer    : Command_Buffer_T;
+      Render_Pass_Begin : Render_Pass_Begin_Info_Const_Ptr;
+      Contents          : Subpass_Contents_T);
    pragma Import (Stdcall, Cmd_Begin_Render_Pass, "vkCmdBeginRenderPass");
 
    procedure Cmd_Next_Subpass (Command_Buffer : Command_Buffer_T; Contents : Subpass_Contents_T);
@@ -4654,52 +4697,78 @@ package Vk is
    procedure Cmd_Execute_Commands
      (Command_Buffer       : Command_Buffer_T;
       Command_Buffer_Count : Interfaces.Unsigned_32;
-      Pcommand_Buffers     : Command_Buffer_Const_Ptr);
+      Command_Buffers      : Command_Buffer_Const_Ptr);
    pragma Import (Stdcall, Cmd_Execute_Commands, "vkCmdExecuteCommands");
 
    type Surface_Khr_Ptr is access all Surface_Khr_T;
 
    function Create_Android_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Android_Surface_Khr, "vkCreateAndroidSurfaceKHR");
 
-   type Display_Properties_Khr_Ptr is access all Display_Properties_Khr_T;
+   MAX_DISPLAY_PROPERTIES_INDEX : constant := 100;
+
+   type Display_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_DISPLAY_PROPERTIES_INDEX) of Display_Properties_Khr_T;
+   pragma Convention (C, Display_Properties_Array_T);
+
+   package Display_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Display_Properties_Array_T);
 
    function Get_Physical_Device_Display_Properties_Khr
      (Physical_Device : Physical_Device_T;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Display_Properties_Khr_Ptr) return Result_T;
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Display_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Display_Properties_Khr, "vkGetPhysicalDeviceDisplayPropertiesKHR");
 
-   type Display_Plane_Properties_Khr_Ptr is access all Display_Plane_Properties_Khr_T;
+   MAX_DISPLAY_PLANE_PROPERTIES_INDEX : constant := 100;
+
+   type Display_Plane_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_DISPLAY_PLANE_PROPERTIES_INDEX) of Display_Plane_Properties_Khr_T;
+   pragma Convention (C, Display_Plane_Properties_Array_T);
+
+   package Display_Plane_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Display_Plane_Properties_Array_T);
 
    function Get_Physical_Device_Display_Plane_Properties_Khr
      (Physical_Device : Physical_Device_T;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Display_Plane_Properties_Khr_Ptr) return Result_T;
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Display_Plane_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import
      (Stdcall,
       Get_Physical_Device_Display_Plane_Properties_Khr,
       "vkGetPhysicalDeviceDisplayPlanePropertiesKHR");
 
-   type Display_Khr_Ptr is access all Display_Khr_T;
+   MAX_DISPLAYS_INDEX : constant := 100;
+
+   type Displays_Array_T is array (Interfaces.C.size_t range 0 .. MAX_DISPLAYS_INDEX) of Display_Khr_T;
+   pragma Convention (C, Displays_Array_T);
+
+   package Displays_Array_Conversions is new Generic_Address_To_Access_Conversions (Displays_Array_T);
 
    function Get_Display_Plane_Supported_Displays_Khr
      (Physical_Device : Physical_Device_T;
       Plane_Index     : Interfaces.Unsigned_32;
-      Pdisplay_Count  : Uint_32_Ptr;
-      Pdisplays       : Display_Khr_Ptr) return Result_T;
+      Display_Count   : Uint_32_Ptr;
+      Displays        : Displays_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Get_Display_Plane_Supported_Displays_Khr, "vkGetDisplayPlaneSupportedDisplaysKHR");
 
-   type Display_Mode_Properties_Khr_Ptr is access all Display_Mode_Properties_Khr_T;
+   MAX_DISPLAY_MODE_PROPERTIES_INDEX : constant := 100;
+
+   type Display_Mode_Properties_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_DISPLAY_MODE_PROPERTIES_INDEX) of Display_Mode_Properties_Khr_T;
+   pragma Convention (C, Display_Mode_Properties_Array_T);
+
+   package Display_Mode_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
+     (Display_Mode_Properties_Array_T);
 
    function Get_Display_Mode_Properties_Khr
      (Physical_Device : Physical_Device_T;
       Display         : Display_Khr_T;
-      Pproperty_Count : Uint_32_Ptr;
-      Pproperties     : Display_Mode_Properties_Khr_Ptr) return Result_T;
+      Property_Count  : Uint_32_Ptr;
+      Properties      : Display_Mode_Properties_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Get_Display_Mode_Properties_Khr, "vkGetDisplayModePropertiesKHR");
 
    type Display_Mode_Create_Info_Khr_Const_Ptr is access constant Display_Mode_Create_Info_Khr_T;
@@ -4709,9 +4778,9 @@ package Vk is
    function Create_Display_Mode_Khr
      (Physical_Device : Physical_Device_T;
       Display         : Display_Khr_T;
-      Pcreate_Info    : Display_Mode_Create_Info_Khr_Const_Ptr;
-      Pallocator      : Allocation_Callbacks_Const_Ptr;
-      Pmode           : Display_Mode_Khr_Ptr) return Result_T;
+      Create_Info     : Display_Mode_Create_Info_Khr_Const_Ptr;
+      Allocator       : Allocation_Callbacks_Const_Ptr;
+      Mode            : Display_Mode_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Display_Mode_Khr, "vkCreateDisplayModeKHR");
 
    type Display_Plane_Capabilities_Khr_Ptr is access all Display_Plane_Capabilities_Khr_T;
@@ -4720,40 +4789,45 @@ package Vk is
      (Physical_Device : Physical_Device_T;
       Mode            : Display_Mode_Khr_T;
       Plane_Index     : Interfaces.Unsigned_32;
-      Pcapabilities   : Display_Plane_Capabilities_Khr_Ptr) return Result_T;
+      Capabilities    : Display_Plane_Capabilities_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Display_Plane_Capabilities_Khr, "vkGetDisplayPlaneCapabilitiesKHR");
 
    type Display_Surface_Create_Info_Khr_Const_Ptr is access constant Display_Surface_Create_Info_Khr_T;
 
    function Create_Display_Plane_Surface_Khr
-     (Instance     : Instance_T;
-      Pcreate_Info : Display_Surface_Create_Info_Khr_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Psurface     : Surface_Khr_Ptr) return Result_T;
+     (Instance    : Instance_T;
+      Create_Info : Display_Surface_Create_Info_Khr_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Surface     : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Display_Plane_Surface_Khr, "vkCreateDisplayPlaneSurfaceKHR");
 
    type Swapchain_Create_Info_Khr_Const_Ptr is access constant Swapchain_Create_Info_Khr_T;
 
-   type Swapchain_Khr_Ptr is access all Swapchain_Khr_T;
+   MAX_SWAPCHAINS_INDEX : constant := 100;
+
+   type Swapchains_Array_T is array (Interfaces.C.size_t range 0 .. MAX_SWAPCHAINS_INDEX) of Swapchain_Khr_T;
+   pragma Convention (C, Swapchains_Array_T);
+
+   package Swapchains_Array_Conversions is new Generic_Address_To_Access_Conversions (Swapchains_Array_T);
 
    function Create_Shared_Swapchains_Khr
      (Device          : Device_T;
       Swapchain_Count : Interfaces.Unsigned_32;
-      Pcreate_Infos   : Swapchain_Create_Info_Khr_Const_Ptr;
-      Pallocator      : Allocation_Callbacks_Const_Ptr;
-      Pswapchains     : Swapchain_Khr_Ptr) return Result_T;
+      Create_Infos    : Swapchain_Create_Info_Khr_Const_Ptr;
+      Allocator       : Allocation_Callbacks_Const_Ptr;
+      Swapchains      : Swapchains_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Create_Shared_Swapchains_Khr, "vkCreateSharedSwapchainsKHR");
 
    function Create_Mir_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Mir_Surface_Khr, "vkCreateMirSurfaceKHR");
 
    procedure Destroy_Surface_Khr
-     (Instance   : Instance_T;
-      Surface    : Surface_Khr_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+     (Instance  : Instance_T;
+      Surface   : Surface_Khr_T;
+      Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Surface_Khr, "vkDestroySurfaceKHR");
 
    type Bool_32_Ptr is access all Bool_32_T;
@@ -4762,79 +4836,90 @@ package Vk is
      (Physical_Device    : Physical_Device_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
       Surface            : Surface_Khr_T;
-      Psupported         : Bool_32_Ptr) return Result_T;
+      Supported          : Bool_32_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Surface_Support_Khr, "vkGetPhysicalDeviceSurfaceSupportKHR");
 
    type Surface_Capabilities_Khr_Ptr is access all Surface_Capabilities_Khr_T;
 
    function Get_Physical_Device_Surface_Capabilities_Khr
-     (Physical_Device       : Physical_Device_T;
-      Surface               : Surface_Khr_T;
-      Psurface_Capabilities : Surface_Capabilities_Khr_Ptr) return Result_T;
+     (Physical_Device      : Physical_Device_T;
+      Surface              : Surface_Khr_T;
+      Surface_Capabilities : Surface_Capabilities_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Surface_Capabilities_Khr, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
 
-   type Surface_Format_Khr_Ptr is access all Surface_Format_Khr_T;
+   MAX_SURFACE_FORMATS_INDEX : constant := 100;
+
+   type Surface_Formats_Array_T is
+     array (Interfaces.C.size_t range 0 .. MAX_SURFACE_FORMATS_INDEX) of Surface_Format_Khr_T;
+   pragma Convention (C, Surface_Formats_Array_T);
+
+   package Surface_Formats_Array_Conversions is new Generic_Address_To_Access_Conversions (Surface_Formats_Array_T);
 
    function Get_Physical_Device_Surface_Formats_Khr
-     (Physical_Device       : Physical_Device_T;
-      Surface               : Surface_Khr_T;
-      Psurface_Format_Count : Uint_32_Ptr;
-      Psurface_Formats      : Surface_Format_Khr_Ptr) return Result_T;
+     (Physical_Device      : Physical_Device_T;
+      Surface              : Surface_Khr_T;
+      Surface_Format_Count : Uint_32_Ptr;
+      Surface_Formats      : Surface_Formats_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Surface_Formats_Khr, "vkGetPhysicalDeviceSurfaceFormatsKHR");
 
-   type Present_Mode_Khr_Ptr is access all Present_Mode_Khr_T;
+   MAX_PRESENT_MODES_INDEX : constant := 100;
+
+   type Present_Modes_Array_T is array (Interfaces.C.size_t range 0 .. MAX_PRESENT_MODES_INDEX) of Present_Mode_Khr_T;
+   pragma Convention (C, Present_Modes_Array_T);
+
+   package Present_Modes_Array_Conversions is new Generic_Address_To_Access_Conversions (Present_Modes_Array_T);
 
    function Get_Physical_Device_Surface_Present_Modes_Khr
-     (Physical_Device     : Physical_Device_T;
-      Surface             : Surface_Khr_T;
-      Ppresent_Mode_Count : Uint_32_Ptr;
-      Ppresent_Modes      : Present_Mode_Khr_Ptr) return Result_T;
+     (Physical_Device    : Physical_Device_T;
+      Surface            : Surface_Khr_T;
+      Present_Mode_Count : Uint_32_Ptr;
+      Present_Modes      : Present_Modes_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Get_Physical_Device_Surface_Present_Modes_Khr, "vkGetPhysicalDeviceSurfacePresentModesKHR");
 
    function Create_Swapchain_Khr
-     (Device       : Device_T;
-      Pcreate_Info : Swapchain_Create_Info_Khr_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pswapchain   : Swapchain_Khr_Ptr) return Result_T;
+     (Device      : Device_T;
+      Create_Info : Swapchain_Create_Info_Khr_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Swapchain   : Swapchains_Array_Conversions.Object_Address) return Result_T;
    pragma Import (Stdcall, Create_Swapchain_Khr, "vkCreateSwapchainKHR");
 
    procedure Destroy_Swapchain_Khr
-     (Device     : Device_T;
-      Swapchain  : Swapchain_Khr_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+     (Device    : Device_T;
+      Swapchain : Swapchain_Khr_T;
+      Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Swapchain_Khr, "vkDestroySwapchainKHR");
 
    function Get_Swapchain_Images_Khr
-     (Device                 : Device_T;
-      Swapchain              : Swapchain_Khr_T;
-      Pswapchain_Image_Count : Uint_32_Ptr;
-      Pswapchain_Images      : Image_Ptr) return Result_T;
+     (Device                : Device_T;
+      Swapchain             : Swapchain_Khr_T;
+      Swapchain_Image_Count : Uint_32_Ptr;
+      Swapchain_Images      : Image_Ptr) return Result_T;
    pragma Import (Stdcall, Get_Swapchain_Images_Khr, "vkGetSwapchainImagesKHR");
 
    function Acquire_Next_Image_Khr
-     (Device       : Device_T;
-      Swapchain    : Swapchain_Khr_T;
-      Timeout      : Interfaces.Unsigned_64;
-      Semaphore    : Semaphore_T;
-      Fence        : Fence_T;
-      Pimage_Index : Uint_32_Ptr) return Result_T;
+     (Device      : Device_T;
+      Swapchain   : Swapchain_Khr_T;
+      Timeout     : Interfaces.Unsigned_64;
+      Semaphore   : Semaphore_T;
+      Fence       : Fence_T;
+      Image_Index : Uint_32_Ptr) return Result_T;
    pragma Import (Stdcall, Acquire_Next_Image_Khr, "vkAcquireNextImageKHR");
 
    type Present_Info_Khr_Const_Ptr is access constant Present_Info_Khr_T;
 
-   function Queue_Present_Khr (Queue : Queue_T; Ppresent_Info : Present_Info_Khr_Const_Ptr) return Result_T;
+   function Queue_Present_Khr (Queue : Queue_T; Present_Info : Present_Info_Khr_Const_Ptr) return Result_T;
    pragma Import (Stdcall, Queue_Present_Khr, "vkQueuePresentKHR");
 
    function Create_Wayland_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Wayland_Surface_Khr, "vkCreateWaylandSurfaceKHR");
 
    function Create_Win_32_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Win_32_Surface_Khr, "vkCreateWin32SurfaceKHR");
 
    function Get_Physical_Device_Win_32_Presentation_Support_Khr
@@ -4846,15 +4931,15 @@ package Vk is
       "vkGetPhysicalDeviceWin32PresentationSupportKHR");
 
    function Create_Xlib_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Xlib_Surface_Khr, "vkCreateXlibSurfaceKHR");
 
    function Create_Xcb_Surface_Khr
-     (Instance   : Instance_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr;
-      Psurface   : Surface_Khr_Ptr) return Result_T;
+     (Instance  : Instance_T;
+      Allocator : Allocation_Callbacks_Const_Ptr;
+      Surface   : Surface_Khr_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Xcb_Surface_Khr, "vkCreateXcbSurfaceKHR");
 
    type Debug_Report_Callback_Create_Info_Ext_Const_Ptr is access constant Debug_Report_Callback_Create_Info_Ext_T;
@@ -4862,48 +4947,48 @@ package Vk is
    type Debug_Report_Callback_Ext_Ptr is access all Debug_Report_Callback_Ext_T;
 
    function Create_Debug_Report_Callback_Ext
-     (Instance     : Instance_T;
-      Pcreate_Info : Debug_Report_Callback_Create_Info_Ext_Const_Ptr;
-      Pallocator   : Allocation_Callbacks_Const_Ptr;
-      Pcallback    : Debug_Report_Callback_Ext_Ptr) return Result_T;
+     (Instance    : Instance_T;
+      Create_Info : Debug_Report_Callback_Create_Info_Ext_Const_Ptr;
+      Allocator   : Allocation_Callbacks_Const_Ptr;
+      Callback    : Debug_Report_Callback_Ext_Ptr) return Result_T;
    pragma Import (Stdcall, Create_Debug_Report_Callback_Ext, "vkCreateDebugReportCallbackEXT");
 
    procedure Destroy_Debug_Report_Callback_Ext
-     (Instance   : Instance_T;
-      Callback   : Debug_Report_Callback_Ext_T;
-      Pallocator : Allocation_Callbacks_Const_Ptr);
+     (Instance  : Instance_T;
+      Callback  : Debug_Report_Callback_Ext_T;
+      Allocator : Allocation_Callbacks_Const_Ptr);
    pragma Import (Stdcall, Destroy_Debug_Report_Callback_Ext, "vkDestroyDebugReportCallbackEXT");
 
    procedure Debug_Report_Message_Ext
-     (Instance      : Instance_T;
-      Flags         : Debug_Report_Flags_Ext_T;
-      Object_Type   : Debug_Report_Object_Type_Ext_T;
-      Object        : Interfaces.Unsigned_64;
-      Location      : Interfaces.C.size_t;
-      Message_Code  : Interfaces.Integer_32;
-      Player_Prefix : Interfaces.C.Strings.chars_ptr;
-      Pmessage      : Interfaces.C.Strings.chars_ptr);
+     (Instance     : Instance_T;
+      Flags        : Debug_Report_Flags_Ext_T;
+      Object_Type  : Debug_Report_Object_Type_Ext_T;
+      Object       : Interfaces.Unsigned_64;
+      Location     : Interfaces.C.size_t;
+      Message_Code : Interfaces.Integer_32;
+      Layer_Prefix : Interfaces.C.Strings.chars_ptr;
+      Message      : Interfaces.C.Strings.chars_ptr);
    pragma Import (Stdcall, Debug_Report_Message_Ext, "vkDebugReportMessageEXT");
 
    type Debug_Marker_Object_Name_Info_Ext_Ptr is access all Debug_Marker_Object_Name_Info_Ext_T;
 
    function Debug_Marker_Set_Object_Name_Ext
-     (Device     : Device_T;
-      Pname_Info : Debug_Marker_Object_Name_Info_Ext_Ptr) return Result_T;
+     (Device    : Device_T;
+      Name_Info : Debug_Marker_Object_Name_Info_Ext_Ptr) return Result_T;
    pragma Import (Stdcall, Debug_Marker_Set_Object_Name_Ext, "vkDebugMarkerSetObjectNameEXT");
 
    type Debug_Marker_Object_Tag_Info_Ext_Ptr is access all Debug_Marker_Object_Tag_Info_Ext_T;
 
    function Debug_Marker_Set_Object_Tag_Ext
-     (Device    : Device_T;
-      Ptag_Info : Debug_Marker_Object_Tag_Info_Ext_Ptr) return Result_T;
+     (Device   : Device_T;
+      Tag_Info : Debug_Marker_Object_Tag_Info_Ext_Ptr) return Result_T;
    pragma Import (Stdcall, Debug_Marker_Set_Object_Tag_Ext, "vkDebugMarkerSetObjectTagEXT");
 
    type Debug_Marker_Marker_Info_Ext_Ptr is access all Debug_Marker_Marker_Info_Ext_T;
 
    procedure Cmd_Debug_Marker_Begin_Ext
      (Command_Buffer : Command_Buffer_T;
-      Pmarker_Info   : Debug_Marker_Marker_Info_Ext_Ptr);
+      Marker_Info    : Debug_Marker_Marker_Info_Ext_Ptr);
    pragma Import (Stdcall, Cmd_Debug_Marker_Begin_Ext, "vkCmdDebugMarkerBeginEXT");
 
    procedure Cmd_Debug_Marker_End_Ext (Command_Buffer : Command_Buffer_T);
@@ -4911,99 +4996,9 @@ package Vk is
 
    procedure Cmd_Debug_Marker_Insert_Ext
      (Command_Buffer : Command_Buffer_T;
-      Pmarker_Info   : Debug_Marker_Marker_Info_Ext_Ptr);
+      Marker_Info    : Debug_Marker_Marker_Info_Ext_Ptr);
    pragma Import (Stdcall, Cmd_Debug_Marker_Insert_Ext, "vkCmdDebugMarkerInsertEXT");
 
 private
-
-   type Hidden_Instance_T is null record;
-   type Instance_T is access Hidden_Instance_T;
-
-   type Hidden_Physical_Device_T is null record;
-   type Physical_Device_T is access Hidden_Physical_Device_T;
-
-   type Hidden_Device_T is null record;
-   type Device_T is access Hidden_Device_T;
-
-   type Hidden_Queue_T is null record;
-   type Queue_T is access Hidden_Queue_T;
-
-   type Hidden_Command_Buffer_T is null record;
-   type Command_Buffer_T is access Hidden_Command_Buffer_T;
-
-   type Hidden_Device_Memory_T is null record;
-   type Device_Memory_T is access Hidden_Device_Memory_T;
-
-   type Hidden_Command_Pool_T is null record;
-   type Command_Pool_T is access Hidden_Command_Pool_T;
-
-   type Hidden_Buffer_T is null record;
-   type Buffer_T is access Hidden_Buffer_T;
-
-   type Hidden_Buffer_View_T is null record;
-   type Buffer_View_T is access Hidden_Buffer_View_T;
-
-   type Hidden_Image_T is null record;
-   type Image_T is access Hidden_Image_T;
-
-   type Hidden_Image_View_T is null record;
-   type Image_View_T is access Hidden_Image_View_T;
-
-   type Hidden_Shader_Module_T is null record;
-   type Shader_Module_T is access Hidden_Shader_Module_T;
-
-   type Hidden_Pipeline_T is null record;
-   type Pipeline_T is access Hidden_Pipeline_T;
-
-   type Hidden_Pipeline_Layout_T is null record;
-   type Pipeline_Layout_T is access Hidden_Pipeline_Layout_T;
-
-   type Hidden_Sampler_T is null record;
-   type Sampler_T is access Hidden_Sampler_T;
-
-   type Hidden_Descriptor_Set_T is null record;
-   type Descriptor_Set_T is access Hidden_Descriptor_Set_T;
-
-   type Hidden_Descriptor_Set_Layout_T is null record;
-   type Descriptor_Set_Layout_T is access Hidden_Descriptor_Set_Layout_T;
-
-   type Hidden_Descriptor_Pool_T is null record;
-   type Descriptor_Pool_T is access Hidden_Descriptor_Pool_T;
-
-   type Hidden_Fence_T is null record;
-   type Fence_T is access Hidden_Fence_T;
-
-   type Hidden_Semaphore_T is null record;
-   type Semaphore_T is access Hidden_Semaphore_T;
-
-   type Hidden_Event_T is null record;
-   type Event_T is access Hidden_Event_T;
-
-   type Hidden_Query_Pool_T is null record;
-   type Query_Pool_T is access Hidden_Query_Pool_T;
-
-   type Hidden_Framebuffer_T is null record;
-   type Framebuffer_T is access Hidden_Framebuffer_T;
-
-   type Hidden_Render_Pass_T is null record;
-   type Render_Pass_T is access Hidden_Render_Pass_T;
-
-   type Hidden_Pipeline_Cache_T is null record;
-   type Pipeline_Cache_T is access Hidden_Pipeline_Cache_T;
-
-   type Hidden_Display_Khr_T is null record;
-   type Display_Khr_T is access Hidden_Display_Khr_T;
-
-   type Hidden_Display_Mode_Khr_T is null record;
-   type Display_Mode_Khr_T is access Hidden_Display_Mode_Khr_T;
-
-   type Hidden_Surface_Khr_T is null record;
-   type Surface_Khr_T is access Hidden_Surface_Khr_T;
-
-   type Hidden_Swapchain_Khr_T is null record;
-   type Swapchain_Khr_T is access Hidden_Swapchain_Khr_T;
-
-   type Hidden_Debug_Report_Callback_Ext_T is null record;
-   type Debug_Report_Callback_Ext_T is access Hidden_Debug_Report_Callback_Ext_T;
 
 end Vk;

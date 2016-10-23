@@ -64,6 +64,7 @@ package body Vk_Package_Creator with SPARK_Mode is
    use all type Vk_XML.Proto.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Proto.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Proto_Shared_Ptr.T;
+   use all type Vk_XML.Param.Fs.Len.T;
    use all type Vk_XML.Param.Fs.Child_Kind_Id_T;
    use all type Vk_XML.Param.Fs.Child_Vectors.Immutable_T;
    use all type Vk_XML.Param_Shared_Ptr.T;
@@ -152,8 +153,33 @@ package body Vk_Package_Creator with SPARK_Mode is
       end if;
    end Remove_Initial_Vk;
 
-   procedure Adaify_Name (Old_Name : String;
-                          New_Name : in out Aida.Strings.Unbounded_String_Type)
+   procedure Make_Upper_Case (Source : String;
+                              Target : in out Aida.Strings.Unbounded_String_Type)
+   is
+      P : Integer := Source'First;
+
+      CP : Aida.UTF8_Code_Point.T := 0;
+   begin
+      while P <= Source'Last loop
+         Aida.UTF8.Get (Source  => Source,
+                        Pointer => P,
+                        Value   => CP);
+
+         if Image (CP) = "_" then
+            Target.Append ("_");
+         elsif Is_Digit (CP) then
+            Target.Append (Image (CP));
+         elsif Is_Lowercase (CP) then
+            Target.Append (Image (To_Uppercase (CP)));
+         else
+            Target.Append (Image (CP));
+         end if;
+
+      end loop;
+   end Make_Upper_Case;
+
+   procedure Hidden_Adaify_Name (Old_Name : String;
+                                 New_Name : in out Aida.Strings.Unbounded_String_Type)
    is
       P : Integer := Old_Name'First;
 
@@ -228,6 +254,46 @@ package body Vk_Package_Creator with SPARK_Mode is
       if New_Name.To_String = "Type" then
          New_Name.Initialize ("The_Type");
       end if;
+   end Hidden_Adaify_Name;
+
+   procedure Adaify_Name (Old_Name : String;
+                          New_Name : in out Aida.Strings.Unbounded_String_Type)
+   is
+      P : Integer := Old_Name'First;
+
+      CP : Aida.UTF8_Code_Point.T := 0;
+   begin
+      -- Some variables begin with a miniscule p followed by a capital letter to indicate a pointer.
+      -- Remove the p-prefix.
+      if
+        Old_Name'Length > 4 and then
+        Old_Name (Old_Name'First) = 'p'
+      then
+         if Old_Name (Old_Name'First + 1) = 'p' then
+            P := Old_Name'First + 2;
+            Aida.UTF8.Get (Source  => Old_Name,
+                           Pointer => P,
+                           Value   => CP);
+            if Is_Uppercase (CP) then
+               Hidden_Adaify_Name (Old_Name (Old_Name'First + 2..Old_Name'Last), New_Name);
+            else
+               Hidden_Adaify_Name (Old_Name, New_Name);
+            end if;
+         else
+            P := Old_Name'First + 1;
+            Aida.UTF8.Get (Source  => Old_Name,
+                           Pointer => P,
+                           Value   => CP);
+            if Is_Uppercase (CP) then
+               Hidden_Adaify_Name (Old_Name (Old_Name'First + 1..Old_Name'Last), New_Name);
+            else
+               Hidden_Adaify_Name (Old_Name, New_Name);
+            end if;
+         end if;
+
+      else
+         Hidden_Adaify_Name (Old_Name, New_Name);
+      end if;
    end Adaify_Name;
 
    procedure Adaify_Array_Index_Type_Name (Old_Name : String;
@@ -253,6 +319,18 @@ package body Vk_Package_Creator with SPARK_Mode is
       Aida.Strings.Append (This => New_Name,
                            Text => Extension);
    end Adaify_Array_Type_Name;
+
+   procedure Adaify_Array_Conversions_Package (Source : String;
+                                               Target : in out Aida.Strings.Unbounded_String_Type)
+   is
+      Extension : String := "_Array_Conversions";
+   begin
+      Adaify_Name (Old_Name => Source,
+                   New_Name => Target);
+
+      Aida.Strings.Append (This => Target,
+                           Text => Extension);
+   end Adaify_Array_Conversions_Package;
 
    procedure Adaify_Type_Name (Old_Name : String;
                                New_Name : in out Aida.Strings.Unbounded_String_Type) is
@@ -713,7 +791,7 @@ package body Vk_Package_Creator with SPARK_Mode is
                   Put_Tabs (1);
                   Put ("type ");
                   Put (To_String (New_Type_Name));
-                  Put_Line (" is private;");
+                  Put_Line (" is new System.Address;");
                   Put_Line ("");
 
                   Old_Type_Name.Initialize (To_String (Value (Name_Element.Name_V)));
@@ -2898,56 +2976,276 @@ package body Vk_Package_Creator with SPARK_Mode is
                end if;
             end Generate_Potential_Access_Type;
 
-            procedure Generate_Code_For_Array_Declarations (Variable_Name        : String;
-                                                            The_Nested_Type_Name : String;
-                                                            Array_Length         : String;
+            function Is_Pointer_Actually_An_Array (Command_V : Vk_XML.Command_Shared_Ptr.T;
+                                                   Param_V   : Vk_XML.Param_Shared_Ptr.T) return Boolean
+            is
+               Is_Found : Boolean := False;
+            begin
+               if Len (Param_V).Exists then
+                  for I in Positive range First_Index (Params)..Last_Index (Params) loop
+                     declare
+                        Param_Children : Vk_XML.Param.Fs.Child_Vectors.Immutable_T renames Children (Element (Params, I));
+                     begin
+                        if Length (Param_Children) = 2 then
+                           declare
+                              First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                               Index     => First_Index (Param_Children));
+                              Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                                Index     => First_Index (Param_Children) + 1);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_Name and then
+                                Length (Value (Second.Name_V)) > 0
+                              then
+                                 if To_String (Len (Param_V).Value) = To_String (Value (Second.Name_V)) then
+                                    Is_Found := True;
+                                    exit;
+                                 end if;
+                              end if;
+                           end;
+                        elsif Length (Param_Children) = 3 then
+                           declare
+                              First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                               Index     => First_Index (Param_Children));
+                              Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                                Index     => First_Index (Param_Children) + 1);
+                              Third : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                               Index     => First_Index (Param_Children) + 2);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                Value (First.Nested_Type_V).Exists and then
+                                Second.Kind_Id = Child_XML_Text and then
+                                Third.Kind_Id = Child_Name and then
+                                Length (Value (Third.Name_V)) > 0
+                              then
+                                 if To_String (Len (Param_V).Value) = To_String (Value (Third.Name_V)) then
+                                    Is_Found := True;
+                                    exit;
+                                 end if;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                              end if;
+                           end;
+                        elsif Length (Param_Children) = 4 then
+                           declare
+                              First : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                               Index     => First_Index (Param_Children));
+                              Second : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                                Index     => First_Index (Param_Children) + 1);
+                              Third : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                               Index     => First_Index (Param_Children) + 2);
+                              Fourth : Vk_XML.Param.Fs.Child_T renames Element (Container => Param_Children,
+                                                                                Index     => First_Index (Param_Children) + 3);
+                           begin
+                              if
+                                First.Kind_Id = Child_XML_Text and then
+                                Second.Kind_Id = Child_Nested_Type and then
+                                Value (Second.Nested_Type_V).Exists and then
+                                Third.Kind_Id = Child_XML_Text and then
+                                Fourth.Kind_Id = Child_Name and then
+                                Length (Value (Fourth.Name_V)) > 0
+                              then
+                                 if To_String (Len (Param_V).Value) = To_String (Value (Fourth.Name_V)) then
+                                    Is_Found := True;
+                                    exit;
+                                 end if;
+                              elsif
+                                First.Kind_Id = Child_XML_Text and then
+                                Second.Kind_Id = Child_Nested_Type and then
+                                Value (Second.Nested_Type_V).Exists and then
+                                Third.Kind_Id = Child_Name and then
+                                Length (Value (Third.Name_V)) > 0 and then
+                                Fourth.Kind_Id = Child_XML_Text
+                              then
+                                 if To_String (Len (Param_V).Value) = To_String (Value (Third.Name_V)) then
+                                    Is_Found := True;
+                                    exit;
+                                 end if;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                              end if;
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
+                        end if;
+                     end;
+                  end loop;
+
+                  return Is_Found;
+               else
+                  return False;
+               end if;
+            end Is_Pointer_Actually_An_Array;
+
+            procedure Generate_Potential_Array_Declaration (The_Nested_Type_Name : String;
+                                                            Second               : String;
+                                                            C_Variable_Name      : String;
                                                             Command_V            : Vk_XML.Command_Shared_Ptr.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
-               Nested_Type_Name              : Aida.Strings.Unbounded_String_Type;
-               Adafied_Array_Type_Name       : Aida.Strings.Unbounded_String_Type;
-               Adafied_Array_Index_Type_Name : Aida.Strings.Unbounded_String_Type;
+               Nested_Type_Name         : Aida.Strings.Unbounded_String_Type;
+               Adafied_Access_Type_Name : Aida.Strings.Unbounded_String_Type;
 
-               Last_Range_Index : Positive := Positive'Value (Array_Length) - 1;
+               Adafied_Variable_Name    : Aida.Strings.Unbounded_String_Type;
+               Upper_Case_Variable_Name : Aida.Strings.Unbounded_String_Type;
+
+               Adafied_Array_Type_Name  : Aida.Strings.Unbounded_String_Type;
+               Array_Conversions_Package_Name : Aida.Strings.Unbounded_String_Type;
             begin
-               Adaify_Array_Type_Name (Old_Name => Variable_Name,
-                                       New_Name => Adafied_Array_Type_Name);
+               if
+                 Ada.Strings.Fixed.Trim (Source => Second,
+                                         Side   => Ada.Strings.Both) = "*"
+               then
+                  Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
 
-               Adaify_Array_Index_Type_Name (Old_Name => Variable_Name,
-                                             New_Name => Adafied_Array_Index_Type_Name);
+                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                               Key       => Nested_Type_Name);
 
-               Nested_Type_Name.Initialize (The_Nested_Type_Name);
+                  if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
-               Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                                              Key       => Nested_Type_Name);
+                     Nested_Type_Name.Initialize (The_Nested_Type_Name);
 
-               if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                  Put_Tabs (1);
-                  Put ("type ");
-                  Put (Adafied_Array_Index_Type_Name.To_String);
-                  Put (" is range 0..");
-                  Put (Ada.Strings.Fixed.Trim (Source => Last_Range_Index'Img,
-                                               Side   => Ada.Strings.Both));
-                  Put_Line (";");
-                  Put_Line ("");
+                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                  Key       => Nested_Type_Name);
 
-                  Put_Tabs (1);
-                  Put ("type ");
-                  Put (Adafied_Array_Type_Name.To_String);
-                  Put (" is array (");
-                  Put (Adafied_Array_Index_Type_Name.To_String);
-                  Put (") of ");
-                  Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
-                  Put_Line (";");
-                  Put_Tabs (1);
-                  Put_Line ("pragma Convention (C, " & Adafied_Array_Type_Name.To_String & ");");
-                  Put_Line ("");
+                     if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                        if
+                          The_Nested_Type_Name = "VkExtensionProperties" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("EXTENSION_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Extension_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Extension_Properties_Array_Conversions");
+                        elsif
+                          The_Nested_Type_Name = "VkLayerProperties" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("LAYER_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Layer_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Layer_Properties_Array_Conversions");
+                        elsif
+                          The_Nested_Type_Name = "VkSparseImageFormatProperties" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("SPARSE_IMAGE_FORMAT_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Sparse_Image_Format_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Sparse_Image_Format_Properties_Array_Conversions");
+                        elsif
+                          The_Nested_Type_Name = "VkDisplayPropertiesKHR" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("DISPLAY_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Display_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Display_Properties_Array_Conversions");
+                        elsif
+                          The_Nested_Type_Name = "VkDisplayPlanePropertiesKHR" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("DISPLAY_PLANE_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Display_Plane_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Display_Plane_Properties_Array_Conversions");
+                        elsif
+                          The_Nested_Type_Name = "VkDisplayModePropertiesKHR" and then
+                          C_Variable_Name = "pProperties"
+                        then
+                           Upper_Case_Variable_Name.Initialize ("DISPLAY_MODE_PROPERTIES");
+                           Adafied_Array_Type_Name.Initialize ("Display_Mode_Properties_Array_T");
+                           Array_Conversions_Package_Name.Initialize ("Display_Mode_Properties_Array_Conversions");
+                        else
+                           Adaify_Name (Old_Name => C_Variable_Name,
+                                        New_Name => Adafied_Variable_Name);
+
+                           Make_Upper_Case (Source => Adafied_Variable_Name.To_String,
+                                            Target => Upper_Case_Variable_Name);
+
+                           Adaify_Array_Type_Name (Old_Name => C_Variable_Name,
+                                                   New_Name => Adafied_Array_Type_Name);
+
+                           Adaify_Array_Conversions_Package (Source => C_Variable_Name,
+                                                             Target => Array_Conversions_Package_Name);
+                        end if;
+
+                        Put_Tabs (1);
+                        Put_Line ("MAX_" & Upper_Case_Variable_Name.To_String & "_INDEX : constant := 100;");
+                        Put_Line ("");
+
+                        Put_Tabs (1);
+                        Put ("type ");
+                        Put (Adafied_Array_Type_Name.To_String);
+                        Put (" is array (Interfaces.C.size_t range 0 .. MAX_" & Upper_Case_Variable_Name.To_String & "_INDEX");
+                        Put (") of ");
+                        Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                        Put_Line (";");
+                        Put_Tabs (1);
+                        Put_Line ("pragma Convention (C, " & Adafied_Array_Type_Name.To_String & ");");
+                        Put_Line ("");
+
+                        Put_Tabs (1);
+                        Put_Line ("package " & Array_Conversions_Package_Name.To_String & " is new Generic_Address_To_Access_Conversions (" & Adafied_Array_Type_Name.To_String & ");");
+                        Put_Line ("");
+
+                        Adafied_Access_Type_Name.Initialize (Array_Conversions_Package_Name.To_String & ".Object_Address");
+
+                        Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                Key       => Nested_Type_Name,
+                                New_Item  => Adafied_Access_Type_Name);
+                     else
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
+                     end if;
+                  end if;
+               elsif
+                 Ada.Strings.Fixed.Trim (Source => Second,
+                                         Side   => Ada.Strings.Both) = "**"
+               then
+                  Nested_Type_Name.Initialize (The_Nested_Type_Name & "**");
+
+                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                               Key       => Nested_Type_Name);
+
+                  if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                     Nested_Type_Name.Initialize (The_Nested_Type_Name);
+
+                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
+                                                  Key       => Nested_Type_Name);
+
+                     if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
+
+                        Adaify_Constant_Access_Type_Name (Old_Name => The_Nested_Type_Name,
+                                                          New_Name => Adafied_Access_Type_Name);
+
+                        Put_Tabs (1);
+                        Put ("type ");
+                        Put (Adafied_Access_Type_Name.To_String);
+                        Put (" is access constant ");
+                        Put (Element (C_Type_Name_To_Ada_Name_Map, Searched_For_Cursor).To_String);
+                        Put_Line (";");
+                        Put_Line ("");
+
+                        Nested_Type_Name.Initialize (The_Nested_Type_Name & "*");
+                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
+                                Key       => Nested_Type_Name,
+                                New_Item  => Adafied_Access_Type_Name);
+                     else
+                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
+                     end if;
+                  end if;
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
                   Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
-            end Generate_Code_For_Array_Declarations;
+            end Generate_Potential_Array_Declaration;
 
             procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML.Command_Shared_Ptr.T) is
             begin
@@ -2971,9 +3269,16 @@ package body Vk_Package_Creator with SPARK_Mode is
                              Third.Kind_Id = Child_Name and then
                              Length (Value (Third.Name_V)) > 0
                            then
-                              Generate_Potential_Access_Type (To_String (Value (First.Nested_Type_V).Value_V),
-                                                              To_String (Second.XML_Text_V),
-                                                              Command_V);
+                              if Is_Pointer_Actually_An_Array (Command_V, Element (Params, I)) then
+                                 Generate_Potential_Array_Declaration (To_String (Value (First.Nested_Type_V).Value_V),
+                                                                       To_String (Second.XML_Text_V),
+                                                                       To_String (Value (Third.Name_V)),
+                                                                       Command_V);
+                              else
+                                 Generate_Potential_Access_Type (To_String (Value (First.Nested_Type_V).Value_V),
+                                                                 To_String (Second.XML_Text_V),
+                                                                 Command_V);
+                              end if;
                            end if;
                         end;
                      elsif Length (Param_Children) = 4 then
@@ -3295,8 +3600,6 @@ package body Vk_Package_Creator with SPARK_Mode is
 
       begin
          Put_Line ("");
-         Put_Tabs (1); Put_Line ("pragma Linker_Options (""-lvulkan-1"");");
-         Put_Line ("");
          Put_Tabs (1);Put_Line ("type Major_Version_T is range 0..2**9;");
          Put_Tabs (1);Put_Line ("type Minor_Version_T is range 0..2**9;");
          Put_Tabs (1);Put_Line ("type Patch_Version_T is range 0..2**11;");
@@ -3381,29 +3684,30 @@ package body Vk_Package_Creator with SPARK_Mode is
                             (To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_HANDLE" or To_String (Value (Nested_Type_Element.Nested_Type_V).Value_V) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
                        Name_Element.Kind_Id = Child_Name
                      then
-                        declare
-                           New_Type_Name : Aida.Strings.Unbounded_String_Type;
-                        begin
-                           Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
-                                             New_Name => New_Type_Name);
-
-                           declare
-                              Hidden_Type_Name : String := "Hidden_" & To_String (New_Type_Name);
-                           begin
-                              Put_Tabs (1);
-                              Put ("type ");
-                              Put (Hidden_Type_Name);
-                              Put_Line (" is null record;");
-
-                              Put_Tabs (1);
-                              Put ("type ");
-                              Put (To_String (New_Type_Name));
-                              Put (" is access ");
-                              Put (Hidden_Type_Name);
-                              Put_Line (";");
-                              Put_Line ("");
-                           end;
-                        end;
+--                          declare
+--                             New_Type_Name : Aida.Strings.Unbounded_String_Type;
+--                          begin
+--                             Adaify_Type_Name (Old_Name => To_String (Value (Name_Element.Name_V)),
+--                                               New_Name => New_Type_Name);
+--
+--                             declare
+--                                Hidden_Type_Name : String := "Hidden_" & To_String (New_Type_Name);
+--                             begin
+--                                Put_Tabs (1);
+--                                Put ("type ");
+--                                Put (Hidden_Type_Name);
+--                                Put_Line (" is null record;");
+--
+--                                Put_Tabs (1);
+--                                Put ("type ");
+--                                Put (To_String (New_Type_Name));
+--                                Put (" is access ");
+--                                Put (Hidden_Type_Name);
+--                                Put_Line (";");
+--                                Put_Line ("");
+--                             end;
+--                          end;
+                        null;
                      end if;
                   end;
                end if;

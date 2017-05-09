@@ -7,12 +7,20 @@ with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 with Vk_Package_Creator;
 with Vk_XML_Reader;
-with Vk_XML;
+with Vk_XML2;
+
+with Dynamic_Pools;
 
 use all type Aida.XML.Subprogram_Call_Result.T;
 
 procedure Main is
-     File_Name : String  := "vk.xml";
+   File_Name : String  := "vk.xml";
+
+   Main_Pool : Dynamic_Pools.Dynamic_Pool;
+
+   Scoped_Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Main_Pool);
+
+   Subpool : Dynamic_Pools.Subpool_Handle renames Scoped_Subpool.Handle;
 
    procedure Main_Internal is
       File_Size : Natural := Natural (Ada.Directories.Size (File_Name));
@@ -23,7 +31,7 @@ procedure Main is
       File     : File_String_IO.File_Type;
       Contents : File_String;
 
-      Registry : Vk_XML.Registry_Shared_Ptr.T;
+      Registry : Vk_XML2.Registry.Ptr := new (Subpool) Vk_XML2.Registry.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin
@@ -34,6 +42,7 @@ procedure Main is
 
       Vk_XML_Reader.Parse (Contents    => Contents,
                            Registry    => Registry,
+                           Subpool     => Subpool,
                            Call_Result => Call_Result);
 
       if not Has_Failed (Call_Result) then

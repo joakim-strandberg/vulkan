@@ -11,7 +11,6 @@ with Aida.XML;
 with Aida.Generic_Subprogram_Call_Result;
 with Aida.Containers;
 with Aida.XML.Generic_Parse_XML_File;
-with Vk_XML;
 with Ada.Characters.Latin_1;
 
 with Aida.Text_IO;
@@ -20,10 +19,9 @@ with Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable;
 pragma Elaborate_All (Aida.Generic_Subprogram_Call_Result);
 pragma Elaborate_All (Aida.XML.Generic_Parse_XML_File);
 pragma Elaborate_All (Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable);
+with Ada.Strings.Unbounded;
 
-package body Vk_XML_Reader with SPARK_Mode is
-
-   My_Registry : Vk_XML.Registry_Shared_Ptr.T;
+package body Vk_XML_Reader is
 
    XML_Tag_Registry                                 : constant String := "registry";
    XML_Tag_Comment                                  : constant String := "comment";
@@ -104,66 +102,64 @@ package body Vk_XML_Reader with SPARK_Mode is
    XML_Tag_Extension_Attribute_Author               : constant String := "author";
    XML_Tag_Extension_Attribute_Contact              : constant String := "contact";
 
+   use all type Ada.Strings.Unbounded.Unbounded_String;
    use all type Aida.XML.Tag_Name.T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
    use all type Aida.XML.Subprogram_Call_Result.T;
    use all type Aida.Containers.Count_Type;
    use all type Current_Tag.T;
-   use all type Vk_XML.Registry.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Registry_Shared_Ptr.T;
-   use all type Vk_XML.Vendor_Ids.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Vendor_Ids_Shared_Ptr.T;
-   use all type Vk_XML.Tags.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Tags_Shared_Ptr.T;
-   use all type Vk_XML.Types.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Types_Shared_Ptr.T;
-   use all type Vk_XML.Type_T.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Type_Shared_Ptr.T;
-   use all type Vk_XML.Member.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Member_Shared_Ptr.T;
-   use all type Vk_XML.Validity.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Validity_Shared_Ptr.T;
-   use all type Vk_XML.Usage.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Usage_Shared_Ptr.T;
-   use all type Vk_XML.Enums.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Enums.Fs.Type_Attribue_T;
-   use all type Vk_XML.Enums_Shared_Ptr.T;
-   use all type Vk_XML.Enums_Enum_Shared_Ptr.T;
-   use all type Vk_XML.Unused_Shared_Ptr.T;
-   use all type Vk_XML.Commands.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Commands_Shared_Ptr.T;
-   use all type Vk_XML.Command_Shared_Ptr.T;
-   use all type Vk_XML.Command.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Command.Fs.Queue_T;
-   use all type Vk_XML.Command.Fs.Render_Pass_T;
-   use all type Vk_XML.Command.Fs.Command_Buffer_Level_T;
-   use all type Vk_XML.Proto.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Proto_Shared_Ptr.T;
-   use all type Vk_XML.Param.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Param_Shared_Ptr.T;
-   use all type Vk_XML.Implicit_External_Sync_Parameters.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Implicit_External_Sync_Parameters_Shared_Ptr.T;
-   use all type Vk_XML.Feature.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Feature_Shared_Ptr.T;
-   use all type Vk_XML.Require_Shared_Ptr.T;
-   use all type Vk_XML.Require.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Require_Enum_Shared_Ptr.T;
-   use all type Vk_XML.Require_Command_Shared_Ptr.T;
-   use all type Vk_XML.Extension.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Extension.Fs.Supported_T;
-   use all type Vk_XML.Extension_Shared_Ptr.T;
-   use all type Vk_XML.Extensions.Fs.Child_Kind_Id_T;
-   use all type Vk_XML.Extensions_Shared_Ptr.T;
+   use all type Vk_XML2.XML_Text_T;
+   use all type Vk_XML2.XML_Out_Commented_Message_T;
+   use all type Vk_XML2.Registry.Child_Kind_Id_T;
+   use all type Vk_XML2.Vendor_Ids.Child_Kind_Id_T;
+   use all type Vk_XML2.Tags.Child_Kind_Id_T;
+   use all type Vk_XML2.Types.Child_Kind_Id_T;
+   use all type Vk_XML2.Type_T.Child_Kind_Id_T;
+   use all type Vk_XML2.Member.Child_Kind_Id_T;
+   use all type Vk_XML2.Validity.Child_Kind_Id_T;
+   use all type Vk_XML2.Usage.Child_Kind_Id_T;
+   use all type Vk_XML2.Enums.Child_Kind_Id_T;
+   use all type Vk_XML2.Enums.Type_Attribue_T;
+   use all type Vk_XML2.Commands.Child_Kind_Id_T;
+   use all type Vk_XML2.Command.Child_Kind_Id_T;
+   use all type Vk_XML2.Command.Queue_T;
+   use all type Vk_XML2.Command.Render_Pass_T;
+   use all type Vk_XML2.Command.Command_Buffer_Level_T;
+   use all type Vk_XML2.Proto.Child_Kind_Id_T;
+   use all type Vk_XML2.Param.Child_Kind_Id_T;
+   use all type Vk_XML2.Implicit_External_Sync_Parameters.Child_Kind_Id_T;
+   use all type Vk_XML2.Feature.Child_Kind_Id_T;
+   use all type Vk_XML2.Require.Child_Kind_Id_T;
+   use all type Vk_XML2.Extension.Child_Kind_Id_T;
+   use all type Vk_XML2.Extension.Supported_T;
+   use all type Vk_XML2.Extensions.Child_Kind_Id_T;
+   use all type Vk_XML2.Vendor_Id.Name_T;
+   use all type Vk_XML2.Vendor_Id.Id_T;
+   use all type Vk_XML2.Vendor_Id.Comment_T;
+   use all type Vk_XML2.Tag.Name_T;
+   use all type Vk_XML2.Tag.Author_T;
+   use all type Vk_XML2.Tag.Contact_T;
+   use all type Vk_XML2.Type_T.Category_T;
+   use all type Vk_XML2.Type_T.Returned_Only_T;
+   use all type Vk_XML2.Member.No_Auto_Validity_T;
+   use all type Vk_XML2.Member.Optional_T;
+   use all type Vk_XML2.Command.Success_Code_T;
+   use all type Vk_XML2.Command.Error_Code_T;
+   use all type Vk_XML2.Param.Optional_T;
+   use all type Vk_XML2.Comment.Value_T;
+   use all type Vk_XML2.Name.Value_T;
+   use all type Vk_XML2.Nested_Type.Nullable_Value_T;
+   use all type Vk_XML2.Enum.Value_T;
 
    use Current_Tag_Fs.Tag_Id;
 
-   package Mutable_XML_Out_Commented_Message_Shared_Ptr is new Vk_XML.XML_Out_Commented_Message_Shared_Ptr.Mutable;
+   --     package Mutable_XML_Out_Commented_Message_Shared_Ptr is new Vk_XML2.XML_Out_Commented_Message_Shared_Ptr.Mutable;
+   --
+   --     use all type Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
 
-   use all type Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-
-   package Mutable_XML_Text_Shared_Ptr is new Vk_XML.XML_Text.Mutable;
-
-   use all type Mutable_XML_Text_Shared_Ptr.Mutable_T;
+   --     package Mutable_XML_Text_Shared_Ptr is new Vk_XML2.XML_Text.Mutable;
+   --
+   --     use all type Mutable_XML_Text_Shared_Ptr.Mutable_T;
 
    function Make_Current_Tag (Kind_Id    : Current_Tag_Fs.Tag_Id.Enumeration_T;
                               Parent_Tag_Id : Current_Tag_Fs.Id_T) return Current_Tag.T;
@@ -267,52 +263,57 @@ package body Vk_XML_Reader with SPARK_Mode is
       end;
    end Find_Tag;
 
-   procedure Start_Tag (Tag_Name    : String;
-                        Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                        Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
-     Global => null;
-
-   procedure Start_Tag (Tag_Name    : String;
-                        Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                        Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+   procedure Parse (Contents    : String;
+                    Registry    : not null access Vk_XML2.Registry.T;
+                    Subpool     : Dynamic_Pools.Subpool_Handle;
+                    Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
    is
-      Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
+      procedure Start_Tag (Tag_Name    : String;
+                           Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                           Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
+        Global => null;
 
-      CR : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
-   begin
-      Populate_Parents_Including_Self (Parents_Including_Self, Parent_Tags, Tag_Name);
+      procedure Start_Tag (Tag_Name    : String;
+                           Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                           Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
 
-      if not CR.Exists then
-         if Length (Parent_Tags) > 0 then
-            Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Could not find parent of " & To_String (Parent_Tags) & ", " & Tag_Name);
-         else
-            if Tag_Name = XML_Tag_Registry then
-               declare
-                  Current_Tag_V : Current_Tag.T (Current_Tag_Fs.Tag_Id.Registry);
-               begin
-                  Current_Tag_V.Registry := My_Registry;
+         CR : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
+      begin
+         Populate_Parents_Including_Self (Parents_Including_Self, Parent_Tags, Tag_Name);
 
-                  Current_Tag.Initialize (This => Current_Tag_V);
-
-                  Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                             Key       => Parents_Including_Self,
-                                                             New_Item  => Current_Tag_V);
-               end;
+         if not CR.Exists then
+            if Length (Parent_Tags) > 0 then
+               Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Could not find parent of " & To_String (Parent_Tags) & ", " & Tag_Name);
             else
-               Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Expected " & XML_Tag_Registry & ", but found " & Tag_Name);
+               if Tag_Name = XML_Tag_Registry then
+                  declare
+                     Current_Tag_V : Current_Tag.T (Current_Tag_Fs.Tag_Id.Registry);
+                  begin
+                     Current_Tag_V.Registry := Registry;
+
+                     Current_Tag.Initialize (This => Current_Tag_V);
+
+                     Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                Key       => Parents_Including_Self,
+                                                                New_Item  => Current_Tag_V);
+                  end;
+               else
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Expected " & XML_Tag_Registry & ", but found " & Tag_Name);
+               end if;
             end if;
-         end if;
-      else
-         declare
-            Prev_Tag : Current_Tag.T := CR.Current_Tag_V;
-         begin
-            case Prev_Tag.Kind_Id is
+         else
+            declare
+               Prev_Tag : Current_Tag.T := CR.Current_Tag_V;
+            begin
+               case Prev_Tag.Kind_Id is
                when Current_Tag_Fs.Tag_Id.Registry =>
                   if Tag_Name = XML_Tag_Comment then
                      declare
-                        Comment : Vk_XML.Comment_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id => Child_Comment,
-                                                           C       => Comment);
+                        Comment : not null Vk_XML2.Comment.Ptr := new (Subpool) Vk_XML2.Comment.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Comment,
+                                                             C       => Comment);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Comment);
                      begin
@@ -321,17 +322,17 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
+
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Vendor_Ids then
                      declare
-                        Vendor_Ids_V : Vk_XML.Vendor_Ids_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id      => Child_Vendor_Ids,
-                                                           Vendor_Ids_V => Vendor_Ids_V);
+                        Vendor_Ids_V : not null Vk_XML2.Vendor_Ids.Ptr := new Vk_XML2.Vendor_Ids.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id      => Child_Vendor_Ids,
+                                                             Vendor_Ids_V => Vendor_Ids_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Vendor_Ids);
                      begin
@@ -340,17 +341,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Tags then
                      declare
-                        Tags_V : Vk_XML.Tags_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id => Child_Tags,
-                                                           Tags_V  => Tags_V);
+                        Tags_V : not null Vk_XML2.Tags.Ptr := new Vk_XML2.Tags.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Tags,
+                                                             Tags_V  => Tags_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Tags);
                      begin
@@ -359,17 +359,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Types then
                      declare
-                        Types_V : Vk_XML.Types_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id => Child_Types,
-                                                           Types_V  => Types_V);
+                        Types_V : not null Vk_XML2.Types.Ptr := new Vk_XML2.Types.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Types,
+                                                             Types_V  => Types_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Types);
                      begin
@@ -378,17 +377,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Enums then
                      declare
-                        Enums_V : Vk_XML.Enums_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id => Child_Enums,
-                                                           Enums_V  => Enums_V);
+                        Enums_V : not null Vk_XML2.Enums.Ptr := new Vk_XML2.Enums.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Enums,
+                                                             Enums_V  => Enums_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Enums);
                      begin
@@ -397,17 +395,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Commands then
                      declare
-                        Commands_V : Vk_XML.Commands_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id    => Child_Commands,
-                                                           Commands_V => Commands_V);
+                        Commands_V : not null Vk_XML2.Commands.Ptr := new Vk_XML2.Commands.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id    => Child_Commands,
+                                                             Commands_V => Commands_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Commands);
                      begin
@@ -416,17 +413,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Feature then
                      declare
-                        Feature_V : Vk_XML.Feature_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id   => Child_Feature,
-                                                           Feature_V => Feature_V);
+                        Feature_V : not null Vk_XML2.Feature.Ptr := new Vk_XML2.Feature.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id   => Child_Feature,
+                                                             Feature_V => Feature_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Feature);
                      begin
@@ -435,17 +431,16 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
                   elsif Tag_Name = XML_Tag_Extensions then
                      declare
-                        Extensions_V : Vk_XML.Extensions_Shared_Ptr.T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id   => Child_Extensions,
-                                                           Extensions_V => Extensions_V);
+                        Extensions_V : not null Vk_XML2.Extensions.Ptr := new Vk_XML2.Extensions.T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id   => Child_Extensions,
+                                                             Extensions_V => Extensions_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Extensions);
                      begin
@@ -454,8 +449,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Vk_XML.Registry_Shared_Ptr.Append_Child (This  => Prev_Tag.Registry,
-                                                             Child => Child);
+                        Prev_Tag.Registry.Children.Append (Child);
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
@@ -466,9 +460,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Vendor_Ids =>
                   if Tag_Name = XML_Tag_Vendor_Id then
                      declare
-                        Vendor_Id_V : Vk_XML.Vendor_Id_Shared_Ptr.T;
-                        Child : Vk_XML.Vendor_Ids.Fs.Child_T := (Kind_Id     => Child_Vendor_Id,
-                                                             Vendor_Id_V => Vendor_Id_V);
+                        Vendor_Id_V : not null Vk_XML2.Vendor_Id.Ptr := new Vk_XML2.Vendor_Id.T;
+                        Child : Vk_XML2.Vendor_Ids.Child_T := (Kind_Id     => Child_Vendor_Id,
+                                                               Vendor_Id_V => Vendor_Id_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Vendor_Id);
                      begin
@@ -477,8 +471,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Vendor_Ids_V,
-                                      Child => Child);
+                        Prev_Tag.Vendor_Ids_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -490,9 +483,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Tags =>
                   if Tag_Name = XML_Tag_Tag then
                      declare
-                        Tag_V : Vk_XML.Tag_Shared_Ptr.T;
-                        Child : Vk_XML.Tags.Fs.Child_T := (Kind_Id => Child_Tag,
-                                                       Tag_V   => Tag_V);
+                        Tag_V : not null Vk_XML2.Tag.Ptr := new Vk_XML2.Tag.T;
+                        Child : Vk_XML2.Tags.Child_T := (Kind_Id => Child_Tag,
+                                                         Tag_V   => Tag_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Tag);
                      begin
@@ -501,8 +494,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Tags_V,
-                                      Child => Child);
+                        Prev_Tag.Tags_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -514,9 +506,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Types =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Type_V : Vk_XML.Type_Shared_Ptr.T;
-                        Child : Vk_XML.Types.Fs.Child_T := (Kind_Id => Child_Type,
-                                                        Type_V  => Type_V);
+                        Type_V : not null Vk_XML2.Type_T.Ptr := new Vk_XML2.Type_T.T;
+                        Child : Vk_XML2.Types.Child_T := (Kind_Id => Child_Type,
+                                                          Type_V  => Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Type_T);
                      begin
@@ -525,8 +517,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Types_V,
-                                      Child => Child);
+                        Prev_Tag.Types_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -538,9 +529,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Type_T =>
                   if Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : Vk_XML.Name_Shared_Ptr.T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id => Child_Name,
-                                                         Name_V  => Name_V);
+                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id => Child_Name,
+                                                           Name_V  => Name_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Name);
                      begin
@@ -549,8 +540,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Type_V,
-                                      Child => Child);
+                        Prev_Tag.Type_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -558,9 +548,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : Vk_XML.Nested_Type_Shared_Ptr.T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id       => Child_Nested_Type,
-                                                         Nested_Type_V => Nested_Type_V);
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id       => Child_Nested_Type,
+                                                           Nested_Type_V => Nested_Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Nested_Type);
                      begin
@@ -569,8 +559,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Type_V,
-                                      Child => Child);
+                        Prev_Tag.Type_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -578,9 +567,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Member then
                      declare
-                        Member_V : Vk_XML.Member_Shared_Ptr.T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id  => Child_Member,
-                                                         Member_V => Member_V);
+                        Member_V : not null Vk_XML2.Member.Ptr := new Vk_XML2.Member.T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id  => Child_Member,
+                                                           Member_V => Member_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Member);
                      begin
@@ -589,8 +578,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Type_V,
-                                      Child => Child);
+                        Prev_Tag.Type_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -598,9 +586,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Validity then
                      declare
-                        Validity_V : Vk_XML.Validity_Shared_Ptr.T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_Validity,
-                                                         Validity_V => Validity_V);
+                        Validity_V : not null Vk_XML2.Validity.Ptr := new Vk_XML2.Validity.T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_Validity,
+                                                           Validity_V => Validity_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Validity);
                      begin
@@ -609,8 +597,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Type_V,
-                                      Child => Child);
+                        Prev_Tag.Type_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -622,9 +609,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Member =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : Vk_XML.Nested_Type_Shared_Ptr.T;
-                        Child : Vk_XML.Member.Fs.Child_T := (Kind_Id       => Child_Nested_Type,
-                                                         Nested_Type_V => Nested_Type_V);
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Child : Vk_XML2.Member.Child_T := (Kind_Id       => Child_Nested_Type,
+                                                           Nested_Type_V => Nested_Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Nested_Type);
                      begin
@@ -633,8 +620,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Member_V,
-                                      Child => Child);
+                        Prev_Tag.Member_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -642,9 +628,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : Vk_XML.Name_Shared_Ptr.T;
-                        Child : Vk_XML.Member.Fs.Child_T := (Kind_Id => Child_Name,
-                                                         Name_V  => Name_V);
+                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Child : Vk_XML2.Member.Child_T := (Kind_Id => Child_Name,
+                                                           Name_V  => Name_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Name);
                      begin
@@ -653,8 +639,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Member_V,
-                                      Child => Child);
+                        Prev_Tag.Member_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -662,9 +647,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Enum then
                      declare
-                        Enum_V : Vk_XML.Enum_Shared_Ptr.T;
-                        Child : Vk_XML.Member.Fs.Child_T := (Kind_Id => Child_Enum,
-                                                         Enum_V  => Enum_V);
+                        Enum_V : not null Vk_XML2.Enum.Ptr := new Vk_XML2.Enum.T;
+                        Child : Vk_XML2.Member.Child_T := (Kind_Id => Child_Enum,
+                                                           Enum_V  => Enum_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Enum);
                      begin
@@ -673,8 +658,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Member_V,
-                                      Child => Child);
+                        Prev_Tag.Member_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -686,9 +670,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Validity =>
                   if Tag_Name = XML_Tag_Usage then
                      declare
-                        Usage_V : Vk_XML.Usage_Shared_Ptr.T;
-                        Child : Vk_XML.Validity.Fs.Child_T := (Kind_Id => Child_Usage,
-                                                           Usage_V => Usage_V);
+                        Usage_V : not null Vk_XML2.Usage.Ptr := new Vk_XML2.Usage.T;
+                        Child : Vk_XML2.Validity.Child_T := (Kind_Id => Child_Usage,
+                                                             Usage_V => Usage_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Usage);
                      begin
@@ -697,8 +681,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Validity_V,
-                                      Child => Child);
+                        Prev_Tag.Validity_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -710,9 +693,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Enums =>
                   if Tag_Name = XML_Tag_Enum then
                      declare
-                        Enums_Enum_V : Vk_XML.Enums_Enum_Shared_Ptr.T;
-                        Child : Vk_XML.Enums.Fs.Child_T := (Kind_Id      => Child_Enums_Enum,
-                                                        Enums_Enum_V => Enums_Enum_V);
+                        Enums_Enum_V : not null Vk_XML2.Enums_Enum.Ptr := new Vk_XML2.Enums_Enum.T;
+                        Child : Vk_XML2.Enums.Child_T := (Kind_Id      => Child_Enums_Enum,
+                                                          Enums_Enum_V => Enums_Enum_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Enums_Enum);
                      begin
@@ -721,8 +704,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Enums_V,
-                                      Child => Child);
+                        Prev_Tag.Enums_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -730,9 +712,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Unused then
                      declare
-                        Unused_V : Vk_XML.Unused_Shared_Ptr.T;
-                        Child : Vk_XML.Enums.Fs.Child_T := (Kind_Id      => Child_Unused,
-                                                        Unused_V => Unused_V);
+                        Unused_V : not null Vk_XML2.Unused.Ptr := new Vk_XML2.Unused.T;
+                        Child : Vk_XML2.Enums.Child_T := (Kind_Id      => Child_Unused,
+                                                          Unused_V => Unused_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Unused);
                      begin
@@ -741,8 +723,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Enums_V,
-                                      Child => Child);
+                        Prev_Tag.Enums_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -754,9 +735,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Commands =>
                   if Tag_Name = XML_Tag_Command then
                      declare
-                        Command_V : Vk_XML.Command_Shared_Ptr.T;
-                        Child : Vk_XML.Commands.Fs.Child_T := (Kind_Id   => Child_Command,
-                                                           Command_V => Command_V);
+                        Command_V : not null Vk_XML2.Command.Ptr := new Vk_XML2.Command.T;
+                        Child : Vk_XML2.Commands.Child_T := (Kind_Id   => Child_Command,
+                                                             Command_V => Command_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Command);
                      begin
@@ -765,8 +746,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Commands_V,
-                                      Child => Child);
+                        Prev_Tag.Commands_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -778,9 +758,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Command =>
                   if Tag_Name = XML_Tag_Proto then
                      declare
-                        Proto_V : Vk_XML.Proto_Shared_Ptr.T;
-                        Child : Vk_XML.Command.Fs.Child_T := (Kind_Id => Child_Proto,
-                                                          Proto_V => Proto_V);
+                        Proto_V : not null Vk_XML2.Proto.Ptr := new Vk_XML2.Proto.T;
+                        Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Proto,
+                                                            Proto_V => Proto_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Proto);
                      begin
@@ -789,8 +769,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Command_V,
-                                      Child => Child);
+                        Prev_Tag.Command_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -798,9 +777,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Param then
                      declare
-                        Param_V : Vk_XML.Param_Shared_Ptr.T;
-                        Child : Vk_XML.Command.Fs.Child_T := (Kind_Id => Child_Param,
-                                                          Param_V => Param_V);
+                        Param_V : not null Vk_XML2.Param.Ptr := new Vk_XML2.Param.T;
+                        Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Param,
+                                                            Param_V => Param_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Param);
                      begin
@@ -809,8 +788,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Command_V,
-                                      Child => Child);
+                        Prev_Tag.Command_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -818,9 +796,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Validity then
                      declare
-                        Validity_V : Vk_XML.Validity_Shared_Ptr.T;
-                        Child : Vk_XML.Command.Fs.Child_T := (Kind_Id => Child_Validity,
-                                                          Validity_V => Validity_V);
+                        Validity_V : not null Vk_XML2.Validity.Ptr := new Vk_XML2.Validity.T;
+                        Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Validity,
+                                                            Validity_V => Validity_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Validity);
                      begin
@@ -829,8 +807,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Command_V,
-                                      Child => Child);
+                        Prev_Tag.Command_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -838,9 +815,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Implicit_External_Syns_Params then
                      declare
-                        Parameters_V : Vk_XML.Implicit_External_Sync_Parameters_Shared_Ptr.T;
-                        Child : Vk_XML.Command.Fs.Child_T := (Kind_Id      => Child_Implicit_External_Sync_Parameters,
-                                                          Parameters_V => Parameters_V);
+                        Parameters_V : not null Vk_XML2.Implicit_External_Sync_Parameters.Ptr := new Vk_XML2.Implicit_External_Sync_Parameters.T;
+                        Child : Vk_XML2.Command.Child_T := (Kind_Id      => Child_Implicit_External_Sync_Parameters,
+                                                            Parameters_V => Parameters_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters);
                      begin
@@ -849,8 +826,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Command_V,
-                                      Child => Child);
+                        Prev_Tag.Command_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -862,9 +838,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Proto =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : Vk_XML.Nested_Type_Shared_Ptr.T;
-                        Child : Vk_XML.Proto.Fs.Child_T := (Kind_Id       => Child_Nested_Type,
-                                                        Nested_Type_V => Nested_Type_V);
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Child : Vk_XML2.Proto.Child_T := (Kind_Id       => Child_Nested_Type,
+                                                          Nested_Type_V => Nested_Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Nested_Type);
                      begin
@@ -873,8 +849,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Proto_V,
-                                      Child => Child);
+                        Prev_Tag.Proto_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -882,9 +857,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : Vk_XML.Name_Shared_Ptr.T;
-                        Child : Vk_XML.Proto.Fs.Child_T := (Kind_Id       => Child_Name,
-                                                        Name_V => Name_V);
+                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Child : Vk_XML2.Proto.Child_T := (Kind_Id       => Child_Name,
+                                                          Name_V => Name_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Name);
                      begin
@@ -893,8 +868,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Proto_V,
-                                      Child => Child);
+                        Prev_Tag.Proto_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -906,9 +880,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Param =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : Vk_XML.Nested_Type_Shared_Ptr.T;
-                        Child : Vk_XML.Param.Fs.Child_T := (Kind_Id       => Child_Nested_Type,
-                                                        Nested_Type_V => Nested_Type_V);
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Child : Vk_XML2.Param.Child_T := (Kind_Id       => Child_Nested_Type,
+                                                          Nested_Type_V => Nested_Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Nested_Type);
                      begin
@@ -917,8 +891,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Param_V,
-                                      Child => Child);
+                        Prev_Tag.Param_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -926,9 +899,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : Vk_XML.Name_Shared_Ptr.T;
-                        Child : Vk_XML.Param.Fs.Child_T := (Kind_Id       => Child_Name,
-                                                        Name_V => Name_V);
+                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Child : Vk_XML2.Param.Child_T := (Kind_Id       => Child_Name,
+                                                          Name_V => Name_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Name);
                      begin
@@ -937,8 +910,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Param_V,
-                                      Child => Child);
+                        Prev_Tag.Param_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -950,9 +922,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters =>
                   if Tag_Name = XML_Tag_External_Sync_Parameter then
                      declare
-                        External_Sync_Parameter_V : Vk_XML.External_Sync_Parameter_Shared_Ptr.T;
-                        Child : Vk_XML.Implicit_External_Sync_Parameters.Fs.Child_T := (Kind_Id                   => Child_External_Sync_Parameter,
-                                                                                    External_Sync_Parameter_V => External_Sync_Parameter_V);
+                        External_Sync_Parameter_V : not null Vk_XML2.External_Sync_Parameter.Ptr := new Vk_XML2.External_Sync_Parameter.T;
+                        Child : Vk_XML2.Implicit_External_Sync_Parameters.Child_T := (Kind_Id                   => Child_External_Sync_Parameter,
+                                                                                      External_Sync_Parameter_V => External_Sync_Parameter_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.External_Sync_Parameter);
                      begin
@@ -961,8 +933,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Parameters_V,
-                                      Child => Child);
+                        Prev_Tag.Parameters_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -974,9 +945,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Feature =>
                   if Tag_Name = XML_Tag_Require then
                      declare
-                        Require_V : Vk_XML.Require_Shared_Ptr.T;
-                        Child : Vk_XML.Feature.Fs.Child_T := (Kind_Id   => Child_Require,
-                                                          Require_V => Require_V);
+                        Require_V : not null Vk_XML2.Require.Ptr := new Vk_XML2.Require.T;
+                        Child : Vk_XML2.Feature.Child_T := (Kind_Id   => Child_Require,
+                                                            Require_V => Require_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Require);
                      begin
@@ -985,8 +956,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Feature_V,
-                                      Child => Child);
+                        Prev_Tag.Feature_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -998,9 +968,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Require =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Type_V : Vk_XML.Type_Shared_Ptr.T;
-                        Child : Vk_XML.Require.Fs.Child_T := (Kind_Id => Child_Type,
-                                                          Type_V  => Type_V);
+                        Type_V : not null Vk_XML2.Type_T.Ptr := new Vk_XML2.Type_T.T;
+                        Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Type,
+                                                            Type_V  => Type_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Type_T);
                      begin
@@ -1009,8 +979,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Require_V,
-                                      Child => Child);
+                        Prev_Tag.Require_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1018,9 +987,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Enum then
                      declare
-                        Enum_V : Vk_XML.Require_Enum_Shared_Ptr.T;
-                        Child : Vk_XML.Require.Fs.Child_T := (Kind_Id => Child_Enum,
-                                                          Enum_V  => Enum_V);
+                        Enum_V : not null Vk_XML2.Require_Enum.Ptr := new Vk_XML2.Require_Enum.T;
+                        Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Enum,
+                                                            Enum_V  => Enum_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Require_Enum);
                      begin
@@ -1029,8 +998,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Require_V,
-                                      Child => Child);
+                        Prev_Tag.Require_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1038,9 +1006,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Command then
                      declare
-                        Command_V : Vk_XML.Require_Command_Shared_Ptr.T;
-                        Child : Vk_XML.Require.Fs.Child_T := (Kind_Id => Child_Command,
-                                                          Command_V  => Command_V);
+                        Command_V : not null Vk_XML2.Require_Command.Ptr := new Vk_XML2.Require_Command.T;
+                        Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Command,
+                                                            Command_V  => Command_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Require_Command);
                      begin
@@ -1049,8 +1017,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Require_V,
-                                      Child => Child);
+                        Prev_Tag.Require_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1058,9 +1025,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                      end;
                   elsif Tag_Name = XML_Tag_Usage then
                      declare
-                        Usage_V : Vk_XML.Usage_Shared_Ptr.T;
-                        Child : Vk_XML.Require.Fs.Child_T := (Kind_Id => Child_Usage,
-                                                          Usage_V => Usage_V);
+                        Usage_V : not null Vk_XML2.Usage.Ptr := new Vk_XML2.Usage.T;
+                        Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Usage,
+                                                            Usage_V => Usage_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Usage);
                      begin
@@ -1069,8 +1036,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Require_V,
-                                      Child => Child);
+                        Prev_Tag.Require_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1082,9 +1048,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Extensions =>
                   if Tag_Name = XML_Tag_Extension then
                      declare
-                        Extension_V : Vk_XML.Extension_Shared_Ptr.T;
-                        Child : Vk_XML.Extensions.Fs.Child_T := (Kind_Id     => Child_Extension,
-                                                             Extension_V => Extension_V);
+                        Extension_V : not null Vk_XML2.Extension.Ptr := new Vk_XML2.Extension.T;
+                        Child : Vk_XML2.Extensions.Child_T := (Kind_Id     => Child_Extension,
+                                                               Extension_V => Extension_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Extension);
                      begin
@@ -1093,8 +1059,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Extensions_V,
-                                      Child => Child);
+                        Prev_Tag.Extensions_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1106,9 +1071,9 @@ package body Vk_XML_Reader with SPARK_Mode is
                when Current_Tag_Fs.Tag_Id.Extension =>
                   if Tag_Name = XML_Tag_Require then
                      declare
-                        Require_V : Vk_XML.Require_Shared_Ptr.T;
-                        Child : Vk_XML.Extension.Fs.Child_T := (Kind_Id   => Child_Require,
-                                                            Require_V => Require_V);
+                        Require_V : not null Vk_XML2.Require.Ptr := new Vk_XML2.Require.T;
+                        Child : Vk_XML2.Extension.Child_T := (Kind_Id   => Child_Require,
+                                                              Require_V => Require_V);
 
                         Temp_Tag : Current_Tag.T (Current_Tag_Fs.Tag_Id.Require);
                      begin
@@ -1117,8 +1082,7 @@ package body Vk_XML_Reader with SPARK_Mode is
 
                         Current_Tag.Initialize (Temp_Tag);
 
-                        Append_Child (This  => Prev_Tag.Extension_V,
-                                      Child => Child);
+                        Prev_Tag.Extension_V.Children.Append (Child);
 
                         Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                    Key       => Parents_Including_Self,
@@ -1140,123 +1104,113 @@ package body Vk_XML_Reader with SPARK_Mode is
                     Current_Tag_Fs.Tag_Id.Require_Enum |
                     Current_Tag_Fs.Tag_Id.Require_Command =>
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & Tag_Name);
-            end case;
-         end;
-      end if;
-   end Start_Tag;
+               end case;
+            end;
+         end if;
+      end Start_Tag;
 
-   procedure Attribute (Attribute_Name              : String;
-                        Attribute_Value             : String;
-                        Parent_Tags_And_Current_Tag : Aida.XML.Tag_Name_Vector_T;
-                        Call_Result                 : in out Aida.XML.Subprogram_Call_Result.T) with
-     Global => null;
+      procedure Attribute (Attribute_Name              : String;
+                           Attribute_Value             : String;
+                           Parent_Tags_And_Current_Tag : Aida.XML.Tag_Name_Vector_T;
+                           Call_Result                 : in out Aida.XML.Subprogram_Call_Result.T) with
+        Global => null;
 
-   procedure Attribute (Attribute_Name              : String;
-                        Attribute_Value             : String;
-                        Parent_Tags_And_Current_Tag : Aida.XML.Tag_Name_Vector_T;
-                        Call_Result                 : in out Aida.XML.Subprogram_Call_Result.T)
-   is
-      Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags_And_Current_Tag);
-   begin
-      if not Searched_For.Exists then
-         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", attribute name " & Attribute_Name & " and value " & Attribute_Value & ", parents: " & To_String (Parent_Tags_And_Current_Tag));
-         return;
-      end if;
-
-      declare
-         Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+      procedure Attribute (Attribute_Name              : String;
+                           Attribute_Value             : String;
+                           Parent_Tags_And_Current_Tag : Aida.XML.Tag_Name_Vector_T;
+                           Call_Result                 : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags_And_Current_Tag);
       begin
-         case Current_Tag_V.Kind_Id is
+         if not Searched_For.Exists then
+            Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", attribute name " & Attribute_Name & " and value " & Attribute_Value & ", parents: " & To_String (Parent_Tags_And_Current_Tag));
+            return;
+         end if;
+
+         declare
+            Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+         begin
+            case Current_Tag_V.Kind_Id is
             when Current_Tag_Fs.Tag_Id.Vendor_Id =>
                if Attribute_Name = XML_Tag_Vendor_Id_Attribute_Name then
-                  Vk_XML.Vendor_Id_Shared_Ptr.Set_Name (This => Current_Tag_V.Vendor_Id_V,
-                                                    Text => Attribute_Value);
+                  Current_Tag_V.Vendor_Id_V.Name := To_Unbounded_String (Attribute_Value);
                elsif Attribute_Name = XML_Tag_Vendor_Id_Attribute_Id then
-                  Vk_XML.Vendor_Id_Shared_Ptr.Set_Id (This => Current_Tag_V.Vendor_Id_V,
-                                                  Text => Attribute_Value);
+                  Current_Tag_V.Vendor_Id_V.Id := To_Unbounded_String (Attribute_Value);
                elsif Attribute_Name = XML_Tag_Vendor_Id_Attribute_Comment then
-                  Vk_XML.Vendor_Id_Shared_Ptr.Set_Comment (This => Current_Tag_V.Vendor_Id_V,
-                                                       Text => Attribute_Value);
+                  Current_Tag_V.Vendor_Id_V.Comment := To_Unbounded_String (Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Tag =>
                if Attribute_Name = XML_Tag_Tag_Attribute_Name then
-                  Vk_XML.Tag_Shared_Ptr.Set_Name (This => Current_Tag_V.Tag_V,
-                                              Text => Attribute_Value);
+                  Current_Tag_V.Tag_V.Name := To_Unbounded_String (Attribute_Value);
                elsif Attribute_Name = XML_Tag_Tag_Attribute_Author then
-                  Vk_XML.Tag_Shared_Ptr.Set_Author (This => Current_Tag_V.Tag_V,
-                                                Text => Attribute_Value);
+                  Current_Tag_V.Tag_V.Author := To_Unbounded_String (Attribute_Value);
                elsif Attribute_Name = XML_Tag_Tag_Attribute_Contact then
-                  Vk_XML.Tag_Shared_Ptr.Set_Contact (This => Current_Tag_V.Tag_V,
-                                                 Text => Attribute_Value);
+                  Current_Tag_V.Tag_V.Contact := To_Unbounded_String (Attribute_Value);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Type_T =>
                if Attribute_Name = XML_Tag_Type_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Type_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Type_V.Name := (Exists => True,
+                                                Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Type_Attribute_Category then
-                  Set_Category (This => Current_Tag_V.Type_V,
-                                Text => Attribute_Value);
+                  Current_Tag_V.Type_V.Category := To_Unbounded_String (Attribute_Value);
                elsif Attribute_Name = XML_Tag_Type_Attribute_Requires then
-                  Set_Requires (This => Current_Tag_V.Type_V,
-                                Text => Attribute_Value);
+                  Current_Tag_V.Type_V.Requires := (Exists => True,
+                                                    Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Type_Attribute_Parent then
-                  Set_Parent (This => Current_Tag_V.Type_V,
-                              Text => Attribute_Value);
+                  Current_Tag_V.Type_V.Parent := (Exists => True,
+                                                  Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Type_Attribute_Returned_Only then
                   if Attribute_Value = "true" then
-                     Set_Returned_Only (This => Current_Tag_V.Type_V,
-                                        Value => True);
+                     Current_Tag_V.Type_V.Returned_Only := True;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Type_Attribute_Comment then
-                  Set_Comment (This => Current_Tag_V.Type_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Type_V.Comment := (Exists => True,
+                                                   Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Member =>
                if Attribute_Name = XML_Tag_Member_Attribute_Optional then
                   if Attribute_Value = "true" then
-                     Vk_XML.Member_Shared_Ptr.Set_Optional (This  => Current_Tag_V.Member_V,
-                                                        Value => True);
+                     Current_Tag_V.Member_V.Optional := True;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Member_Attribute_Len then
-                  Set_Len (This => Current_Tag_V.Member_V,
-                           Text => Attribute_Value);
+                  Current_Tag_V.Member_V.Len := (Exists => True,
+                                                 Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Member_Attribute_No_Auto_Validity then
                   if Attribute_Value = "true" then
-                     Set_No_Auto_Validity (This  => Current_Tag_V.Member_V,
-                                           Value => True);
+                     Current_Tag_V.Member_V.No_Auto_Validity := True;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Member_Attribute_Valid_Extension_Structs then
-                  Set_Valid_Extension_Structs (This => Current_Tag_V.Member_V,
-                                               Text => Attribute_Value);
+                  Current_Tag_V.Member_V.Valid_Extension_Structs := (Exists => True,
+                                                                     Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Enums =>
                if Attribute_Name = XML_Tag_Enums_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Enums_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Enums_V.Name := (Exists => True,
+                                                 Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Enums_Attribute_Comment then
-                  Set_Comment (This => Current_Tag_V.Enums_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Enums_V.Comment := (Exists => True,
+                                                    Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Enums_Attribute_Type then
                   if Attribute_Value = "enum" then
-                     Set_Type_Attribue (This  => Current_Tag_V.Enums_V,
-                                        Value => Enum);
+                     Current_Tag_V.Enums_V.Type_Attribue := (Exists => True,
+                                                             Value  => Enum);
                   elsif Attribute_Value = "bitmask" then
-                     Set_Type_Attribue (This  => Current_Tag_V.Enums_V,
-                                        Value => Bit_Mask);
+                     Current_Tag_V.Enums_V.Type_Attribue := (Exists => True,
+                                                             Value  => Bit_Mask);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
@@ -1265,14 +1219,14 @@ package body Vk_XML_Reader with SPARK_Mode is
                end if;
             when Current_Tag_Fs.Tag_Id.Enums_Enum =>
                if Attribute_Name = XML_Tag_Enums_Enum_Attribute_Value then
-                  Set_Value (This => Current_Tag_V.Enums_Enum_V,
-                             Text => Attribute_Value);
+                  Current_Tag_V.Enums_Enum_V.Value := (Exists => True,
+                                                       Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Enums_Enum_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Enums_Enum_V.Name := (Exists => True,
+                                                      Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Comment then
-                  Set_Comment (This => Current_Tag_V.Enums_Enum_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Enums_Enum_V.Comment := (Exists => True,
+                                                         Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Enums_Enum_Attribute_Bit_Position then
                   declare
                      V : Integer;
@@ -1285,8 +1239,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                      if Has_Failed then
                         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                      else
-                        Set_Bit_Position (This  => Current_Tag_V.Enums_Enum_V,
-                                          Value => Vk_XML.Enums_Enum.Fs.Bit_Position_T (V));
+                        Current_Tag_V.Enums_Enum_V.Bit_Position := (Exists => True,
+                                                                    Value  => V);
                      end if;
                   end;
                else
@@ -1294,65 +1248,51 @@ package body Vk_XML_Reader with SPARK_Mode is
                end if;
             when Current_Tag_Fs.Tag_Id.Unused =>
                if Attribute_Name = XML_Tag_Unused_Attribute_Start then
-                  Set_Start (This => Current_Tag_V.Unused_V,
-                             Text => Attribute_Value);
+                  Current_Tag_V.Unused_V.Start := (Exists => True,
+                                                   Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Command =>
                if Attribute_Name = XML_Tag_Command_Attribute_Success_Codes then
-                  Append_Success_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several success codes later
-                                       Text => Attribute_Value);
+                  Current_Tag_V.Command_V.Success_Codes.Append (To_Unbounded_String (Attribute_Value));
+                  -- TODO: Split the String into several success codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Error_Codes then
-                  Append_Error_Code (This => Current_Tag_V.Command_V, -- TODO: Split the String into several error codes later
-                                     Text => Attribute_Value);
+                  Current_Tag_V.Command_V.Error_Codes.Append (To_Unbounded_String (Attribute_Value));
+                  -- TODO: Split the String into several error codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Queues then
                   if Attribute_Value = "sparse_binding" then
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Sparse_Binding);
+                     Current_Tag_V.Command_V.Queues.Append (Sparse_Binding);
                   elsif Attribute_Value = "graphics,compute" then
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Graphics);
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Compute);
+                     Current_Tag_V.Command_V.Queues.Append (Graphics);
+                     Current_Tag_V.Command_V.Queues.Append (Compute);
                   elsif Attribute_Value = "graphics" then
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Graphics);
+                     Current_Tag_V.Command_V.Queues.Append (Graphics);
                   elsif Attribute_Value = "compute" then
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Compute);
+                     Current_Tag_V.Command_V.Queues.Append (Compute);
                   elsif Attribute_Value = "transfer,graphics,compute" then
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Graphics);
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Compute);
-                     Append_Queue (This  => Current_Tag_V.Command_V,
-                                   Queue => Transfer);
+                     Current_Tag_V.Command_V.Queues.Append (Graphics);
+                     Current_Tag_V.Command_V.Queues.Append (Compute);
+                     Current_Tag_V.Command_V.Queues.Append (Transfer);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Command_Attribute_Render_Pass then
                   if Attribute_Value = "inside" then
-                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
-                                         Value => Inside);
+                     Current_Tag_V.Command_V.Render_Passes.Append (Inside);
                   elsif Attribute_Value = "outside" then
-                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
-                                         Value => Outside);
+                     Current_Tag_V.Command_V.Render_Passes.Append (Outside);
                   elsif Attribute_Value = "both" then
-                     Append_Render_Pass (This  => Current_Tag_V.Command_V,
-                                         Value => Both);
+                     Current_Tag_V.Command_V.Render_Passes.Append (Both);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Command_Attribute_Cmd_Buffer_Level then
                   if Attribute_Value = "primary,secondary" then
-                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
-                                                  Value => Primary);
-                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
-                                                  Value => Secondary);
+                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Primary);
+                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Secondary);
                   elsif Attribute_Value = "primary" then
-                     Append_Command_Buffer_Level (This  => Current_Tag_V.Command_V,
-                                                  Value => Primary);
+                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Primary);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
@@ -1362,21 +1302,20 @@ package body Vk_XML_Reader with SPARK_Mode is
             when Current_Tag_Fs.Tag_Id.Param =>
                if Attribute_Name = XML_Tag_Param_Attribute_Optional then
                   if Attribute_Value = "true" or Attribute_Value = "false,true" then
-                     Set_Optional (This  => Current_Tag_V.Param_V,
-                                   Value => True);
+                     Current_Tag_V.Param_V.Optional := True;
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Param_Attribute_External_Sync then
-                  Set_External_Sync (This => Current_Tag_V.Param_V,
-                                     Text => Attribute_Value);
+                  Current_Tag_V.Param_V.External_Sync := (Exists => True,
+                                                          Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Param_Attribute_Len then
-                  Set_Len (This => Current_Tag_V.Param_V,
-                           Text => Attribute_Value);
+                  Current_Tag_V.Param_V.Len := (Exists => True,
+                                                Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Param_Attribute_No_Auto_Validity then
                   if Attribute_Value = "true" then
-                     Set_No_Auto_Validity (This  => Current_Tag_V.Param_V,
-                                           Value => True);
+                     Current_Tag_V.Param_V.No_Auto_Validity := (Exists => True,
+                                                                Value  => True);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
@@ -1385,31 +1324,31 @@ package body Vk_XML_Reader with SPARK_Mode is
                end if;
             when Current_Tag_Fs.Tag_Id.Feature =>
                if Attribute_Name = XML_Tag_Feature_Attribute_API then
-                  Set_API (This => Current_Tag_V.Feature_V,
-                           Text => Attribute_Value);
+                  Current_Tag_V.Feature_V.API := (Exists => True,
+                                                  Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Feature_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Feature_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Feature_V.Name := (Exists => True,
+                                                   Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Feature_Attribute_Number then
-                  Set_Number (This => Current_Tag_V.Feature_V,
-                              Text => Attribute_Value);
+                  Current_Tag_V.Feature_V.Number := (Exists => True,
+                                                     Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Require =>
                if Attribute_Name = XML_Tag_Require_Attribute_Comment then
-                  Set_Comment (This => Current_Tag_V.Require_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Require_V.Comment := (Exists => True,
+                                                      Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Require_Enum =>
                if Attribute_Name = XML_Tag_Require_Enum_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Require_Enum_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Require_Enum_V.Name := (Exists => True,
+                                                        Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Value then
-                  Set_Value (This => Current_Tag_V.Require_Enum_V,
-                             Text => Attribute_Value);
+                  Current_Tag_V.Require_Enum_V.Value := (Exists => True,
+                                                         Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Offset then
                   declare
                      V : Integer;
@@ -1422,19 +1361,19 @@ package body Vk_XML_Reader with SPARK_Mode is
                      if Has_Failed then
                         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                      else
-                        Set_Offset (This => Current_Tag_V.Require_Enum_V,
-                                    Value => Vk_XML.Require_Enum.Fs.Offset_T (V));
+                        Current_Tag_V.Require_Enum_V.Offset := (Exists => True,
+                                                                Value  => V);
                      end if;
                   end;
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Dir then
-                  Set_Dir (This => Current_Tag_V.Require_Enum_V,
-                           Text => Attribute_Value);
+                  Current_Tag_V.Require_Enum_V.Dir := (Exists => True,
+                                                       Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Extends then
-                  Set_Extends (This => Current_Tag_V.Require_Enum_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Require_Enum_V.Extends := (Exists => True,
+                                                           Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Comment then
-                  Set_Comment (This => Current_Tag_V.Require_Enum_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Require_Enum_V.Comment := (Exists => True,
+                                                           Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Bit_Position then
                   declare
                      V : Integer;
@@ -1447,8 +1386,8 @@ package body Vk_XML_Reader with SPARK_Mode is
                      if Has_Failed then
                         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                      else
-                        Set_Bit_Position (This  => Current_Tag_V.Require_Enum_V,
-                                          Value => Vk_XML.Require_Enum.Fs.Bit_Position_T (V));
+                        Current_Tag_V.Require_Enum_V.Bit_Position := (Exists => True,
+                                                                      Value  => V);
                      end if;
                   end;
                else
@@ -1456,15 +1395,15 @@ package body Vk_XML_Reader with SPARK_Mode is
                end if;
             when Current_Tag_Fs.Tag_Id.Require_Command =>
                if Attribute_Name = XML_Tag_Require_Command_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Require_Command_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Require_Command_V.Name := (Exists => True,
+                                                           Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Extension =>
                if Attribute_Name = XML_Tag_Extension_Attribute_Name then
-                  Set_Name (This => Current_Tag_V.Extension_V,
-                            Text => Attribute_Value);
+                  Current_Tag_V.Extension_V.Name := (Exists => True,
+                                                     Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Number then
                   declare
                      V : Integer;
@@ -1477,39 +1416,40 @@ package body Vk_XML_Reader with SPARK_Mode is
                      if Has_Failed then
                         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                      else
-                        Set_Number (This  => Current_Tag_V.Extension_V,
-                                    Value => Vk_XML.Extension.Fs.Number_T (V));
+                        Current_Tag_V.Extension_V.Number := (Exists => True,
+                                                             Value  => V);
+
                      end if;
                   end;
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Supported then
                   if Attribute_Value = "vulkan" then
-                     Set_Supported (This  => Current_Tag_V.Extension_V,
-                                    Value => Vulkan);
+                     Current_Tag_V.Extension_V.Supported := (Exists => True,
+                                                             Value  => Vulkan);
                   elsif Attribute_Value = "disabled" then
-                     Set_Supported (This  => Current_Tag_V.Extension_V,
-                                    Value => Disabled);
+                     Current_Tag_V.Extension_V.Supported := (Exists => True,
+                                                             Value  => Disabled);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                   end if;
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Protect then
-                  Set_Protect (This => Current_Tag_V.Extension_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Extension_V.Protect := (Exists => True,
+                                                        Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Author then
-                  Set_Author (This => Current_Tag_V.Extension_V,
-                              Text => Attribute_Value);
+                  Current_Tag_V.Extension_V.Author := (Exists => True,
+                                                       Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Contact then
-                  Set_Contact (This => Current_Tag_V.Extension_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Extension_V.Contact := (Exists => True,
+                                                        Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
             when Current_Tag_Fs.Tag_Id.Usage =>
                if Attribute_Name = XML_Tag_Usage_Attribute_Command then
-                  Set_Command (This => Current_Tag_V.Usage_V,
-                               Text => Attribute_Value);
+                  Current_Tag_V.Usage_V.Command := (Exists => True,
+                                                    Value  => To_Unbounded_String (Attribute_Value));
                elsif Attribute_Name = XML_Tag_Usage_Attribute_Struct then
-                  Set_Struct (This => Current_Tag_V.Usage_V,
-                              Text => Attribute_Value);
+                  Current_Tag_V.Usage_V.Struct := (Exists => True,
+                                                   Value  => To_Unbounded_String (Attribute_Value));
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
                end if;
@@ -1528,107 +1468,100 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.External_Sync_Parameter |
                  Current_Tag_Fs.Tag_Id.Extensions =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
-         end case;
-      end;
-   end Attribute;
+            end case;
+         end;
+      end Attribute;
 
-   procedure End_Tag (Tag_Name    : String;
-                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
-     Global => null;
+      procedure End_Tag (Tag_Name    : String;
+                         Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                         Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
+        Global => null;
 
-   procedure End_Tag (Tag_Name    : String;
-                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
-   is
-      Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
-   begin
-      Populate_Parents_Including_Self (Parents_Including_Self => Parents_Including_Self,
-                                       Parents                => Parent_Tags,
-                                       Tag_Name               => Tag_Name);
-
-      if
-        Current_Tag_To_Tags_Map_Type_Owner.Contains (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                     Key       => Parents_Including_Self)
-      then
-         Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                    Key       => Parents_Including_Self);
-      else
-         Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
-      end if;
-   end End_Tag;
-
-   procedure End_Tag (Tag_Name    : String;
-                      Tag_Value   : String;
-                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
-     Global => null;
-
-   procedure End_Tag (Tag_Name    : String;
-                      Tag_Value   : String;
-                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
-   is
-      Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
-   begin
-      Populate_Parents_Including_Self (Parents_Including_Self, Parent_Tags, Tag_Name);
-
-      declare
-         Find_Tag_Call_Result : Find_Tag_Call_Result_T := Find_Tag (Parents_Including_Self);
+      procedure End_Tag (Tag_Name    : String;
+                         Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                         Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
       begin
-         if Find_Tag_Call_Result.Exists then
-            declare
-               Current_Tag_V : Current_Tag.T := Find_Tag_Call_Result.Current_Tag_V;
-            begin
+         Populate_Parents_Including_Self (Parents_Including_Self => Parents_Including_Self,
+                                          Parents                => Parent_Tags,
+                                          Tag_Name               => Tag_Name);
 
-               if
-                 Current_Tag_To_Tags_Map_Type_Owner.Contains (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                              Key       => Parents_Including_Self)
-               then
-                  Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                             Key       => Parents_Including_Self);
-               else
-                  Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
-               end if;
+         if
+           Current_Tag_To_Tags_Map_Type_Owner.Contains (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                        Key       => Parents_Including_Self)
+         then
+            Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                       Key       => Parents_Including_Self);
+         else
+            Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
+         end if;
+      end End_Tag;
 
-               case Current_Tag_V.Kind_Id is
+      procedure End_Tag (Tag_Name    : String;
+                         Tag_Value   : String;
+                         Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                         Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
+        Global => null;
+
+      procedure End_Tag (Tag_Name    : String;
+                         Tag_Value   : String;
+                         Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                         Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Parents_Including_Self : Aida.XML.Tag_Name_Vector_T;
+      begin
+         Populate_Parents_Including_Self (Parents_Including_Self, Parent_Tags, Tag_Name);
+
+         declare
+            Find_Tag_Call_Result : Find_Tag_Call_Result_T := Find_Tag (Parents_Including_Self);
+         begin
+            if Find_Tag_Call_Result.Exists then
+               declare
+                  Current_Tag_V : Current_Tag.T := Find_Tag_Call_Result.Current_Tag_V;
+               begin
+
+                  if
+                    Current_Tag_To_Tags_Map_Type_Owner.Contains (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                 Key       => Parents_Including_Self)
+                  then
+                     Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                Key       => Parents_Including_Self);
+                  else
+                     Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
+                  end if;
+
+                  case Current_Tag_V.Kind_Id is
                   when Current_Tag_Fs.Tag_Id.Comment =>
-                     Vk_XML.Comment_Shared_Ptr.Set_Value (This => Current_Tag_V.Comment,
-                                                          Text => Tag_Value);
+                     Current_Tag_V.Comment.Value := To_Unbounded_String (Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                             XML_Text_V =>  Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_XML_Text,
+                                                           XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Tag_Value);
-                        Append_Child (This  => Current_Tag_V.Type_V,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Tag_Value);
+                        Current_Tag_V.Type_V.Children.Append (Child);
                      end;
                   when Current_Tag_Fs.Tag_Id.Name =>
-                     Vk_XML.Name_Shared_Ptr.Set_Value (This => Current_Tag_V.Name_V,
-                                                       Text => Tag_Value);
+                     Current_Tag_V.Name_V.Value := To_Unbounded_String (Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Nested_Type =>
-                     Vk_XML.Nested_Type_Shared_Ptr.Set_Value (This => Current_Tag_V.Nested_Type_V,
-                                                          Text => Tag_Value);
+                     Current_Tag_V.Nested_Type_V.Value := (Exists => True,
+                                                           Value  => To_Unbounded_String (Tag_Value));
                   when Current_Tag_Fs.Tag_Id.Usage =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Usage.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                            XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Usage.Child_T := (Kind_Id    => Child_XML_Text,
+                                                          XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Tag_Value);
-                        Append_Child (This  => Current_Tag_V.Usage_V,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Tag_Value);
+                        Current_Tag_V.Usage_V.Children.Append (Child);
                      end;
                   when Current_Tag_Fs.Tag_Id.Enum =>
-                     Vk_XML.Enum_Shared_Ptr.Set_Value (This => Current_Tag_V.Enum_V,
-                                                   Text => Tag_Value);
+                     Current_Tag_V.Enum_V.Value := To_Unbounded_String (Tag_Value);
                   when Current_Tag_Fs.Tag_Id.External_Sync_Parameter =>
-                     Vk_XML.External_Sync_Parameter_Shared_Ptr.Set_XML_Value (This => Current_Tag_V.External_Sync_Parameter_V,
-                                                                          Text => Tag_Value);
+                     Current_Tag_V.External_Sync_Parameter_V.XML_Value := (Exists => True,
+                                                                           Value  => To_Unbounded_String (Tag_Value));
                   when Current_Tag_Fs.Tag_Id.Registry |
                        Current_Tag_Fs.Tag_Id.Vendor_Ids |
                        Current_Tag_Fs.Tag_Id.Vendor_Id |
@@ -1652,179 +1585,159 @@ package body Vk_XML_Reader with SPARK_Mode is
                        Current_Tag_Fs.Tag_Id.Extensions |
                        Current_Tag_Fs.Tag_Id.Extension =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
-               end case;
-            end;
-         else
-            declare
-               Prev_Tag : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
-            begin
-               if not Prev_Tag.Exists then
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Both Current_Tag and Prev_Tag was null for end tag '" & Tag_Name & "' and value '" & Tag_Value & "'");
-                  return;
-               end if;
+                  end case;
+               end;
+            else
+               declare
+                  Prev_Tag : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
+               begin
+                  if not Prev_Tag.Exists then
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Both Current_Tag and Prev_Tag was null for end tag '" & Tag_Name & "' and value '" & Tag_Value & "'");
+                     return;
+                  end if;
 
-               case Prev_Tag.Current_Tag_V.Kind_Id is
+                  case Prev_Tag.Current_Tag_V.Kind_Id is
                   when others =>
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "'");
-               end case;
-            end;
-         end if;
-      end;
-   end End_Tag;
+                  end case;
+               end;
+            end if;
+         end;
+      end End_Tag;
 
-   procedure Text (Value       : String;
-                   Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                   Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
-   is
-      Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
-   begin
-      if Length (Parent_Tags) > 0 then
-         if not Searched_For.Exists then
-            Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", " & To_String (Parent_Tags));
-            return;
-         end if;
+      procedure Text (Value       : String;
+                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
+      begin
+         if Length (Parent_Tags) > 0 then
+            if not Searched_For.Exists then
+               Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", " & To_String (Parent_Tags));
+               return;
+            end if;
 
-         if (for all I in Value'Range => Value (I) = ' ' or Value (I) = Ada.Characters.Latin_1.CR or Value (I) = Ada.Characters.Latin_1.LF) then
-            null;
-         else
-            declare
-               Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
-            begin
-               case Current_Tag_V.Kind_Id is
+            if (for all I in Value'Range => Value (I) = ' ' or Value (I) = Ada.Characters.Latin_1.CR or Value (I) = Ada.Characters.Latin_1.LF) then
+               null;
+            else
+               declare
+                  Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+               begin
+                  case Current_Tag_V.Kind_Id is
                   when Current_Tag_Fs.Tag_Id.Registry =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                               XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Registry.Child_T := (Kind_Id    => Child_XML_Text,
+                                                             XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Value);
-                        Append_Child (This  => Current_Tag_V.Registry,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Value);
+                        Current_Tag_V.Registry.Children.Append (Child);
                      end;
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                             XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_XML_Text,
+                                                           XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Value);
-                        Append_Child (This  => Current_Tag_V.Type_V,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Value);
+                        Current_Tag_V.Type_V.Children.Append (Child);
                      end;
                   when Current_Tag_Fs.Tag_Id.Member =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Member.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                             XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Member.Child_T := (Kind_Id    => Child_XML_Text,
+                                                           XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Value);
-                        Append_Child (This  => Current_Tag_V.Member_V,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Value);
+                        Current_Tag_V.Member_V.Children.Append (Child);
                      end;
                   when Current_Tag_Fs.Tag_Id.Param =>
                      declare
-                        XML_Text_V : Mutable_XML_Text_Shared_Ptr.Mutable_T;
-                        Child : Vk_XML.Param.Fs.Child_T := (Kind_Id    => Child_XML_Text,
-                                                            XML_Text_V => Vk_XML.XML_Text.T (XML_Text_V));
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        Child : Vk_XML2.Param.Child_T := (Kind_Id    => Child_XML_Text,
+                                                          XML_Text_V => XML_Text_V);
                      begin
-                        Mutable_XML_Text_Shared_Ptr.Initialize (This => XML_Text_V,
-                                                                Text => Value);
-                        Append_Child (This  => Current_Tag_V.Param_V,
-                                      Child => Child);
+                        Set_Unbounded_String (XML_Text_V.all, Value);
+                        Current_Tag_V.Param_V.Children.Append (Child);
                      end;
                   when others =>
                      Aida.Text_IO.Put ("Text:");
                      Aida.Text_IO.Put_Line (Value);
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have text, " & To_String (Parent_Tags));
-               end case;
-            end;
+                  end case;
+               end;
+            end if;
          end if;
-      end if;
-   end Text;
+      end Text;
 
-   procedure Comment (Value       : String;
-                      Parent_Tags : Aida.XML.Tag_Name_Vector_T;
-                      Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
-   is
-      Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
-   begin
-      if not Searched_For.Exists then
-         Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", " & To_String (Parent_Tags));
-         return;
-      end if;
-
-      declare
-         Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+      procedure Comment (Value       : String;
+                         Parent_Tags : Aida.XML.Tag_Name_Vector_T;
+                         Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
+      is
+         Searched_For : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
       begin
-         case Current_Tag_V.Kind_Id is
+         if not Searched_For.Exists then
+            Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", " & To_String (Parent_Tags));
+            return;
+         end if;
+
+         declare
+            Current_Tag_V : Current_Tag.T := Searched_For.Current_Tag_V;
+         begin
+            case Current_Tag_V.Kind_Id is
             when Current_Tag_Fs.Tag_Id.Registry =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Registry.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                     Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Registry.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                       Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                         Text => Value);
-                  Append_Child (This  => Current_Tag_V.Registry,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Registry.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Types =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Types.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                  Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Types.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                    Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                           Text => Value);
-                  Append_Child (This  => Current_Tag_V.Types_V,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Types_V.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Type_T =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Type_T.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                   Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Type_T.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                     Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                           Text => Value);
-                  Append_Child (This  => Current_Tag_V.Type_V,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Type_V.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Enums =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Enums.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                  Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Enums.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                    Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                           Text => Value);
-                  Append_Child (This  => Current_Tag_V.Enums_V,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Enums_V.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Require =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Require.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                    Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Require.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                      Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                           Text => Value);
-                  Append_Child (This  => Current_Tag_V.Require_V,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Require_V.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Extensions =>
                declare
-                  Comment : Mutable_XML_Out_Commented_Message_Shared_Ptr.Mutable_T;
-                  Child : Vk_XML.Extensions.Fs.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                       Out_Commented_Message_V => Vk_XML.XML_Out_Commented_Message_Shared_Ptr.T (Comment));
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Child : Vk_XML2.Extensions.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
+                                                         Out_Commented_Message_V => Comment);
                begin
-                  Mutable_XML_Out_Commented_Message_Shared_Ptr.Initialize (This => Comment,
-                                                                           Text => Value);
-                  Append_Child (This  => Current_Tag_V.Extensions_V,
-                                Child => Child);
+                  Set_Unbounded_String (Comment.all, Value);
+                  Current_Tag_V.Extensions_V.Children.Append (Child);
                end;
             when Current_Tag_Fs.Tag_Id.Comment |
                  Current_Tag_Fs.Tag_Id.Vendor_Ids |
@@ -1850,24 +1763,20 @@ package body Vk_XML_Reader with SPARK_Mode is
                  Current_Tag_Fs.Tag_Id.Require_Command |
                  Current_Tag_Fs.Tag_Id.Extension =>
                Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have out commented comments, " & To_String (Parent_Tags));
-         end case;
-      end;
---        Aida.Text_IO.Put ("Comment:");
---        Aida.Text_IO.Put_Line (Value);
-   end Comment;
+            end case;
+         end;
+         --        Aida.Text_IO.Put ("Comment:");
+         --        Aida.Text_IO.Put_Line (Value);
+      end Comment;
 
-   procedure Parse_XML_File is new Aida.XML.Generic_Parse_XML_File (Start_Tag,
-                                                                    Attribute,
-                                                                    Text,
-                                                                    Comment,
-                                                                    End_Tag,
-                                                                    End_Tag);
-
-   procedure Parse (Contents      : String;
-                    Registry      : in out Vk_XML.Registry_Shared_Ptr.T;
-                    Call_Result   : in out Aida.XML.Subprogram_Call_Result.T) is
+      procedure Parse_XML_File is new Aida.XML.Generic_Parse_XML_File (Start_Tag,
+                                                                       Attribute,
+                                                                       Text,
+                                                                       Comment,
+                                                                       End_Tag,
+                                                                       End_Tag);
    begin
-      My_Registry := Registry;
+      --        My_Registry := Registry;
       Parse_XML_File (Contents,
                       Call_Result);
    end Parse;

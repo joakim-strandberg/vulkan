@@ -1,4 +1,4 @@
-package body Current_Tag with SPARK_Mode is
+package body Current_Tag is
 
    use type Current_Tag_Fs.Id_T;
 

@@ -25,4 +25,4 @@ generic
                            Parent_Tags : Tag_Name_Vector_T;
                            Call_Result : in out Subprogram_Call_Result.T);
 procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
-                                           Call_Result   : out Subprogram_Call_Result.T) with SPARK_Mode;
+                                           Call_Result   : out Subprogram_Call_Result.T);

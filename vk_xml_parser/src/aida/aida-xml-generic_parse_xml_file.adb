@@ -4,7 +4,7 @@ with Ada.Characters.Latin_1;
 with Aida.Text_IO;
 
 procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
-                                           Call_Result   : out Subprogram_Call_Result.T) with SPARK_Mode => On
+                                           Call_Result   : out Subprogram_Call_Result.T)
 is
    use all type Aida.UTF8_Code_Point.T;
 

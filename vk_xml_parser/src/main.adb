@@ -31,7 +31,7 @@ procedure Main is
       File     : File_String_IO.File_Type;
       Contents : File_String;
 
-      Registry : Vk_XML2.Registry.Ptr := new (Subpool) Vk_XML2.Registry.T;
+      Registry : Vk_XML2.Registry.Ptr := new Vk_XML2.Registry.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin

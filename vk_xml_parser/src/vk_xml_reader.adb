@@ -3,7 +3,7 @@ with GNAT.Source_Info;
 with Std_String;
 with Ada.Strings.Hash;
 with Ada.Exceptions;
-with Ada.Containers.Formal_Hashed_Maps;
+with Ada.Containers.Hashed_Maps;
 with Aida.Strings;
 with Current_Tag;
 with Current_Tag_Fs;
@@ -189,15 +189,15 @@ package body Vk_XML_Reader is
       return R;
    end Hash;
 
-   package Current_Tag_To_Tags_Map_Type_Owner is new Ada.Containers.Formal_Hashed_Maps (Key_Type        => Aida.XML.Tag_Name_Vector_T,
-                                                                                        Element_Type    => Current_Tag.T,
-                                                                                        Hash            => Hash,
-                                                                                        Equivalent_Keys => Aida.XML.Tag_Name_Vectors."=",
-                                                                                        "="             => Current_Tag."=");
+   package Current_Tag_To_Tags_Map_Type_Owner is new Ada.Containers.Hashed_Maps (Key_Type        => Aida.XML.Tag_Name_Vector_T,
+                                                                                 Element_Type    => Current_Tag.T,
+                                                                                 Hash            => Hash,
+                                                                                 Equivalent_Keys => Aida.XML.Tag_Name_Vectors."=",
+                                                                                 "="             => Current_Tag."=");
 
    use type Current_Tag_To_Tags_Map_Type_Owner.Cursor;
 
-   Parents_Including_Self_To_Current_Tag_Map : Current_Tag_To_Tags_Map_Type_Owner.Map (100, 12);
+   Parents_Including_Self_To_Current_Tag_Map : Current_Tag_To_Tags_Map_Type_Owner.Map;
 
    package Mutable_Tag_Name is new Aida.XML.Tag_Name.Mutable;
 
@@ -295,9 +295,7 @@ package body Vk_XML_Reader is
 
                      Current_Tag.Initialize (This => Current_Tag_V);
 
-                     Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
-                                                                Key       => Parents_Including_Self,
-                                                                New_Item  => Current_Tag_V);
+                     Parents_Including_Self_To_Current_Tag_Map.Insert (Parents_Including_Self, Current_Tag_V);
                   end;
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Expected " & XML_Tag_Registry & ", but found " & Tag_Name);
@@ -311,7 +309,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Registry =>
                   if Tag_Name = XML_Tag_Comment then
                      declare
-                        Comment : not null Vk_XML2.Comment.Ptr := new (Subpool) Vk_XML2.Comment.T;
+                        Comment : not null Vk_XML2.Comment.Ptr := new Vk_XML2.Comment.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Comment,
                                                              C       => Comment);
 

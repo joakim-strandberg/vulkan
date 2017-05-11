@@ -60,6 +60,9 @@ package body Vk_Package_Creator is
    use all type Vk_XML2.Nested_Type.Nullable_Value_T;
    use all type Vk_XML2.Enum.Value_T;
 
+   use all type Vk_XML2.Type_T.T;
+   use all type Vk_XML2.Command.T;
+
    use type Vk_XML2.Param.Ptr;
 
 --     use all type Member_Vectors.Vector;
@@ -401,8 +404,8 @@ package body Vk_Package_Creator is
 
    VOID_C_TYPE : constant String := "void";
 
-   procedure Handle_Child_Type (Type_V : not null Vk_XML2.Type_T.Ptr;
-                                R      : not null Vk_XML2.Registry.Ptr)
+   procedure Handle_Child_Type (Type_V : Vk_XML2.Type_T.T;
+                                R      : Vk_XML2.Registry.T)
    is
 
       procedure Generate_Code_For_Enum_Bitmask_If_Found (Searched_For     : Ada.Strings.Unbounded.Unbounded_String;
@@ -553,7 +556,7 @@ package body Vk_Package_Creator is
 
          if Shall_Continue_Search then
             Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", could not find enum bitmask with name " & To_String (Searched_For));
---              Aida.Text_IO.Put_Line (To_String (Type_V));
+            Aida.Text_IO.Put_Line (To_String (Type_V));
          end if;
       end Generate_Code_For_Enum_Bitmask_If_Found;
 
@@ -628,20 +631,20 @@ package body Vk_Package_Creator is
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
                         end if;
                      end;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                else
                   Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                    Aida.Text_IO.Put_Line (To_String (Type_V));
+                  Aida.Text_IO.Put_Line (To_String (Type_V));
                end if;
             else
                Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                 Aida.Text_IO.Put_Line (To_String (Type_V));
+               Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
       elsif
@@ -723,20 +726,20 @@ package body Vk_Package_Creator is
                            end if;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Erroneous conversion of ");
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
                         end if;
                      end;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                else
                   Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                    Aida.Text_IO.Put_Line (To_String (Type_V));
+                  Aida.Text_IO.Put_Line (To_String (Type_V));
                end if;
             else
                Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                 Aida.Text_IO.Put_Line (To_String (Type_V));
+               Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
       elsif
@@ -894,7 +897,7 @@ package body Vk_Package_Creator is
                                              Put_Line (";");
                                           else
                                              Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                                               Aida.Text_IO.Put_Line (To_String (Type_V));
+                                             Aida.Text_IO.Put_Line (To_String (Type_V));
                                           end if;
                                        end if;
                                     end;
@@ -940,13 +943,13 @@ package body Vk_Package_Creator is
                                                 Put_Line (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                                              else
                                                 Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                                                  Aida.Text_IO.Put_Line (To_String (Type_V));
+                                                Aida.Text_IO.Put_Line (To_String (Type_V));
                                              end if;
                                           end if;
                                        end;
                                     else
                                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", has not found ) for");
---                                         Aida.Text_IO.Put_Line (To_String (Type_V));
+                                       Aida.Text_IO.Put_Line (To_String (Type_V));
                                     end if;
                                  end if;
                               end;
@@ -1073,7 +1076,7 @@ package body Vk_Package_Creator is
                                           Put_Line (";");
                                        else
                                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type " & To_String (Nested_Type_Name) & ", skipping conversion of ");
---                                            Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
                                        end if;
                                     end if;
                                  end;
@@ -1119,13 +1122,13 @@ package body Vk_Package_Creator is
                                              Put_Line (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                                           else
                                              Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                                               Aida.Text_IO.Put_Line (To_String (Type_V));
+                                             Aida.Text_IO.Put_Line (To_String (Type_V));
                                           end if;
                                        end if;
                                     end;
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", has not found ) for");
---                                      Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
                                  end if;
                               end if;
                            end;
@@ -1146,7 +1149,7 @@ package body Vk_Package_Creator is
                         Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", could not find type " & To_String (Return_Type_Name));
---                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                        Aida.Text_IO.Put_Line (To_String (Type_V));
                      end if;
                   end;
 
@@ -1160,7 +1163,7 @@ package body Vk_Package_Creator is
                end;
             else
                Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                 Aida.Text_IO.Put_Line (To_String (Type_V));
+               Aida.Text_IO.Put_Line (To_String (Type_V));
             end if;
          end;
       elsif
@@ -1170,7 +1173,7 @@ package body Vk_Package_Creator is
          null; -- Ignore for now. Will be generated later because the struct types need to be sorted first.
       else
          Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---           Aida.Text_IO.Put_Line (To_String (Type_V));
+         Aida.Text_IO.Put_Line (To_String (Type_V));
       end if;
    end Handle_Child_Type;
 
@@ -1462,13 +1465,13 @@ package body Vk_Package_Creator is
       procedure Generate_Code_For_The_Public_Part is
 
          procedure Handle_Child_Types (Types_V : Vk_XML2.Types.Ptr;
-                                       R       : Vk_XML2.Registry.Ptr)
+                                       R       : Vk_XML2.Registry.T)
          is
             procedure Generate_Code_For_The_Non_Struct_Types is
             begin
                for Types_Child of Types_V.Children loop
                   case Types_Child.Kind_Id is
-                     when Child_Type                  => Handle_Child_Type (Types_Child.Type_V, R);
+                     when Child_Type                  => Handle_Child_Type (Types_Child.Type_V.all, R);
                      when Child_Out_Commented_Message => Handle_Out_Commented_Message(Types_Child.Out_Commented_Message_V);
                   end case;
                end loop;
@@ -1504,7 +1507,7 @@ package body Vk_Package_Creator is
                   Shall_Continue : Boolean := True;
                   Number_Of_Structs_Before_Sorting_Session : Ada.Containers.Count_Type;
 
-                  procedure Add_Struct_If_All_Member_Types_Are_Known (Type_V : Vk_XML2.Type_T.Ptr) is
+                  procedure Add_Struct_If_All_Member_Types_Are_Known (Type_V : not null access Vk_XML2.Type_T.T) is
                      Members : Member_Vectors.Vector;
 
                      procedure Populate_The_Members_Vector is
@@ -1591,7 +1594,7 @@ package body Vk_Package_Creator is
                                           end if;
                                        else
                                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                            Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                        end if;
                                     end if;
                                  end;
@@ -1618,7 +1621,7 @@ package body Vk_Package_Creator is
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
                               end if;
                            end;
                         elsif Member_Children.Length = 4 then
@@ -1661,13 +1664,13 @@ package body Vk_Package_Creator is
                                           end if;
                                        else
                                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                            Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                        end if;
                                     end if;
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
                               end if;
                            end;
                         elsif Member_Children.Length = 5 then
@@ -1705,12 +1708,12 @@ package body Vk_Package_Creator is
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
                               end if;
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
                         end if;
                      end Analyze_Member;
 
@@ -1722,7 +1725,7 @@ package body Vk_Package_Creator is
 
                         if To_String (Type_V.Name.Value) = "VkAndroidSurfaceCreateInfoKHR" then
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle " & Are_All_Member_Types_Known'Img);
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
                         end if;
                      end loop;
 
@@ -1743,7 +1746,7 @@ package body Vk_Package_Creator is
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", all members are not known or can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Type_V));
+                        Aida.Text_IO.Put_Line (To_String (Type_V.all));
                      end if;
                   end Add_Struct_If_All_Member_Types_Are_Known;
 
@@ -1836,7 +1839,7 @@ package body Vk_Package_Creator is
                      Put_Line ("");
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
                   end if;
                end Generate_The_Code;
 
@@ -1880,12 +1883,12 @@ package body Vk_Package_Creator is
                            C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                         else
                            Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
                         end if;
                      end if;
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
                   end if;
                end Generate_Potential_Access_Type;
 
@@ -1932,7 +1935,7 @@ package body Vk_Package_Creator is
                            C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Constant_Access_Type_Name);
                         else
                            Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
                         end if;
                      end if;
                   elsif
@@ -1945,7 +1948,7 @@ package body Vk_Package_Creator is
                      null;
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                       Aida.Text_IO.Put_Line (To_String (Type_V));
+                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
                   end if;
                end Generate_Potential_Constant_Access_Type;
 
@@ -2147,12 +2150,12 @@ package body Vk_Package_Creator is
                                     Put_Line (";");
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    --                                         Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                  end if;
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              --                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
                            end if;
                         end;
                      elsif Member.Children.Length = 3 then
@@ -2215,16 +2218,16 @@ package body Vk_Package_Creator is
                                        Put_Line (";");
                                     else
                                        Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't find " & To_String (Old_Type_Name) & ", can't handle ");
-                                       --                                            Aida.Text_IO.Put_Line (To_String (Type_V));
+                                       Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                     end if;
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 --                                      Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
                               end if;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              --                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
                            end if;
                         end;
                      elsif Member.Children.Length = 4 then
@@ -2273,7 +2276,7 @@ package body Vk_Package_Creator is
                                           Put_Line (";");
                                        else
                                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                          --                                               Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                        end if;
                                     end;
                                  elsif
@@ -2301,12 +2304,12 @@ package body Vk_Package_Creator is
                                           Put_Line (";");
                                        else
                                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                          --                                               Aida.Text_IO.Put_Line (To_String (Type_V));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                        end if;
                                     end;
                                  else
                                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    --                                         Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                  end if;
                               end;
                            end if;
@@ -2348,12 +2351,12 @@ package body Vk_Package_Creator is
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              --                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
                            end if;
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
-                        --                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                        Aida.Text_IO.Put_Line (To_String (Type_V.all));
                      end if;
                   end loop;
 
@@ -2410,7 +2413,7 @@ package body Vk_Package_Creator is
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 --                                      Aida.Text_IO.Put_Line (To_String (Type_V));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
                               end if;
                            end;
                         elsif Member.Children.Length = 3 then
@@ -2508,12 +2511,12 @@ package body Vk_Package_Creator is
                                     Put_Line (";");
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                      Aida.Text_IO.Put_Line (To_String (Type_V));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
                                  end if;
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                Aida.Text_IO.Put_Line (To_String (Type_V));
+                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
                            end if;
                         end;
 
@@ -2555,12 +2558,12 @@ package body Vk_Package_Creator is
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              --                                   Aida.Text_IO.Put_Line (To_String (Type_V));
+                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
                            end if;
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
-                        --                             Aida.Text_IO.Put_Line (To_String (Type_V));
+                        Aida.Text_IO.Put_Line (To_String (Type_V.all));
                      end if;
                   end loop;
 
@@ -2622,7 +2625,7 @@ package body Vk_Package_Creator is
             Put_Line ("");
          end Generate_Code_For_Special_Types;
 
-         procedure Handle_Command (Command_V : Vk_XML2.Command.Ptr) is
+         procedure Handle_Command (Command_V : Vk_XML2.Command.T) is
 
             Is_Function : Boolean := False;
             Return_Type : Ada.Strings.Unbounded.Unbounded_String;
@@ -2673,7 +2676,7 @@ package body Vk_Package_Creator is
                      Generate_Code_For_Subprogram;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                       Aida.Text_IO.Put_Line (To_String (Command_V));
+                     Aida.Text_IO.Put_Line (To_String (Command_V));
                   end if;
                end Handle_Proto_Children;
 
@@ -2682,7 +2685,7 @@ package body Vk_Package_Creator is
                   Handle_Proto_Children;
                else
                   Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                    Aida.Text_IO.Put_Line (To_String (Command_V));
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Handle_Proto;
 
@@ -2711,7 +2714,7 @@ package body Vk_Package_Creator is
                                                                The_Nested_Type_Name : String;
                                                                First                : String;
                                                                Third                : String;
-                                                               Command_V            : Vk_XML2.Command.Ptr)
+                                                               Command_V            : Vk_XML2.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -2750,18 +2753,18 @@ package body Vk_Package_Creator is
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Constant_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                    Aida.Text_IO.Put_Line (To_String (Command_V));
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Generate_Potential_Constant_Access_Type;
 
             procedure Generate_Potential_Access_Type (The_Nested_Type_Name : String;
                                                       Second               : String;
-                                                      Command_V            : Vk_XML2.Command.Ptr)
+                                                      Command_V            : Vk_XML2.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -2799,7 +2802,7 @@ package body Vk_Package_Creator is
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                elsif
@@ -2833,16 +2836,16 @@ package body Vk_Package_Creator is
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                    Aida.Text_IO.Put_Line (To_String (Command_V));
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Generate_Potential_Access_Type;
 
-            function Is_Pointer_Actually_An_Array (Command_V : Vk_XML2.Command.Ptr;
+            function Is_Pointer_Actually_An_Array (Command_V : Vk_XML2.Command.T;
                                                    Param_V   : Vk_XML2.Param.Ptr) return Boolean
             is
                Is_Found : Boolean := False;
@@ -2885,7 +2888,7 @@ package body Vk_Package_Creator is
                               end if;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                Aida.Text_IO.Put_Line (To_String (Command_V));
+                              Aida.Text_IO.Put_Line (To_String (Command_V));
                            end if;
                         end;
                      elsif Param.Children.Length = 4 then
@@ -2921,12 +2924,12 @@ package body Vk_Package_Creator is
                               end if;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              --                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                              Aida.Text_IO.Put_Line (To_String (Command_V));
                            end if;
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                        --                             Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end loop;
 
@@ -2939,7 +2942,7 @@ package body Vk_Package_Creator is
             procedure Generate_Potential_Array_Declaration (The_Nested_Type_Name : String;
                                                             Second               : String;
                                                             C_Variable_Name      : String;
-                                                            Command_V            : Vk_XML2.Command.Ptr)
+                                                            Command_V            : Vk_XML2.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -3049,7 +3052,7 @@ package body Vk_Package_Creator is
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                elsif
@@ -3083,16 +3086,16 @@ package body Vk_Package_Creator is
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                          Aida.Text_IO.Put_Line (To_String (Command_V));
+                        Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                    Aida.Text_IO.Put_Line (To_String (Command_V));
+                  Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Generate_Potential_Array_Declaration;
 
-            procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML2.Command.Ptr) is
+            procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML2.Command.T) is
             begin
                for Param of Params loop
                   if Param.Children.Length = 3 then
@@ -3188,12 +3191,12 @@ package body Vk_Package_Creator is
                                  end if;
                               else
                                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Command_V));
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
                   elsif Param.Children.Length = 3 then
@@ -3239,7 +3242,7 @@ package body Vk_Package_Creator is
                                     end if;
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                      Aida.Text_IO.Put_Line (To_String (Command_V));
+                                    Aida.Text_IO.Put_Line (To_String (Command_V));
                                  end if;
                               elsif
                                 Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V.all),
@@ -3265,16 +3268,16 @@ package body Vk_Package_Creator is
                                     end if;
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                      Aida.Text_IO.Put_Line (To_String (Command_V));
+                                    Aida.Text_IO.Put_Line (To_String (Command_V));
                                  end if;
                               else
                                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Command_V));
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
                   elsif Param.Children.Length = 4 then
@@ -3326,12 +3329,12 @@ package body Vk_Package_Creator is
                                        end if;
                                     else
                                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                         Aida.Text_IO.Put_Line (To_String (Command_V));
+                                       Aida.Text_IO.Put_Line (To_String (Command_V));
                                     end if;
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         elsif
@@ -3364,12 +3367,12 @@ package body Vk_Package_Creator is
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Command_V));
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                       Aida.Text_IO.Put_Line (To_String (Command_V));
+                     Aida.Text_IO.Put_Line (To_String (Command_V));
                   end if;
                end Generate_Code_For_Parameter;
 
@@ -3414,7 +3417,7 @@ package body Vk_Package_Creator is
             for Command of Commands_V.Children loop
                case Command.Kind_Id is
                   when Child_Command =>
-                     Handle_Command (Command.Command_V);
+                     Handle_Command (Command.Command_V.all);
                   when others =>
                      null;
                end case;
@@ -3460,7 +3463,7 @@ package body Vk_Package_Creator is
                when Child_Tags =>
                   null;
                when Child_Types =>
-                  Handle_Child_Types (Request_Child.Types_V, R);
+                  Handle_Child_Types (Request_Child.Types_V, R.all);
                when Child_Enums =>
                   null;
                when Child_Commands =>

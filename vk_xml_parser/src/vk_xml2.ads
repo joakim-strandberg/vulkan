@@ -360,6 +360,8 @@ package Vk_XML2 is
             Children      : Child_Vectors.Vector;
          end record;
 
+      function To_String (This : T) return String;
+
       type Ptr is access all T;
 
    end Type_T;
@@ -718,6 +720,8 @@ package Vk_XML2 is
             Render_Passes         : Render_Pass_Vectors.Vector;
             Command_Buffer_Levels : Command_Buffer_Level_Vectors.Vector;
          end record;
+
+      function To_String (This : T) return String;
 
       type Ptr is access all T;
 

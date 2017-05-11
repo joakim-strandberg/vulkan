@@ -60,6 +60,8 @@ package body Vk_Package_Creator is
    use all type Vk_XML2.Nested_Type.Nullable_Value_T;
    use all type Vk_XML2.Enum.Value_T;
 
+   use type Vk_XML2.Param.Ptr;
+
 --     use all type Member_Vectors.Vector;
 --     use all type Struct_Type_Vectors.Vector;
 --     use all type Param_Vectors.Vector;
@@ -2369,6 +2371,8 @@ package body Vk_Package_Creator is
 
                   procedure Generate_Code_For_Discriminant is
                      Prefix : Ada.Strings.Unbounded.Unbounded_String;
+
+                     use type Vk_XML2.Member.Ptr;
                   begin
                      Adaify_Name (Old_Name => To_String (Type_V.Name.Value),
                                   New_Name => Prefix);
@@ -2398,7 +2402,7 @@ package body Vk_Package_Creator is
 
                                     Put_Tabs (2);
                                     Put (To_String (Prefix) & "_" & To_String (Adafied_Discriminant_Value));
-                                    if I = Last_Index (Members) then
+                                    if Member = Members.Last_Element then
                                        Put_Line ("");
                                     else
                                        Put_Line (",");
@@ -2430,7 +2434,7 @@ package body Vk_Package_Creator is
 
                                     Put_Tabs (2);
                                     Put (To_String (Prefix) & "_" & To_String (Adafied_Discriminant_Value));
-                                    if I = Members.Last_Index then
+                                    if Member = Members.Last_Element then
                                        Put_Line ("");
                                     else
                                        Put_Line (",");
@@ -2466,7 +2470,7 @@ package body Vk_Package_Creator is
                   Put_Tabs (3); Put_Line ("case Kind_Id is");
 
                   for Member of Members loop
-                     if Length (Member_Children) = 2 then
+                     if Member.Children.Length = 2 then
                         declare
                            First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
                            Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
@@ -2496,7 +2500,7 @@ package body Vk_Package_Creator is
                                                                                                 Key       => Nested_Type_Name);
 
                                  if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
-                                    Put_Tabs (4); Put_Line ("when " & To_String (Prefix) & "_" & Adafied_Discriminant_Value.To_String & " =>");
+                                    Put_Tabs (4); Put_Line ("when " & To_String (Prefix) & "_" & To_String (Adafied_Discriminant_Value) & " =>");
                                     Put_Tabs (5);
                                     Put (To_String (Adafied_Name));
                                     Put (" : ");
@@ -2504,16 +2508,16 @@ package body Vk_Package_Creator is
                                     Put_Line (";");
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Type_V));
+--                                      Aida.Text_IO.Put_Line (To_String (Type_V));
                                  end if;
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V));
+--                                Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
 
-                     elsif Length (Member_Children) = 3 then
+                     elsif Member.Children.Length = 3 then
                         declare
                            First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
                            Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
@@ -2542,7 +2546,7 @@ package body Vk_Package_Creator is
                                  Adaify_Array_Type_Name (Old_Name => To_String (Second.Name_V.Value),
                                                          New_Name => Adafied_Array_Type_Name);
 
-                                 Put_Tabs (4); Put_Line ("when " & To_String (Prefix) & "_" & Adafied_Discriminant_Value.To_String & " =>");
+                                 Put_Tabs (4); Put_Line ("when " & To_String (Prefix) & "_" & To_String (Adafied_Discriminant_Value) & " =>");
                                  Put_Tabs (5);
                                  Put (To_String (Adafied_Name));
                                  Put (" : ");
@@ -2575,11 +2579,11 @@ package body Vk_Package_Creator is
                end Generate_Code_For_Union;
 
             begin
-               for I in Positive range First_Index (Sorted_Structs)..Last_Index (Sorted_Structs) loop
-                  if To_String (Category (Element (Sorted_Structs, I))) = "struct" then
-                     Generate_Code_For_Struct (Element (Sorted_Structs, I));
+               for Struct of Sorted_Structs loop
+                  if To_String (Struct.Category) = "struct" then
+                     Generate_Code_For_Struct (Struct);
                   else
-                     Generate_Code_For_Union (Element (Sorted_Structs, I));
+                     Generate_Code_For_Union (Struct);
                   end if;
                end loop;
             end Generate_Code_For_The_Sorted_Structs;
@@ -2592,10 +2596,10 @@ package body Vk_Package_Creator is
 
          procedure Generate_Code_For_The_Enum_Types is
          begin
-            for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
-               case Element (Children (R), I).Kind_Id is
+            for Request_Child of R.Children loop
+               case Request_Child.Kind_Id is
                   when Child_Enums =>
-                     Handle_Registry_Child_Enums (Element (Children (R), I).Enums_V);
+                     Handle_Registry_Child_Enums (Request_Child.Enums_V);
                   when others =>
                      null;
                end case;
@@ -2623,7 +2627,7 @@ package body Vk_Package_Creator is
             Is_Function : Boolean := False;
             Return_Type : Ada.Strings.Unbounded.Unbounded_String;
 
-            Params : Param_Vectors.Vector (30);
+            Params : Param_Vectors.Vector;
 
             C_Subprogram_Name : Ada.Strings.Unbounded.Unbounded_String;
             Subprogram_Name   : Ada.Strings.Unbounded.Unbounded_String;
@@ -2631,8 +2635,8 @@ package body Vk_Package_Creator is
             procedure Handle_Proto (Proto_V : Vk_XML2.Proto.Ptr) is
 
                procedure Handle_Proto_Children is
-                  First  : Vk_XML2.Proto.Child_T renames Element (Children (Proto_V), First_Index (Children (Proto_V)));
-                  Second : Vk_XML2.Proto.Child_T renames Element (Children (Proto_V), First_Index (Children (Proto_V)) + 1);
+                  First  : Vk_XML2.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index);
+                  Second : Vk_XML2.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index + 1);
 
                   procedure Generate_Code_For_Subprogram is
                   begin
@@ -2646,14 +2650,14 @@ package body Vk_Package_Creator is
                         Put_Tabs (1); Put ("function ");
                      end if;
 
-                     C_Subprogram_Name.Initialize (To_String (Second.Name_V.Value));
+                     Set_Unbounded_String (C_Subprogram_Name, To_String (Second.Name_V.Value));
 
                      Adaify_Name (Old_Name => To_String (Second.Name_V.Value),
                                   New_Name => Subprogram_Name);
 
-                     Put (Subprogram_Name.To_String);
+                     Put (To_String (Subprogram_Name));
 
-                     if Length (Params) > 0 then
+                     if Params.Length > 0 then
                         Put_Line (" (");
                      else
                         Put_Line (";");
@@ -2669,25 +2673,25 @@ package body Vk_Package_Creator is
                      Generate_Code_For_Subprogram;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                     Aida.Text_IO.Put_Line (To_String (Command_V));
+--                       Aida.Text_IO.Put_Line (To_String (Command_V));
                   end if;
                end Handle_Proto_Children;
 
             begin
-               if Length (Children (Proto_V)) = 2 then
+               if Proto_V.Children.Length = 2 then
                   Handle_Proto_Children;
                else
                   Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                  Aida.Text_IO.Put_Line (To_String (Command_V));
+--                    Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Handle_Proto;
 
             procedure Populate_Params_Vector is
             begin
-               for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
-                  case Element (Children (Command_V), I).Kind_Id is
+               for Command_Child of Command_V.Children loop
+                  case Command_Child.Kind_Id is
                      when Child_Param => Param_Vectors.Append (Container => Params,
-                                                               New_Item  => Element (Children (Command_V), I).Param_V);
+                                                               New_Item  => Command_Child.Param_V);
                      when others => null;
                   end case;
                end loop;
@@ -2695,9 +2699,9 @@ package body Vk_Package_Creator is
 
             procedure Generate_Code_For_The_Subprogram_Name is
             begin
-               for I in Positive range First_Index (Children (Command_V))..Last_Index (Children (Command_V)) loop
-                  case Element (Children (Command_V), I).Kind_Id is
-                     when Child_Proto => Handle_Proto (Element (Children (Command_V), I).Proto_V);
+               for Command_Child of Command_V.Children loop
+                  case Command_Child.Kind_Id is
+                     when Child_Proto => Handle_Proto (Command_Child.Proto_V);
                      when others      => null;
                   end case;
                end loop;
@@ -2721,15 +2725,13 @@ package body Vk_Package_Creator is
                then
                   Set_Unbounded_String (Nested_Type_Name, "const " & The_Nested_Type_Name & "*");
 
-                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                               Key       => Nested_Type_Name);
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                   if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
                      Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name);
 
-                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                  Key       => Nested_Type_Name);
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
@@ -2740,14 +2742,12 @@ package body Vk_Package_Creator is
                         Put ("type ");
                         Put (To_String (Adafied_Constant_Access_Type_Name));
                         Put (" is access constant ");
-                        Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                        Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                         Put_Line (";");
                         Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, "const " & The_Nested_Type_Name & "*");
-                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
-                                Key       => Nested_Type_Name,
-                                New_Item  => Adafied_Constant_Access_Type_Name);
+                        C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Constant_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
 --                          Aida.Text_IO.Put_Line (To_String (Command_V));
@@ -2774,15 +2774,13 @@ package body Vk_Package_Creator is
                then
                   Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
 
-                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                               Key       => Nested_Type_Name);
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                   if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
                      Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name);
 
-                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                  Key       => Nested_Type_Name);
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
@@ -2791,19 +2789,17 @@ package body Vk_Package_Creator is
 
                         Put_Tabs (1);
                         Put ("type ");
-                        Put (Adafied_Access_Type_Name.To_String);
+                        Put (To_String (Adafied_Access_Type_Name));
                         Put (" is access all ");
-                        Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                        Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                         Put_Line (";");
                         Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
-                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
-                                Key       => Nested_Type_Name,
-                                New_Item  => Adafied_Access_Type_Name);
+                        C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                        Aida.Text_IO.Put_Line (To_String (Command_V));
+--                          Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                elsif
@@ -2812,15 +2808,13 @@ package body Vk_Package_Creator is
                then
                   Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "**");
 
-                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                               Key       => Nested_Type_Name);
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                   if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
                      Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name);
 
-                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                  Key       => Nested_Type_Name);
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
@@ -2829,16 +2823,14 @@ package body Vk_Package_Creator is
 
                         Put_Tabs (1);
                         Put ("type ");
-                        Put (Adafied_Access_Type_Name.To_String);
+                        Put (To_String (Adafied_Access_Type_Name));
                         Put (" is access constant ");
-                        Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                        Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                         Put_Line (";");
                         Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
-                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
-                                Key       => Nested_Type_Name,
-                                New_Item  => Adafied_Access_Type_Name);
+                        C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
 --                          Aida.Text_IO.Put_Line (To_String (Command_V));
@@ -2855,100 +2847,87 @@ package body Vk_Package_Creator is
             is
                Is_Found : Boolean := False;
             begin
-               if Len (Param_V).Exists then
-                  for I in Positive range First_Index (Params)..Last_Index (Params) loop
-                     declare
-                        Param_Children : Vk_XML2.Param.Child_Vectors.Immutable_T renames Children (Element (Params, I));
-                     begin
-                        if Length (Param_Children) = 2 then
-                           declare
-                              First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                               Index     => First_Index (Param_Children));
-                              Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                                Index     => First_Index (Param_Children) + 1);
-                           begin
-                              if
-                                First.Kind_Id = Child_Nested_Type and then
-                                First.Nested_Type_V.Value.Exists and then
-                                Second.Kind_Id = Child_Name and then
-                                Length (Second.Name_V.Value) > 0
-                              then
-                                 if To_String (Len (Param_V).Value) = To_String (Second.Name_V.Value) then
-                                    Is_Found := True;
-                                    exit;
-                                 end if;
+               if Param_V.Len.Exists then
+                  for Param of Params loop
+                     if Param.Children.Length = 2 then
+                        declare
+                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        begin
+                           if
+                             First.Kind_Id = Child_Nested_Type and then
+                             First.Nested_Type_V.Value.Exists and then
+                             Second.Kind_Id = Child_Name and then
+                             Length (Second.Name_V.Value) > 0
+                           then
+                              if To_String (Param_V.Len.Value) = To_String (Second.Name_V.Value) then
+                                 Is_Found := True;
+                                 exit;
                               end if;
-                           end;
-                        elsif Length (Param_Children) = 3 then
-                           declare
-                              First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                               Index     => First_Index (Param_Children));
-                              Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                                Index     => First_Index (Param_Children) + 1);
-                              Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                               Index     => First_Index (Param_Children) + 2);
-                           begin
-                              if
-                                First.Kind_Id = Child_Nested_Type and then
-                                First.Nested_Type_V.Value.Exists and then
-                                Second.Kind_Id = Child_XML_Text and then
-                                Third.Kind_Id = Child_Name and then
-                                Length (Third.Name_V.Value) > 0
-                              then
-                                 if To_String (Len (Param_V).Value) = To_String (Third.Name_V.Value) then
-                                    Is_Found := True;
-                                    exit;
-                                 end if;
-                              else
-                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                           end if;
+                        end;
+                     elsif Param.Children.Length = 3 then
+                        declare
+                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                           Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        begin
+                           if
+                             First.Kind_Id = Child_Nested_Type and then
+                             First.Nested_Type_V.Value.Exists and then
+                             Second.Kind_Id = Child_XML_Text and then
+                             Third.Kind_Id = Child_Name and then
+                             Length (Third.Name_V.Value) > 0
+                           then
+                              if To_String (Param_V.Len.Value) = To_String (Third.Name_V.Value) then
+                                 Is_Found := True;
+                                 exit;
                               end if;
-                           end;
-                        elsif Length (Param_Children) = 4 then
-                           declare
-                              First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                               Index     => First_Index (Param_Children));
-                              Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                                Index     => First_Index (Param_Children) + 1);
-                              Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                               Index     => First_Index (Param_Children) + 2);
-                              Fourth : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                                Index     => First_Index (Param_Children) + 3);
-                           begin
-                              if
-                                First.Kind_Id = Child_XML_Text and then
-                                Second.Kind_Id = Child_Nested_Type and then
-                                Second.Nested_Type_V.Value.Exists and then
-                                Third.Kind_Id = Child_XML_Text and then
-                                Fourth.Kind_Id = Child_Name and then
-                                Length (Fourth.Name_V.Value) > 0
-                              then
-                                 if To_String (Len (Param_V).Value) = To_String (Fourth.Name_V.Value) then
-                                    Is_Found := True;
-                                    exit;
-                                 end if;
-                              elsif
-                                First.Kind_Id = Child_XML_Text and then
-                                Second.Kind_Id = Child_Nested_Type and then
-                                Second.Nested_Type_V.Value.Exists and then
-                                Third.Kind_Id = Child_Name and then
-                                Length (Third.Name_V.Value) > 0 and then
-                                Fourth.Kind_Id = Child_XML_Text
-                              then
-                                 if To_String (Len (Param_V).Value) = To_String (Third.Name_V.Value) then
-                                    Is_Found := True;
-                                    exit;
-                                 end if;
-                              else
-                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                           else
+                              Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+--                                Aida.Text_IO.Put_Line (To_String (Command_V));
+                           end if;
+                        end;
+                     elsif Param.Children.Length = 4 then
+                        declare
+                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                           Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                           Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
+                        begin
+                           if
+                             First.Kind_Id = Child_XML_Text and then
+                             Second.Kind_Id = Child_Nested_Type and then
+                             Second.Nested_Type_V.Value.Exists and then
+                             Third.Kind_Id = Child_XML_Text and then
+                             Fourth.Kind_Id = Child_Name and then
+                             Length (Fourth.Name_V.Value) > 0
+                           then
+                              if To_String (Param_V.Len.Value) = To_String (Fourth.Name_V.Value) then
+                                 Is_Found := True;
+                                 exit;
                               end if;
-                           end;
-                        else
-                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
---                             Aida.Text_IO.Put_Line (To_String (Command_V));
-                        end if;
-                     end;
+                           elsif
+                             First.Kind_Id = Child_XML_Text and then
+                             Second.Kind_Id = Child_Nested_Type and then
+                             Second.Nested_Type_V.Value.Exists and then
+                             Third.Kind_Id = Child_Name and then
+                             Length (Third.Name_V.Value) > 0 and then
+                             Fourth.Kind_Id = Child_XML_Text
+                           then
+                              if To_String (Param_V.Len.Value) = To_String (Third.Name_V.Value) then
+                                 Is_Found := True;
+                                 exit;
+                              end if;
+                           else
+                              Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                              --                                   Aida.Text_IO.Put_Line (To_String (Command_V));
+                           end if;
+                        end;
+                     else
+                        Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                        --                             Aida.Text_IO.Put_Line (To_String (Command_V));
+                     end if;
                   end loop;
 
                   return Is_Found;
@@ -2979,15 +2958,13 @@ package body Vk_Package_Creator is
                then
                   Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
 
-                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                               Key       => Nested_Type_Name);
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                   if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
                      Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name);
 
-                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                  Key       => Nested_Type_Name);
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
@@ -2995,49 +2972,49 @@ package body Vk_Package_Creator is
                           The_Nested_Type_Name = "VkExtensionProperties" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "EXTENSION_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "EXTENSION_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Extension_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Extension_Properties_Array_Conversions");
                         elsif
                           The_Nested_Type_Name = "VkLayerProperties" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "LAYER_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "LAYER_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Layer_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Layer_Properties_Array_Conversions");
                         elsif
                           The_Nested_Type_Name = "VkSparseImageFormatProperties" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "SPARSE_IMAGE_FORMAT_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "SPARSE_IMAGE_FORMAT_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Sparse_Image_Format_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Sparse_Image_Format_Properties_Array_Conversions");
                         elsif
                           The_Nested_Type_Name = "VkDisplayPropertiesKHR" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "DISPLAY_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "DISPLAY_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Display_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Display_Properties_Array_Conversions");
                         elsif
                           The_Nested_Type_Name = "VkDisplayPlanePropertiesKHR" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "DISPLAY_PLANE_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "DISPLAY_PLANE_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Display_Plane_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Display_Plane_Properties_Array_Conversions");
                         elsif
                           The_Nested_Type_Name = "VkDisplayModePropertiesKHR" and then
                           C_Variable_Name = "pProperties"
                         then
-                           Set_Unbounded_String (Upper_Case_Variable_Name.Initialize, "DISPLAY_MODE_PROPERTIES");
+                           Set_Unbounded_String (Upper_Case_Variable_Name, "DISPLAY_MODE_PROPERTIES");
                            Set_Unbounded_String (Adafied_Array_Type_Name, "Display_Mode_Properties_Array_T");
                            Set_Unbounded_String (Array_Conversions_Package_Name, "Display_Mode_Properties_Array_Conversions");
                         else
                            Adaify_Name (Old_Name => C_Variable_Name,
                                         New_Name => Adafied_Variable_Name);
 
-                           Make_Upper_Case (Source => Adafied_Variable_Name.To_String,
+                           Make_Upper_Case (Source => To_String (Adafied_Variable_Name),
                                             Target => Upper_Case_Variable_Name);
 
                            Adaify_Array_Type_Name (Old_Name => C_Variable_Name,
@@ -3048,33 +3025,31 @@ package body Vk_Package_Creator is
                         end if;
 
                         Put_Tabs (1);
-                        Put_Line ("MAX_" & Upper_Case_Variable_Name.To_String & "_INDEX : constant := 100;");
+                        Put_Line ("MAX_" & To_String (Upper_Case_Variable_Name) & "_INDEX : constant := 100;");
                         Put_Line ("");
 
                         Put_Tabs (1);
                         Put ("type ");
                         Put (To_String (Adafied_Array_Type_Name));
-                        Put (" is array (Interfaces.C.size_t range 0 .. MAX_" & Upper_Case_Variable_Name.To_String & "_INDEX");
+                        Put (" is array (Interfaces.C.size_t range 0 .. MAX_" & To_String (Upper_Case_Variable_Name) & "_INDEX");
                         Put (") of ");
-                        Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                        Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                         Put_Line (";");
                         Put_Tabs (1);
                         Put_Line ("pragma Convention (C, " & To_String (Adafied_Array_Type_Name) & ");");
                         Put_Line ("");
 
                         Put_Tabs (1);
-                        Put_Line ("package " & Array_Conversions_Package_Name.To_String & " is new Generic_Address_To_Access_Conversions (" & To_String (Adafied_Array_Type_Name) & ");");
+                        Put_Line ("package " & To_String (Array_Conversions_Package_Name) & " is new Generic_Address_To_Access_Conversions (" & To_String (Adafied_Array_Type_Name) & ");");
                         Put_Line ("");
 
-                        Adafied_Access_Type_Name.Initialize (Array_Conversions_Package_Name.To_String & ".Object_Address");
+                        Set_Unbounded_String (Adafied_Access_Type_Name, To_String (Array_Conversions_Package_Name) & ".Object_Address");
 
                         Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
-                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
-                                Key       => Nested_Type_Name,
-                                New_Item  => Adafied_Access_Type_Name);
+                        C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                        Aida.Text_IO.Put_Line (To_String (Command_V));
+--                          Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                elsif
@@ -3083,15 +3058,13 @@ package body Vk_Package_Creator is
                then
                   Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "**");
 
-                  Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                               Key       => Nested_Type_Name);
+                  Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                   if Searched_For_Cursor = C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
                      Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name);
 
-                     Searched_For_Cursor := Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                  Key       => Nested_Type_Name);
+                     Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
@@ -3100,105 +3073,88 @@ package body Vk_Package_Creator is
 
                         Put_Tabs (1);
                         Put ("type ");
-                        Put (Adafied_Access_Type_Name.To_String);
+                        Put (To_String (Adafied_Access_Type_Name));
                         Put (" is access constant ");
-                        Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                        Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                         Put_Line (";");
                         Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, The_Nested_Type_Name & "*");
-                        Insert (Container => C_Type_Name_To_Ada_Name_Map,
-                                Key       => Nested_Type_Name,
-                                New_Item  => Adafied_Access_Type_Name);
+                        C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                      else
                         Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                        Aida.Text_IO.Put_Line (To_String (Command_V));
+--                          Aida.Text_IO.Put_Line (To_String (Command_V));
                      end if;
                   end if;
                else
                   Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                  Aida.Text_IO.Put_Line (To_String (Command_V));
+--                    Aida.Text_IO.Put_Line (To_String (Command_V));
                end if;
             end Generate_Potential_Array_Declaration;
 
             procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML2.Command.Ptr) is
             begin
-               for I in Positive range First_Index (Params)..Last_Index (Params) loop
-                  declare
-                     Param_Children : Vk_XML2.Param.Child_Vectors.Immutable_T renames Children (Element (Params, I));
-                  begin
-                     if Length (Param_Children) = 3 then
-                        declare
-                           First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                            Index     => First_Index (Param_Children));
-                           Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                             Index     => First_Index (Param_Children) + 1);
-                           Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                            Index     => First_Index (Param_Children) + 2);
-                        begin
-                           if
-                             First.Kind_Id = Child_Nested_Type and then
-                             First.Nested_Type_V.Value.Exists and then
-                             Second.Kind_Id = Child_XML_Text and then
-                             Third.Kind_Id = Child_Name and then
-                             Length (Third.Name_V.Value) > 0
-                           then
-                              if Is_Pointer_Actually_An_Array (Command_V, Element (Params, I)) then
-                                 Generate_Potential_Array_Declaration (To_String (First.Nested_Type_V.Value.Value),
-                                                                       To_String (Second.XML_Text_V),
-                                                                       To_String (Third.Name_V.Value),
-                                                                       Command_V);
-                              else
-                                 Generate_Potential_Access_Type (To_String (First.Nested_Type_V.Value.Value),
-                                                                 To_String (Second.XML_Text_V),
-                                                                 Command_V);
-                              end if;
+               for Param of Params loop
+                  if Param.Children.Length = 3 then
+                     declare
+                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                     begin
+                        if
+                          First.Kind_Id = Child_Nested_Type and then
+                          First.Nested_Type_V.Value.Exists and then
+                          Second.Kind_Id = Child_XML_Text and then
+                          Third.Kind_Id = Child_Name and then
+                          Length (Third.Name_V.Value) > 0
+                        then
+                           if Is_Pointer_Actually_An_Array (Command_V, Param) then
+                              Generate_Potential_Array_Declaration (To_String (First.Nested_Type_V.Value.Value),
+                                                                    To_String (Second.XML_Text_V.all),
+                                                                    To_String (Third.Name_V.Value),
+                                                                    Command_V);
+                           else
+                              Generate_Potential_Access_Type (To_String (First.Nested_Type_V.Value.Value),
+                                                              To_String (Second.XML_Text_V.all),
+                                                              Command_V);
                            end if;
-                        end;
-                     elsif Length (Param_Children) = 4 then
-                        declare
-                           First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                            Index     => First_Index (Param_Children));
-                           Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                             Index     => First_Index (Param_Children) + 1);
-                           Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                            Index     => First_Index (Param_Children) + 2);
-                           Fourth : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                             Index     => First_Index (Param_Children) + 3);
-                        begin
-                           if
-                             First.Kind_Id = Child_XML_Text and then
-                             Second.Kind_Id = Child_Nested_Type and then
-                             Second.Nested_Type_V.Value.Exists and then
-                             Third.Kind_Id = Child_XML_Text and then
-                             Fourth.Kind_Id = Child_Name and then
-                             Length (Fourth.Name_V.Value) > 0
-                           then
-                              Generate_Potential_Constant_Access_Type (To_String (Fourth.Name_V.Value),
-                                                                       To_String (Second.Nested_Type_V.Value.Value),
-                                                                       To_String (First.XML_Text_V),
-                                                                       To_String (Third.XML_Text_V),
-                                                                       Command_V);
-                           end if;
-                        end;
-                     end if;
-                  end;
+                        end if;
+                     end;
+                  elsif Param.Children.Length = 4 then
+                     declare
+                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
+                     begin
+                        if
+                          First.Kind_Id = Child_XML_Text and then
+                          Second.Kind_Id = Child_Nested_Type and then
+                          Second.Nested_Type_V.Value.Exists and then
+                          Third.Kind_Id = Child_XML_Text and then
+                          Fourth.Kind_Id = Child_Name and then
+                          Length (Fourth.Name_V.Value) > 0
+                        then
+                           Generate_Potential_Constant_Access_Type (To_String (Fourth.Name_V.Value),
+                                                                    To_String (Second.Nested_Type_V.Value.Value),
+                                                                    To_String (First.XML_Text_V.all),
+                                                                    To_String (Third.XML_Text_V.all),
+                                                                    Command_V);
+                        end if;
+                     end;
+                  end if;
                end loop;
             end Generate_Code_For_The_Constant_Access_Types_If_Any;
 
             procedure Generate_Code_For_The_Subprogram_Parameters_If_Any is
 
                procedure Generate_Code_For_Parameter (Param   : Vk_XML2.Param.Ptr;
-                                                      Is_Last : Boolean)
-               is
-                  Param_Children : Vk_XML2.Param.Child_Vectors.Immutable_T renames Children (Param);
+                                                      Is_Last : Boolean) is
                begin
-                  if Length (Param_Children) = 2 then
+                  if Param.Children.Length = 2 then
                      declare
-                        First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                          Index     => First_Index (Param_Children));
-                        Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                          Index     => First_Index (Param_Children) + 1);
+                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
                      begin
                         if
                           First.Kind_Id = Child_Nested_Type and then
@@ -3232,22 +3188,19 @@ package body Vk_Package_Creator is
                                  end if;
                               else
                                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                   Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Command_V));
+--                             Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
-                  elsif Length (Param_Children) = 3 then
+                  elsif Param.Children.Length = 3 then
                      declare
-                        First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                         Index     => First_Index (Param_Children));
-                        Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                          Index     => First_Index (Param_Children) + 1);
-                        Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                         Index     => First_Index (Param_Children) + 2);
+                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
                      begin
                         if
                           First.Kind_Id = Child_Nested_Type and then
@@ -3263,7 +3216,7 @@ package body Vk_Package_Creator is
                               Adafied_Name     : Ada.Strings.Unbounded.Unbounded_String;
                            begin
                               if
-                                Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V),
+                                Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V.all),
                                                         Side   => Ada.Strings.Both) = "*"
                               then
                                  Adaify_Name (Old_Name => To_String (Third.Name_V.Value),
@@ -3278,7 +3231,7 @@ package body Vk_Package_Creator is
                                     Put_Tabs (2);
                                     Put (To_String (Adafied_Name));
                                     Put (" : ");
-                                    Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                                    Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                                     if Is_Last then
                                        Put_Line ("");
                                     else
@@ -3286,10 +3239,10 @@ package body Vk_Package_Creator is
                                     end if;
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                      Aida.Text_IO.Put_Line (To_String (Command_V));
                                  end if;
                               elsif
-                                Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V),
+                                Ada.Strings.Fixed.Trim (Source => To_String (Second.XML_Text_V.all),
                                                         Side   => Ada.Strings.Both) = "**"
                               then
                                  Adaify_Name (Old_Name => To_String (Third.Name_V.Value),
@@ -3304,7 +3257,7 @@ package body Vk_Package_Creator is
                                     Put_Tabs (2);
                                     Put (To_String (Adafied_Name));
                                     Put (" : ");
-                                    Put (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor).To_String);
+                                    Put (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
                                     if Is_Last then
                                        Put_Line ("");
                                     else
@@ -3312,28 +3265,24 @@ package body Vk_Package_Creator is
                                     end if;
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                      Aida.Text_IO.Put_Line (To_String (Command_V));
                                  end if;
                               else
                                  Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                   Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Command_V));
+--                             Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
-                  elsif Length (Param_Children) = 4 then
+                  elsif Param.Children.Length = 4 then
                      declare
-                        First : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                         Index     => First_Index (Param_Children));
-                        Second : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                          Index     => First_Index (Param_Children) + 1);
-                        Third : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                         Index     => First_Index (Param_Children) + 2);
-                        Fourth : Vk_XML2.Param.Child_T renames Element (Container => Param_Children,
-                                                                          Index     => First_Index (Param_Children) + 3);
+                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
                      begin
                         if
                           First.Kind_Id = Child_XML_Text and then
@@ -3346,10 +3295,10 @@ package body Vk_Package_Creator is
                            declare
                               Adafied_Name : Ada.Strings.Unbounded.Unbounded_String;
 
-                              Star : String := To_String (Third.XML_Text_V);
+                              Star : String := To_String (Third.XML_Text_V.all);
                            begin
                               if
-                                To_String (First.XML_Text_V) = "const " and then
+                                To_String (First.XML_Text_V.all) = "const " and then
                                 Star (Star'First) = '*'
                               then
                                  Adaify_Name (Old_Name => To_String (Fourth.Name_V.Value),
@@ -3377,12 +3326,12 @@ package body Vk_Package_Creator is
                                        end if;
                                     else
                                        Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                       Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                         Aida.Text_IO.Put_Line (To_String (Command_V));
                                     end if;
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+--                                   Aida.Text_IO.Put_Line (To_String (Command_V));
                               end if;
                            end;
                         elsif
@@ -3415,26 +3364,26 @@ package body Vk_Package_Creator is
                            end;
                         else
                            Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Command_V));
+--                             Aida.Text_IO.Put_Line (To_String (Command_V));
                         end if;
                      end;
                   else
                      Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                     Aida.Text_IO.Put_Line (To_String (Command_V));
+--                       Aida.Text_IO.Put_Line (To_String (Command_V));
                   end if;
                end Generate_Code_For_Parameter;
 
             begin
-               for I in Positive range First_Index (Params)..Last_Index (Params) loop
-                  Generate_Code_For_Parameter (Element (Params, I), I = Last_Index (Params));
+               for Param of Params loop
+                  Generate_Code_For_Parameter (Param, Param = Params.Last_Element);
                end loop;
             end Generate_Code_For_The_Subprogram_Parameters_If_Any;
 
             procedure Generate_Code_For_The_Subprogram_Ending is
             begin
-               if Length (Params) > 0 then
+               if Params.Length > 0 then
                   if Is_Function then
-                     Put_Line (") return " & Return_Type.To_String & ";");
+                     Put_Line (") return " & To_String (Return_Type) & ";");
                   else
                      Put_Line (");");
                   end if;
@@ -3443,9 +3392,9 @@ package body Vk_Package_Creator is
                end if;
 
                if Generating_Code_For_OS = Windows then
-                  Put_Line ("pragma Import (StdCall, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
+                  Put_Line ("pragma Import (StdCall, " & To_String (Subprogram_Name) & ", """ & To_String (C_Subprogram_Name) & """);");
                else
-                  Put_Line ("pragma Import (C, " & Subprogram_Name.To_String & ", """ & C_Subprogram_Name.To_String & """);");
+                  Put_Line ("pragma Import (C, " & To_String (Subprogram_Name) & ", """ & To_String (C_Subprogram_Name) & """);");
                end if;
 
                Put_Line ("");
@@ -3462,10 +3411,10 @@ package body Vk_Package_Creator is
          procedure Handle_Commands (Commands_V : Vk_XML2.Commands.Ptr)
          is
          begin
-            for I in Positive range First_Index (Children (Commands_V))..Last_Index (Children (Commands_V)) loop
-               case Element (Children (Commands_V), I).Kind_Id is
+            for Command of Commands_V.Children loop
+               case Command.Kind_Id is
                   when Child_Command =>
-                     Handle_Command (Element (Children (Commands_V), I).Command_V);
+                     Handle_Command (Command.Command_V);
                   when others =>
                      null;
                end case;
@@ -3500,8 +3449,8 @@ package body Vk_Package_Creator is
 
          Generate_Code_For_The_Enum_Types;
 
-         for I in Positive range First_Index (Children (R))..Last_Index (Children (R)) loop
-            case Element (Children (R), I).Kind_Id is
+         for Request_Child of R.Children loop
+            case Request_Child.Kind_Id is
                when Child_Comment =>
                   null;
                when Child_Out_Commented_Message =>
@@ -3511,16 +3460,14 @@ package body Vk_Package_Creator is
                when Child_Tags =>
                   null;
                when Child_Types =>
-                  Handle_Child_Types (Element (Children (R), I).Types_V, R);
+                  Handle_Child_Types (Request_Child.Types_V, R);
                when Child_Enums =>
                   null;
                when Child_Commands =>
-                  Handle_Commands (Element (Children (R), I).Commands_V);
+                  Handle_Commands (Request_Child.Commands_V);
                when Child_Feature =>
                   null;
                when Child_Extensions =>
-                  null;
-               when Child_XML_Dummy =>
                   null;
                when Child_XML_Text =>
                   null;
@@ -3540,22 +3487,22 @@ package body Vk_Package_Creator is
             begin
                if
                  To_String (Type_V.Category) = "handle" and then
-                 Length (Children (Type_V)) = 4
+                 Type_V.Children.Length = 4
                then
                   declare
-                     Nested_Type_Element   : Vk_XML2.Type_T.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)));
-                     Left_Bracket_Element  : Vk_XML2.Type_T.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 1);
-                     Name_Element          : Vk_XML2.Type_T.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 2);
-                     Right_Bracket_Element : Vk_XML2.Type_T.Child_T renames Element (Children (Type_V), First_Index (Children (Type_V)) + 3);
+                     Nested_Type_Element   : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
+                     Left_Bracket_Element  : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+                     Name_Element          : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
+                     Right_Bracket_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 3);
                   begin
                      if
                        (Left_Bracket_Element.Kind_Id = Child_XML_Text and then
-                        To_String (Left_Bracket_Element.XML_Text_V) = "(") and
+                        To_String (Left_Bracket_Element.XML_Text_V.all) = "(") and
                        (Right_Bracket_Element.Kind_Id = Child_XML_Text and then
-                        To_String (Right_Bracket_Element.XML_Text_V) = ")") and
+                        To_String (Right_Bracket_Element.XML_Text_V.all) = ")") and
                        (Nested_Type_Element.Kind_Id = Child_Nested_Type and then
-                        Value (Nested_Type_Element.Nested_Type_V).Exists and then
-                            (To_String (Value (Nested_Type_Element.Nested_Type_V).Value) = "VK_DEFINE_HANDLE" or To_String (Value (Nested_Type_Element.Nested_Type_V).Value) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
+                        Nested_Type_Element.Nested_Type_V.Value.Exists and then
+                            (To_String (Nested_Type_Element.Nested_Type_V.Value.Value) = "VK_DEFINE_HANDLE" or To_String (Nested_Type_Element.Nested_Type_V.Value.Value) = "VK_DEFINE_NON_DISPATCHABLE_HANDLE")) and
                        Name_Element.Kind_Id = Child_Name
                      then
 --                          declare
@@ -3625,8 +3572,8 @@ package body Vk_Package_Creator is
             CN : Ada.Strings.Unbounded.Unbounded_String;
             AN : Ada.Strings.Unbounded.Unbounded_String;
          begin
-            CN.Initialize (C_Type_Name);
-            AN.Initialize (Ada_Type_Name);
+            Set_Unbounded_String (CN, C_Type_Name);
+            Set_Unbounded_String (AN, Ada_Type_Name);
             C_Type_Name_To_Ada_Name_Map_Owner.Insert (Container => C_Type_Name_To_Ada_Name_Map,
                                                       Key       => CN,
                                                       New_Item  => AN);

@@ -309,7 +309,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Registry =>
                   if Tag_Name = XML_Tag_Comment then
                      declare
-                        Comment : not null Vk_XML2.Comment.Ptr := new Vk_XML2.Comment.T;
+                        Comment : not null Vk_XML2.Comment.Ptr := new (Subpool) Vk_XML2.Comment.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Comment,
                                                              C       => Comment);
 
@@ -328,7 +328,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Vendor_Ids then
                      declare
-                        Vendor_Ids_V : not null Vk_XML2.Vendor_Ids.Ptr := new Vk_XML2.Vendor_Ids.T;
+                        Vendor_Ids_V : not null Vk_XML2.Vendor_Ids.Ptr := new (Subpool) Vk_XML2.Vendor_Ids.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id      => Child_Vendor_Ids,
                                                              Vendor_Ids_V => Vendor_Ids_V);
 
@@ -346,7 +346,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Tags then
                      declare
-                        Tags_V : not null Vk_XML2.Tags.Ptr := new Vk_XML2.Tags.T;
+                        Tags_V : not null Vk_XML2.Tags.Ptr := new (Subpool) Vk_XML2.Tags.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Tags,
                                                              Tags_V  => Tags_V);
 
@@ -364,7 +364,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Types then
                      declare
-                        Types_V : not null Vk_XML2.Types.Ptr := new Vk_XML2.Types.T;
+                        Types_V : not null Vk_XML2.Types.Ptr := new (Subpool) Vk_XML2.Types.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Types,
                                                              Types_V  => Types_V);
 
@@ -382,7 +382,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Enums then
                      declare
-                        Enums_V : not null Vk_XML2.Enums.Ptr := new Vk_XML2.Enums.T;
+                        Enums_V : not null Vk_XML2.Enums.Ptr := new (Subpool) Vk_XML2.Enums.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id => Child_Enums,
                                                              Enums_V  => Enums_V);
 
@@ -400,7 +400,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Commands then
                      declare
-                        Commands_V : not null Vk_XML2.Commands.Ptr := new Vk_XML2.Commands.T;
+                        Commands_V : not null Vk_XML2.Commands.Ptr := new (Subpool) Vk_XML2.Commands.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id    => Child_Commands,
                                                              Commands_V => Commands_V);
 
@@ -418,7 +418,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Feature then
                      declare
-                        Feature_V : not null Vk_XML2.Feature.Ptr := new Vk_XML2.Feature.T;
+                        Feature_V : not null Vk_XML2.Feature.Ptr := new (Subpool) Vk_XML2.Feature.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id   => Child_Feature,
                                                              Feature_V => Feature_V);
 
@@ -436,7 +436,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Extensions then
                      declare
-                        Extensions_V : not null Vk_XML2.Extensions.Ptr := new Vk_XML2.Extensions.T;
+                        Extensions_V : not null Vk_XML2.Extensions.Ptr := new (Subpool) Vk_XML2.Extensions.T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id   => Child_Extensions,
                                                              Extensions_V => Extensions_V);
 
@@ -458,7 +458,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Vendor_Ids =>
                   if Tag_Name = XML_Tag_Vendor_Id then
                      declare
-                        Vendor_Id_V : not null Vk_XML2.Vendor_Id.Ptr := new Vk_XML2.Vendor_Id.T;
+                        Vendor_Id_V : not null Vk_XML2.Vendor_Id.Ptr := new (Subpool) Vk_XML2.Vendor_Id.T;
                         Child : Vk_XML2.Vendor_Ids.Child_T := (Kind_Id     => Child_Vendor_Id,
                                                                Vendor_Id_V => Vendor_Id_V);
 
@@ -481,7 +481,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Tags =>
                   if Tag_Name = XML_Tag_Tag then
                      declare
-                        Tag_V : not null Vk_XML2.Tag.Ptr := new Vk_XML2.Tag.T;
+                        Tag_V : not null Vk_XML2.Tag.Ptr := new (Subpool) Vk_XML2.Tag.T;
                         Child : Vk_XML2.Tags.Child_T := (Kind_Id => Child_Tag,
                                                          Tag_V   => Tag_V);
 
@@ -504,7 +504,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Types =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Type_V : not null Vk_XML2.Type_T.Ptr := new Vk_XML2.Type_T.T;
+                        Type_V : not null Vk_XML2.Type_T.Ptr := new (Subpool) Vk_XML2.Type_T.T;
                         Child : Vk_XML2.Types.Child_T := (Kind_Id => Child_Type,
                                                           Type_V  => Type_V);
 
@@ -527,7 +527,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Type_T =>
                   if Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Name_V : not null Vk_XML2.Name.Ptr := new (Subpool) Vk_XML2.Name.T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id => Child_Name,
                                                            Name_V  => Name_V);
 
@@ -546,7 +546,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new (Subpool) Vk_XML2.Nested_Type.T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id       => Child_Nested_Type,
                                                            Nested_Type_V => Nested_Type_V);
 
@@ -565,7 +565,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Member then
                      declare
-                        Member_V : not null Vk_XML2.Member.Ptr := new Vk_XML2.Member.T;
+                        Member_V : not null Vk_XML2.Member.Ptr := new (Subpool) Vk_XML2.Member.T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id  => Child_Member,
                                                            Member_V => Member_V);
 
@@ -584,7 +584,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Validity then
                      declare
-                        Validity_V : not null Vk_XML2.Validity.Ptr := new Vk_XML2.Validity.T;
+                        Validity_V : not null Vk_XML2.Validity.Ptr := new (Subpool) Vk_XML2.Validity.T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_Validity,
                                                            Validity_V => Validity_V);
 
@@ -607,7 +607,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Member =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new (Subpool) Vk_XML2.Nested_Type.T;
                         Child : Vk_XML2.Member.Child_T := (Kind_Id       => Child_Nested_Type,
                                                            Nested_Type_V => Nested_Type_V);
 
@@ -626,7 +626,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Name_V : not null Vk_XML2.Name.Ptr := new (Subpool) Vk_XML2.Name.T;
                         Child : Vk_XML2.Member.Child_T := (Kind_Id => Child_Name,
                                                            Name_V  => Name_V);
 
@@ -645,7 +645,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Enum then
                      declare
-                        Enum_V : not null Vk_XML2.Enum.Ptr := new Vk_XML2.Enum.T;
+                        Enum_V : not null Vk_XML2.Enum.Ptr := new (Subpool) Vk_XML2.Enum.T;
                         Child : Vk_XML2.Member.Child_T := (Kind_Id => Child_Enum,
                                                            Enum_V  => Enum_V);
 
@@ -668,7 +668,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Validity =>
                   if Tag_Name = XML_Tag_Usage then
                      declare
-                        Usage_V : not null Vk_XML2.Usage.Ptr := new Vk_XML2.Usage.T;
+                        Usage_V : not null Vk_XML2.Usage.Ptr := new (Subpool) Vk_XML2.Usage.T;
                         Child : Vk_XML2.Validity.Child_T := (Kind_Id => Child_Usage,
                                                              Usage_V => Usage_V);
 
@@ -691,7 +691,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Enums =>
                   if Tag_Name = XML_Tag_Enum then
                      declare
-                        Enums_Enum_V : not null Vk_XML2.Enums_Enum.Ptr := new Vk_XML2.Enums_Enum.T;
+                        Enums_Enum_V : not null Vk_XML2.Enums_Enum.Ptr := new (Subpool) Vk_XML2.Enums_Enum.T;
                         Child : Vk_XML2.Enums.Child_T := (Kind_Id      => Child_Enums_Enum,
                                                           Enums_Enum_V => Enums_Enum_V);
 
@@ -710,7 +710,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Unused then
                      declare
-                        Unused_V : not null Vk_XML2.Unused.Ptr := new Vk_XML2.Unused.T;
+                        Unused_V : not null Vk_XML2.Unused.Ptr := new (Subpool) Vk_XML2.Unused.T;
                         Child : Vk_XML2.Enums.Child_T := (Kind_Id      => Child_Unused,
                                                           Unused_V => Unused_V);
 
@@ -733,7 +733,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Commands =>
                   if Tag_Name = XML_Tag_Command then
                      declare
-                        Command_V : not null Vk_XML2.Command.Ptr := new Vk_XML2.Command.T;
+                        Command_V : not null Vk_XML2.Command.Ptr := new (Subpool) Vk_XML2.Command.T;
                         Child : Vk_XML2.Commands.Child_T := (Kind_Id   => Child_Command,
                                                              Command_V => Command_V);
 
@@ -756,7 +756,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Command =>
                   if Tag_Name = XML_Tag_Proto then
                      declare
-                        Proto_V : not null Vk_XML2.Proto.Ptr := new Vk_XML2.Proto.T;
+                        Proto_V : not null Vk_XML2.Proto.Ptr := new (Subpool) Vk_XML2.Proto.T;
                         Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Proto,
                                                             Proto_V => Proto_V);
 
@@ -775,7 +775,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Param then
                      declare
-                        Param_V : not null Vk_XML2.Param.Ptr := new Vk_XML2.Param.T;
+                        Param_V : not null Vk_XML2.Param.Ptr := new (Subpool) Vk_XML2.Param.T;
                         Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Param,
                                                             Param_V => Param_V);
 
@@ -794,7 +794,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Validity then
                      declare
-                        Validity_V : not null Vk_XML2.Validity.Ptr := new Vk_XML2.Validity.T;
+                        Validity_V : not null Vk_XML2.Validity.Ptr := new (Subpool) Vk_XML2.Validity.T;
                         Child : Vk_XML2.Command.Child_T := (Kind_Id => Child_Validity,
                                                             Validity_V => Validity_V);
 
@@ -813,7 +813,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Implicit_External_Syns_Params then
                      declare
-                        Parameters_V : not null Vk_XML2.Implicit_External_Sync_Parameters.Ptr := new Vk_XML2.Implicit_External_Sync_Parameters.T;
+                        Parameters_V : not null Vk_XML2.Implicit_External_Sync_Parameters.Ptr := new (Subpool) Vk_XML2.Implicit_External_Sync_Parameters.T;
                         Child : Vk_XML2.Command.Child_T := (Kind_Id      => Child_Implicit_External_Sync_Parameters,
                                                             Parameters_V => Parameters_V);
 
@@ -836,7 +836,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Proto =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new (Subpool) Vk_XML2.Nested_Type.T;
                         Child : Vk_XML2.Proto.Child_T := (Kind_Id       => Child_Nested_Type,
                                                           Nested_Type_V => Nested_Type_V);
 
@@ -855,7 +855,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Name_V : not null Vk_XML2.Name.Ptr := new (Subpool) Vk_XML2.Name.T;
                         Child : Vk_XML2.Proto.Child_T := (Kind_Id       => Child_Name,
                                                           Name_V => Name_V);
 
@@ -878,7 +878,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Param =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new Vk_XML2.Nested_Type.T;
+                        Nested_Type_V : not null Vk_XML2.Nested_Type.Ptr := new (Subpool) Vk_XML2.Nested_Type.T;
                         Child : Vk_XML2.Param.Child_T := (Kind_Id       => Child_Nested_Type,
                                                           Nested_Type_V => Nested_Type_V);
 
@@ -897,7 +897,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : not null Vk_XML2.Name.Ptr := new Vk_XML2.Name.T;
+                        Name_V : not null Vk_XML2.Name.Ptr := new (Subpool) Vk_XML2.Name.T;
                         Child : Vk_XML2.Param.Child_T := (Kind_Id       => Child_Name,
                                                           Name_V => Name_V);
 
@@ -920,7 +920,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Implicit_External_Sync_Parameters =>
                   if Tag_Name = XML_Tag_External_Sync_Parameter then
                      declare
-                        External_Sync_Parameter_V : not null Vk_XML2.External_Sync_Parameter.Ptr := new Vk_XML2.External_Sync_Parameter.T;
+                        External_Sync_Parameter_V : not null Vk_XML2.External_Sync_Parameter.Ptr := new (Subpool) Vk_XML2.External_Sync_Parameter.T;
                         Child : Vk_XML2.Implicit_External_Sync_Parameters.Child_T := (Kind_Id                   => Child_External_Sync_Parameter,
                                                                                       External_Sync_Parameter_V => External_Sync_Parameter_V);
 
@@ -943,7 +943,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Feature =>
                   if Tag_Name = XML_Tag_Require then
                      declare
-                        Require_V : not null Vk_XML2.Require.Ptr := new Vk_XML2.Require.T;
+                        Require_V : not null Vk_XML2.Require.Ptr := new (Subpool) Vk_XML2.Require.T;
                         Child : Vk_XML2.Feature.Child_T := (Kind_Id   => Child_Require,
                                                             Require_V => Require_V);
 
@@ -966,7 +966,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Require =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Type_V : not null Vk_XML2.Type_T.Ptr := new Vk_XML2.Type_T.T;
+                        Type_V : not null Vk_XML2.Type_T.Ptr := new (Subpool) Vk_XML2.Type_T.T;
                         Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Type,
                                                             Type_V  => Type_V);
 
@@ -985,7 +985,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Enum then
                      declare
-                        Enum_V : not null Vk_XML2.Require_Enum.Ptr := new Vk_XML2.Require_Enum.T;
+                        Enum_V : not null Vk_XML2.Require_Enum.Ptr := new (Subpool) Vk_XML2.Require_Enum.T;
                         Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Enum,
                                                             Enum_V  => Enum_V);
 
@@ -1004,7 +1004,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Command then
                      declare
-                        Command_V : not null Vk_XML2.Require_Command.Ptr := new Vk_XML2.Require_Command.T;
+                        Command_V : not null Vk_XML2.Require_Command.Ptr := new (Subpool) Vk_XML2.Require_Command.T;
                         Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Command,
                                                             Command_V  => Command_V);
 
@@ -1023,7 +1023,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Usage then
                      declare
-                        Usage_V : not null Vk_XML2.Usage.Ptr := new Vk_XML2.Usage.T;
+                        Usage_V : not null Vk_XML2.Usage.Ptr := new (Subpool) Vk_XML2.Usage.T;
                         Child : Vk_XML2.Require.Child_T := (Kind_Id => Child_Usage,
                                                             Usage_V => Usage_V);
 
@@ -1046,7 +1046,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Extensions =>
                   if Tag_Name = XML_Tag_Extension then
                      declare
-                        Extension_V : not null Vk_XML2.Extension.Ptr := new Vk_XML2.Extension.T;
+                        Extension_V : not null Vk_XML2.Extension.Ptr := new (Subpool) Vk_XML2.Extension.T;
                         Child : Vk_XML2.Extensions.Child_T := (Kind_Id     => Child_Extension,
                                                                Extension_V => Extension_V);
 
@@ -1069,7 +1069,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Fs.Tag_Id.Extension =>
                   if Tag_Name = XML_Tag_Require then
                      declare
-                        Require_V : not null Vk_XML2.Require.Ptr := new Vk_XML2.Require.T;
+                        Require_V : not null Vk_XML2.Require.Ptr := new (Subpool) Vk_XML2.Require.T;
                         Child : Vk_XML2.Extension.Child_T := (Kind_Id   => Child_Require,
                                                               Require_V => Require_V);
 
@@ -1534,7 +1534,7 @@ package body Vk_XML_Reader is
                      Current_Tag_V.Comment.Value := To_Unbounded_String (Tag_Value);
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_XML_Text,
                                                            XML_Text_V => XML_Text_V);
                      begin
@@ -1548,7 +1548,7 @@ package body Vk_XML_Reader is
                                                            Value  => To_Unbounded_String (Tag_Value));
                   when Current_Tag_Fs.Tag_Id.Usage =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Usage.Child_T := (Kind_Id    => Child_XML_Text,
                                                           XML_Text_V => XML_Text_V);
                      begin
@@ -1624,7 +1624,7 @@ package body Vk_XML_Reader is
                   case Current_Tag_V.Kind_Id is
                   when Current_Tag_Fs.Tag_Id.Registry =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Registry.Child_T := (Kind_Id    => Child_XML_Text,
                                                              XML_Text_V => XML_Text_V);
                      begin
@@ -1633,7 +1633,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Fs.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Type_T.Child_T := (Kind_Id    => Child_XML_Text,
                                                            XML_Text_V => XML_Text_V);
                      begin
@@ -1642,7 +1642,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Fs.Tag_Id.Member =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Member.Child_T := (Kind_Id    => Child_XML_Text,
                                                            XML_Text_V => XML_Text_V);
                      begin
@@ -1651,7 +1651,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Fs.Tag_Id.Param =>
                      declare
-                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new Vk_XML2.XML_Text_T;
+                        XML_Text_V : not null Vk_XML2.XML_Text_Ptr := new (Subpool) Vk_XML2.XML_Text_T;
                         Child : Vk_XML2.Param.Child_T := (Kind_Id    => Child_XML_Text,
                                                           XML_Text_V => XML_Text_V);
                      begin
@@ -1685,7 +1685,7 @@ package body Vk_XML_Reader is
             case Current_Tag_V.Kind_Id is
             when Current_Tag_Fs.Tag_Id.Registry =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Registry.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                        Out_Commented_Message_V => Comment);
                begin
@@ -1694,7 +1694,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Fs.Tag_Id.Types =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Types.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                     Out_Commented_Message_V => Comment);
                begin
@@ -1703,7 +1703,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Fs.Tag_Id.Type_T =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Type_T.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                      Out_Commented_Message_V => Comment);
                begin
@@ -1712,7 +1712,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Fs.Tag_Id.Enums =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Enums.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                     Out_Commented_Message_V => Comment);
                begin
@@ -1721,7 +1721,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Fs.Tag_Id.Require =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Require.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                       Out_Commented_Message_V => Comment);
                begin
@@ -1730,7 +1730,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Fs.Tag_Id.Extensions =>
                declare
-                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new Vk_XML2.XML_Out_Commented_Message_T;
+                  Comment : not null Vk_XML2.XML_Out_Commented_Message_Ptr := new (Subpool) Vk_XML2.XML_Out_Commented_Message_T;
                   Child : Vk_XML2.Extensions.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
                                                          Out_Commented_Message_V => Comment);
                begin

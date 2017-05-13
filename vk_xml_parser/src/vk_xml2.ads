@@ -6,15 +6,17 @@ package Vk_XML2 is
 
    Main_Pool : Dynamic_Pools.Dynamic_Pool;-- (Default_Block_Size => 0);
 
-   pragma Default_Storage_Pool (Main_Pool);
+--     pragma Default_Storage_Pool (Main_Pool);
 
    type XML_Text_T is new Ada.Strings.Unbounded.Unbounded_String;
 
-   type XML_Text_Ptr is access all XML_Text_T;
+   type XML_Text_Ptr is access all XML_Text_T with
+     Storage_Pool => Main_Pool;
 
    type XML_Out_Commented_Message_T is new Ada.Strings.Unbounded.Unbounded_String;
 
-   type XML_Out_Commented_Message_Ptr is access all XML_Out_Commented_Message_T;
+   type XML_Out_Commented_Message_Ptr is access all XML_Out_Commented_Message_T with
+     Storage_Pool => Main_Pool;
 
    package Tag is
 
@@ -31,7 +33,7 @@ package Vk_XML2 is
             Contact : aliased Contact_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Tag;
 
@@ -56,7 +58,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Tags;
 
@@ -70,7 +72,7 @@ package Vk_XML2 is
             Value : Value_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Comment;
 
@@ -83,7 +85,7 @@ package Vk_XML2 is
             Value : Value_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Name;
 
@@ -102,7 +104,7 @@ package Vk_XML2 is
             Value : Nullable_Value_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Nested_Type;
 
@@ -115,7 +117,7 @@ package Vk_XML2 is
             Value : Value_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Enum;
 
@@ -164,7 +166,7 @@ package Vk_XML2 is
             Bit_Position : Nullable_Bit_Position_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Enums_Enum;
 
@@ -219,7 +221,7 @@ package Vk_XML2 is
             Valid_Extension_Structs : Nullable_Valid_Extension_Structs_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Member;
 
@@ -262,7 +264,7 @@ package Vk_XML2 is
             Struct   : Nullable_Struct_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Usage;
 
@@ -287,7 +289,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Validity;
 
@@ -367,7 +369,7 @@ package Vk_XML2 is
 
       function To_String (This : T) return String;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Type_T;
 
@@ -394,7 +396,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Types;
 
@@ -413,7 +415,7 @@ package Vk_XML2 is
             Comment : Comment_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Vendor_Id;
 
@@ -438,7 +440,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Vendor_Ids;
 
@@ -457,7 +459,7 @@ package Vk_XML2 is
             Start : Nullable_Start_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Unused;
 
@@ -518,7 +520,7 @@ package Vk_XML2 is
             Type_Attribue : Nullable_Type_Attribue_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Enums;
 
@@ -545,7 +547,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Proto;
 
@@ -604,7 +606,7 @@ package Vk_XML2 is
             No_Auto_Validity : Nullable_No_Auto_Validity_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Param;
 
@@ -623,7 +625,7 @@ package Vk_XML2 is
             XML_Value : Nullable_XML_Value_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end External_Sync_Parameter;
 
@@ -648,7 +650,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Implicit_External_Sync_Parameters;
 
@@ -728,7 +730,7 @@ package Vk_XML2 is
 
       function To_String (This : T) return String;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Command;
 
@@ -753,7 +755,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Commands;
 
@@ -826,7 +828,7 @@ package Vk_XML2 is
             Bit_Position : Nullable_Bit_Position_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Require_Enum;
 
@@ -845,7 +847,7 @@ package Vk_XML2 is
             Name : Nullable_Name_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Require_Command;
 
@@ -887,7 +889,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Require;
 
@@ -939,7 +941,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Feature;
 
@@ -1023,7 +1025,7 @@ package Vk_XML2 is
             Contact   : Nullable_Contact_T;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Extension;
 
@@ -1050,7 +1052,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Extensions;
 
@@ -1093,7 +1095,7 @@ package Vk_XML2 is
             Children : Child_Vectors.Vector;
          end record;
 
-      type Ptr is access all T;
+      type Ptr is access all T with Storage_Pool => Main_Pool;
 
    end Registry;
 

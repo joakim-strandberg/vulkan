@@ -1,7 +1,12 @@
 with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
+with Dynamic_Pools;
 
 package Vk_XML2 is
+
+   Main_Pool : Dynamic_Pools.Dynamic_Pool (Default_Block_Size => 0);
+
+   pragma Default_Storage_Pool (Main_Pool);
 
    type XML_Text_T is new Ada.Strings.Unbounded.Unbounded_String;
 

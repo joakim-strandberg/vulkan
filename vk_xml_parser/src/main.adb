@@ -7,7 +7,7 @@ with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 with Vk_Package_Creator;
 with Vk_XML_Reader;
-with Vk_XML2;
+with Vk_XML;
 
 with Dynamic_Pools;
 
@@ -17,7 +17,7 @@ with Ada.Text_IO;
 procedure Main is
    File_Name : String  := "vk.xml";
 
-   Scoped_Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Vk_XML2.Main_Pool);
+   Scoped_Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Vk_XML.Main_Pool);
 
    Subpool : Dynamic_Pools.Subpool_Handle renames Scoped_Subpool.Handle;
 
@@ -35,7 +35,7 @@ procedure Main is
 
 --        I : I_Ptr := new (Subpool) Integer;
 
-      Registry : Vk_XML2.Registry.Ptr := new (Subpool) Vk_XML2.Registry.T;
+      Registry : Vk_XML.Registry.Ptr := new (Subpool) Vk_XML.Registry.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin
@@ -57,11 +57,11 @@ procedure Main is
       end if;
 
       Ada.Text_IO.Put ("Allocated memory in default subpool plus subpool:");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Vk_XML2.Main_Pool)'Img);
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Vk_XML.Main_Pool)'Img);
       Ada.Text_IO.Put ("Allocated memory in subpool alone:               ");
       Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Subpool)'Img);
       Ada.Text_IO.Put ("Used memory in default subpool plus subpool:     ");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Vk_XML2.Main_Pool)'Img);
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Vk_XML.Main_Pool)'Img);
       Ada.Text_IO.Put ("Used memory in subpool alone:                    ");
       Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Subpool)'Img);
    end Main_Internal;

@@ -17,53 +17,53 @@ package body Vk_Package_Creator is
    use all type Aida.Containers.Count_Type;
    use all type Ada.Strings.Unbounded.Unbounded_String;
 
-   use all type Vk_XML2.XML_Text_T;
-   use all type Vk_XML2.XML_Out_Commented_Message_T;
-   use all type Vk_XML2.Registry.Child_Kind_Id_T;
-   use all type Vk_XML2.Vendor_Ids.Child_Kind_Id_T;
-   use all type Vk_XML2.Tags.Child_Kind_Id_T;
-   use all type Vk_XML2.Types.Child_Kind_Id_T;
-   use all type Vk_XML2.Type_T.Child_Kind_Id_T;
-   use all type Vk_XML2.Member.Child_Kind_Id_T;
-   use all type Vk_XML2.Validity.Child_Kind_Id_T;
-   use all type Vk_XML2.Usage.Child_Kind_Id_T;
-   use all type Vk_XML2.Enums.Child_Kind_Id_T;
-   use all type Vk_XML2.Enums.Type_Attribue_T;
-   use all type Vk_XML2.Commands.Child_Kind_Id_T;
-   use all type Vk_XML2.Command.Child_Kind_Id_T;
-   use all type Vk_XML2.Command.Queue_T;
-   use all type Vk_XML2.Command.Render_Pass_T;
-   use all type Vk_XML2.Command.Command_Buffer_Level_T;
-   use all type Vk_XML2.Proto.Child_Kind_Id_T;
-   use all type Vk_XML2.Param.Child_Kind_Id_T;
-   use all type Vk_XML2.Implicit_External_Sync_Parameters.Child_Kind_Id_T;
-   use all type Vk_XML2.Feature.Child_Kind_Id_T;
-   use all type Vk_XML2.Require.Child_Kind_Id_T;
-   use all type Vk_XML2.Extension.Child_Kind_Id_T;
-   use all type Vk_XML2.Extension.Supported_T;
-   use all type Vk_XML2.Extensions.Child_Kind_Id_T;
-   use all type Vk_XML2.Vendor_Id.Name_T;
-   use all type Vk_XML2.Vendor_Id.Id_T;
-   use all type Vk_XML2.Vendor_Id.Comment_T;
-   use all type Vk_XML2.Tag.Name_T;
-   use all type Vk_XML2.Tag.Author_T;
-   use all type Vk_XML2.Tag.Contact_T;
-   use all type Vk_XML2.Type_T.Category_T;
-   use all type Vk_XML2.Type_T.Returned_Only_T;
-   use all type Vk_XML2.Member.No_Auto_Validity_T;
-   use all type Vk_XML2.Member.Optional_T;
-   use all type Vk_XML2.Command.Success_Code_T;
-   use all type Vk_XML2.Command.Error_Code_T;
-   use all type Vk_XML2.Param.Optional_T;
-   use all type Vk_XML2.Comment.Value_T;
-   use all type Vk_XML2.Name.Value_T;
-   use all type Vk_XML2.Nested_Type.Nullable_Value_T;
-   use all type Vk_XML2.Enum.Value_T;
+   use all type Vk_XML.XML_Text_T;
+   use all type Vk_XML.XML_Out_Commented_Message_T;
+   use all type Vk_XML.Registry.Child_Kind_Id_T;
+   use all type Vk_XML.Vendor_Ids.Child_Kind_Id_T;
+   use all type Vk_XML.Tags.Child_Kind_Id_T;
+   use all type Vk_XML.Types.Child_Kind_Id_T;
+   use all type Vk_XML.Type_T.Child_Kind_Id_T;
+   use all type Vk_XML.Member.Child_Kind_Id_T;
+   use all type Vk_XML.Validity.Child_Kind_Id_T;
+   use all type Vk_XML.Usage.Child_Kind_Id_T;
+   use all type Vk_XML.Enums.Child_Kind_Id_T;
+   use all type Vk_XML.Enums.Type_Attribue_T;
+   use all type Vk_XML.Commands.Child_Kind_Id_T;
+   use all type Vk_XML.Command.Child_Kind_Id_T;
+   use all type Vk_XML.Command.Queue_T;
+   use all type Vk_XML.Command.Render_Pass_T;
+   use all type Vk_XML.Command.Command_Buffer_Level_T;
+   use all type Vk_XML.Proto.Child_Kind_Id_T;
+   use all type Vk_XML.Param.Child_Kind_Id_T;
+   use all type Vk_XML.Implicit_External_Sync_Parameters.Child_Kind_Id_T;
+   use all type Vk_XML.Feature.Child_Kind_Id_T;
+   use all type Vk_XML.Require.Child_Kind_Id_T;
+   use all type Vk_XML.Extension.Child_Kind_Id_T;
+   use all type Vk_XML.Extension.Supported_T;
+   use all type Vk_XML.Extensions.Child_Kind_Id_T;
+   use all type Vk_XML.Vendor_Id.Name_T;
+   use all type Vk_XML.Vendor_Id.Id_T;
+   use all type Vk_XML.Vendor_Id.Comment_T;
+   use all type Vk_XML.Tag.Name_T;
+   use all type Vk_XML.Tag.Author_T;
+   use all type Vk_XML.Tag.Contact_T;
+   use all type Vk_XML.Type_T.Category_T;
+   use all type Vk_XML.Type_T.Returned_Only_T;
+   use all type Vk_XML.Member.No_Auto_Validity_T;
+   use all type Vk_XML.Member.Optional_T;
+   use all type Vk_XML.Command.Success_Code_T;
+   use all type Vk_XML.Command.Error_Code_T;
+   use all type Vk_XML.Param.Optional_T;
+   use all type Vk_XML.Comment.Value_T;
+   use all type Vk_XML.Name.Value_T;
+   use all type Vk_XML.Nested_Type.Nullable_Value_T;
+   use all type Vk_XML.Enum.Value_T;
 
-   use all type Vk_XML2.Type_T.T;
-   use all type Vk_XML2.Command.T;
+   use all type Vk_XML.Type_T.T;
+   use all type Vk_XML.Command.T;
 
-   use type Vk_XML2.Param.Ptr;
+   use type Vk_XML.Param.Ptr;
 
 --     use all type Member_Vectors.Vector;
 --     use all type Struct_Type_Vectors.Vector;
@@ -397,33 +397,33 @@ package body Vk_Package_Creator is
       Append (New_Name, CAT_End);
    end Adaify_Constant_Access_Type_Name;
 
-   function Value_Of_Bit (B : Vk_XML2.Enums_Enum.Bit_Position_T) return Long_Integer is
+   function Value_Of_Bit (B : Vk_XML.Enums_Enum.Bit_Position_T) return Long_Integer is
    begin
       return 2 ** Integer (B);
    end Value_Of_Bit;
 
    VOID_C_TYPE : constant String := "void";
 
-   procedure Handle_Child_Type (Type_V : Vk_XML2.Type_T.T;
-                                R      : Vk_XML2.Registry.T)
+   procedure Handle_Child_Type (Type_V : Vk_XML.Type_T.T;
+                                R      : Vk_XML.Registry.T)
    is
 
       procedure Generate_Code_For_Enum_Bitmask_If_Found (Searched_For     : Ada.Strings.Unbounded.Unbounded_String;
                                                          Parent_Type_Name : Ada.Strings.Unbounded.Unbounded_String) is
          Shall_Continue_Search : Boolean := True;
 
-         procedure Search_Enum_Tags_And_Generate_Code_If_Found (Enums_V : Vk_XML2.Enums.Ptr) is
+         procedure Search_Enum_Tags_And_Generate_Code_If_Found (Enums_V : Vk_XML.Enums.Ptr) is
 
             procedure Auto_Generate_Code_For_Found_Enum is
 
                Adafied_Name : Ada.Strings.Unbounded.Unbounded_String;
 
-               procedure Handle_Enum_Bitmask (Enum_V : Vk_XML2.Enums_Enum.Ptr) is
+               procedure Handle_Enum_Bitmask (Enum_V : Vk_XML.Enums_Enum.Ptr) is
                begin
                   if Enum_V.Name.Exists then
                      if Enum_V.Bit_Position.Exists then
                         declare
-                           V : Vk_XML2.Enums_Enum.Bit_Position_T := Enum_V.Bit_Position.Value;
+                           V : Vk_XML.Enums_Enum.Bit_Position_T := Enum_V.Bit_Position.Value;
                            N : String := To_String (Enum_V.Name.Value);
                         begin
                            Put_Tabs (1);
@@ -585,9 +585,9 @@ package body Vk_Package_Creator is
         Type_V.Children.Length = 4
       then
          declare
-            Typedef_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
-            Type_Element    : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
-            Name_Element    : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
+            Typedef_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
+            Type_Element    : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+            Name_Element    : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
          begin
             if
               Typedef_Element.Kind_Id = Child_XML_Text and then
@@ -667,9 +667,9 @@ package body Vk_Package_Creator is
         Type_V.Children.Length = 4
       then
          declare
-            Typedef_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 0);
-            Type_Element    : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
-            Name_Element    : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
+            Typedef_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 0);
+            Type_Element    : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+            Name_Element    : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
          begin
             if
               Typedef_Element.Kind_Id = Child_XML_Text and then
@@ -747,10 +747,10 @@ package body Vk_Package_Creator is
         Type_V.Children.Length = 4
       then
          declare
-            Nested_Type_Element   : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
-            Left_Bracket_Element  : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
-            Name_Element          : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
-            Right_Bracket_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 3);
+            Nested_Type_Element   : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
+            Left_Bracket_Element  : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+            Name_Element          : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
+            Right_Bracket_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 3);
          begin
             if
               (Left_Bracket_Element.Kind_Id = Child_XML_Text and then
@@ -794,8 +794,8 @@ package body Vk_Package_Creator is
         not Type_V.Name.Exists
       then
          declare
-            Typedef_Void_VKAPI_Ptr_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
-            Procedure_Name_Element         : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+            Typedef_Void_VKAPI_Ptr_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
+            Procedure_Name_Element         : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
          begin
             if (Typedef_Void_VKAPI_Ptr_Element.Kind_Id = Child_XML_Text and then
                 To_String (Typedef_Void_VKAPI_Ptr_Element.XML_Text_V.all) = "typedef void (VKAPI_PTR *") and
@@ -840,10 +840,10 @@ package body Vk_Package_Creator is
 
                      for I in Positive range Type_V.Children.First_Index + 3..(Type_V.Children.Last_Index - 1) loop
                         declare
-                           Nested_Type_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (I);
+                           Nested_Type_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (I);
                            Nested_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
-                           C_Var_Name_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (I + 1);
+                           C_Var_Name_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (I + 1);
                            Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
                         begin
                            if
@@ -1001,10 +1001,10 @@ package body Vk_Package_Creator is
 
                   for I in Positive range Type_V.Children.First_Index + 3..(Type_V.Children.Last_Index - 1) loop
                      declare
-                        Nested_Type_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (I);
+                        Nested_Type_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (I);
                         Nested_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
-                        C_Var_Name_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (I + 1);
+                        C_Var_Name_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (I + 1);
                         Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
                      begin
                         if
@@ -1031,7 +1031,7 @@ package body Vk_Package_Creator is
                                                  New_Name => Adafied_Name);
                                     if Total (Total'First) = '*' then
                                        declare
-                                          Prev_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (I - 1);
+                                          Prev_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (I - 1);
                                        begin
                                           if
                                             Prev_Element.Kind_Id = Child_XML_Text
@@ -1177,14 +1177,14 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Child_Type;
 
-   procedure Handle_Out_Commented_Message (Out_Commented_Message_V : Vk_XML2.XML_Out_Commented_Message_Ptr) is
+   procedure Handle_Out_Commented_Message (Out_Commented_Message_V : Vk_XML.XML_Out_Commented_Message_Ptr) is
    begin
       null;
       --        Aida.Text_IO.Put ("Out commented message:");
-      --        Aida.Text_IO.Put_Line (Vk_XML2.XML_Out_Commented_Message.Ptro_String (Out_Commented_Message_V));
+      --        Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message.Ptro_String (Out_Commented_Message_V));
    end Handle_Out_Commented_Message;
 
-   procedure Handle_API_Constants_Enum (Enum_V : Vk_XML2.Enums_Enum.Ptr) is
+   procedure Handle_API_Constants_Enum (Enum_V : Vk_XML.Enums_Enum.Ptr) is
    begin
       if Enum_V.Name.Exists then
          if Enum_V.Value.Exists then
@@ -1219,7 +1219,7 @@ package body Vk_Package_Creator is
       end if;
    end Handle_API_Constants_Enum;
 
-   procedure Handle_Child_Enums_Enum (Enum_V       : Vk_XML2.Enums_Enum.Ptr;
+   procedure Handle_Child_Enums_Enum (Enum_V       : Vk_XML.Enums_Enum.Ptr;
                                       Is_Last_Enum : in Boolean) is
    begin
       if Enum_V.Name.Exists then
@@ -1261,7 +1261,7 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Child_Enums_Enum;
 
-   procedure Handle_Child_Enums_Enum_Representation_Clause (Enum_V        : Vk_XML2.Enums_Enum.Ptr;
+   procedure Handle_Child_Enums_Enum_Representation_Clause (Enum_V        : Vk_XML.Enums_Enum.Ptr;
                                                             Is_First_Enum : in out Boolean) is
    begin
       if Enum_V.Name.Exists then
@@ -1302,10 +1302,10 @@ package body Vk_Package_Creator is
    end Handle_Child_Enums_Enum_Representation_Clause;
 
    package Enum_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
-                                                       Element_Type => Vk_XML2.Enums_Enum.Ptr,
-                                                       "="          => Vk_XML2.Enums_Enum."=");
+                                                       Element_Type => Vk_XML.Enums_Enum.Ptr,
+                                                       "="          => Vk_XML.Enums_Enum."=");
 
-   procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML2.Enums.Ptr) is
+   procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums.Ptr) is
 
       procedure Handle_Type_Attribute_Exists is
          Name_To_Adafy : String := To_String (Enums_V.Name.Value);
@@ -1323,7 +1323,7 @@ package body Vk_Package_Creator is
                   case Enums_Child.Kind_Id is
                      when Child_Enums_Enum            =>
                         declare
-                           Test : Vk_XML2.Enums_Enum.Ptr := Enums_Child.Enums_Enum_V;
+                           Test : Vk_XML.Enums_Enum.Ptr := Enums_Child.Enums_Enum_V;
                         begin
                            Enum_Vector.Append (Test);
                         end;
@@ -1337,11 +1337,11 @@ package body Vk_Package_Creator is
 
                type Array_Index_T is new Integer range Enum_Vectors.First_Index (Enum_Vector)..Enum_Vectors.Last_Index (Enum_Vector);
 
-               type Permutation_Array_T is array (Array_Index_T) of Vk_XML2.Enums_Enum.Ptr;
+               type Permutation_Array_T is array (Array_Index_T) of Vk_XML.Enums_Enum.Ptr;
 
                Permutation_Array : Permutation_Array_T;
 
-               function "<" (L, R : Vk_XML2.Enums_Enum.Ptr) return Boolean is
+               function "<" (L, R : Vk_XML.Enums_Enum.Ptr) return Boolean is
                   Has_Failed : Boolean;
                   LI : Integer;
                   LV : String := To_String (L.Value.Value);
@@ -1369,7 +1369,7 @@ package body Vk_Package_Creator is
                end "<";
 
                procedure Sort is new Ada.Containers.Generic_Constrained_Array_Sort (Index_Type   => Array_Index_T,
-                                                                                    Element_Type => Vk_XML2.Enums_Enum.Ptr,
+                                                                                    Element_Type => Vk_XML.Enums_Enum.Ptr,
                                                                                     Array_Type   => Permutation_Array_T,
                                                                                     "<"          => "<");
 
@@ -1460,12 +1460,12 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Registry_Child_Enums;
 
-   procedure Create_Vk_Package (R : Vk_XML2.Registry.Ptr) is
+   procedure Create_Vk_Package (R : Vk_XML.Registry.Ptr) is
 
       procedure Generate_Code_For_The_Public_Part is
 
-         procedure Handle_Child_Types (Types_V : Vk_XML2.Types.Ptr;
-                                       R       : Vk_XML2.Registry.T)
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types.Ptr;
+                                       R       : Vk_XML.Registry.T)
          is
             procedure Generate_Code_For_The_Non_Struct_Types is
             begin
@@ -1485,7 +1485,7 @@ package body Vk_Package_Creator is
 
                procedure Populate_The_Unsorted_Structs_Vector is
 
-                  procedure If_Struct_Add_To_Vector (Type_V : Vk_XML2.Type_T.Ptr) is
+                  procedure If_Struct_Add_To_Vector (Type_V : Vk_XML.Type_T.Ptr) is
                   begin
                      if (To_String (Type_V.Category) = "struct" or To_String (Type_V.Category) = "union" ) and then
                        Type_V.Name.Exists
@@ -1507,7 +1507,7 @@ package body Vk_Package_Creator is
                   Shall_Continue : Boolean := True;
                   Number_Of_Structs_Before_Sorting_Session : Ada.Containers.Count_Type;
 
-                  procedure Add_Struct_If_All_Member_Types_Are_Known (Type_V : not null access Vk_XML2.Type_T.T) is
+                  procedure Add_Struct_If_All_Member_Types_Are_Known (Type_V : not null access Vk_XML.Type_T.T) is
                      Members : Member_Vectors.Vector;
 
                      procedure Populate_The_Members_Vector is
@@ -1521,12 +1521,12 @@ package body Vk_Package_Creator is
 
                      Are_All_Member_Types_Known : Boolean := True;
 
-                     procedure Analyze_Member (Member_Children : Vk_XML2.Member.Child_Vectors.Vector) is
+                     procedure Analyze_Member (Member_Children : Vk_XML.Member.Child_Vectors.Vector) is
                      begin
                         if Member_Children.Length = 2 then
                            declare
-                              First : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
-                              Second : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
+                              First : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
+                              Second : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
@@ -1558,9 +1558,9 @@ package body Vk_Package_Creator is
                            end;
                         elsif Member_Children.Length = 3 then
                            declare
-                              First  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
-                              Second : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
-                              Third  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
+                              First  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
+                              Second : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
+                              Third  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
@@ -1626,10 +1626,10 @@ package body Vk_Package_Creator is
                            end;
                         elsif Member_Children.Length = 4 then
                            declare
-                              First  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
-                              Second : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
-                              Third  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
-                              Fourth : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 3);
+                              First  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
+                              Second : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
+                              Third  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
+                              Fourth : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 3);
                            begin
                               if
                                 First.Kind_Id = Child_XML_Text and then
@@ -1675,11 +1675,11 @@ package body Vk_Package_Creator is
                            end;
                         elsif Member_Children.Length = 5 then
                            declare
-                              First         : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
-                              Second        : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
-                              Left_Bracket  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
-                              Enum_Element  : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 3);
-                              Right_Bracket : Vk_XML2.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 4);
+                              First         : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index);
+                              Second        : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 1);
+                              Left_Bracket  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 2);
+                              Enum_Element  : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 3);
+                              Right_Bracket : Vk_XML.Member.Child_T renames Member_Children.Element (Member_Children.First_Index + 4);
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
@@ -1797,7 +1797,7 @@ package body Vk_Package_Creator is
                procedure Generate_The_Code (Variable_Name        : String;
                                             The_Nested_Type_Name : String;
                                             Last_Range_Index     : String;
-                                            Type_V               : Vk_XML2.Type_T.Ptr)
+                                            Type_V               : Vk_XML.Type_T.Ptr)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1845,7 +1845,7 @@ package body Vk_Package_Creator is
 
                procedure Generate_Potential_Access_Type (The_Nested_Type_Name : String;
                                                          Second               : String;
-                                                         Type_V               : Vk_XML2.Type_T.Ptr)
+                                                         Type_V               : Vk_XML.Type_T.Ptr)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1895,7 +1895,7 @@ package body Vk_Package_Creator is
                procedure Generate_Potential_Constant_Access_Type (The_Nested_Type_Name : String;
                                                                   First                : String;
                                                                   Third                : String;
-                                                                  Type_V               : Vk_XML2.Type_T.Ptr)
+                                                                  Type_V               : Vk_XML.Type_T.Ptr)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1955,14 +1955,14 @@ package body Vk_Package_Creator is
                Members : Member_Vectors.Vector;
 
                -- This subprogram also generates code for constant access types if they are not already defined for a member.
-               procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML2.Type_T.Ptr) is
+               procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML.Type_T.Ptr) is
                begin
                   for Member of Members loop
                      if Member.Children.Length = 3 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -1993,10 +1993,10 @@ package body Vk_Package_Creator is
                         end;
                      elsif Member.Children.Length = 4 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
-                           Fourth : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           Fourth : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
                         begin
                            if
                              First.Kind_Id = Child_XML_Text and then
@@ -2014,11 +2014,11 @@ package body Vk_Package_Creator is
                         end;
                      elsif Member.Children.Length = 5 then
                         declare
-                           First         : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second        : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Left_Bracket  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
-                           Enum_Element  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
-                           Right_Bracket : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 4);
+                           First         : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second        : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Left_Bracket  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           Enum_Element  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
+                           Right_Bracket : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 4);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2041,17 +2041,17 @@ package body Vk_Package_Creator is
                   end loop;
                end Generate_Code_For_The_Array_Declarations_If_Any;
 
-               procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML2.Type_T.Ptr) is
+               procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML.Type_T.Ptr) is
                begin
                   for Type_Child of Type_V.Children loop
                      if Type_Child.Kind_Id = Child_Validity then
                         declare
-                           Validity_V : Vk_XML2.Validity.Ptr := Type_Child.Validity_V;
+                           Validity_V : Vk_XML.Validity.Ptr := Type_Child.Validity_V;
                         begin
                            for Validity_Child of Validity_V.Children loop
                               if Validity_Child.Kind_Id = Child_Usage then
                                  declare
-                                    Usage_V : Vk_XML2.Usage.Ptr := Validity_Child.Usage_V;
+                                    Usage_V : Vk_XML.Usage.Ptr := Validity_Child.Usage_V;
                                  begin
                                     for Usage_Child of Usage_V.Children loop
                                        if Usage_Child.Kind_Id = Child_XML_Text then
@@ -2080,7 +2080,7 @@ package body Vk_Package_Creator is
                   end loop;
                end Generate_Usage_Comments_After_Record_Definition_If_Any;
 
-               procedure Populate_Members_Vector (Type_V : Vk_XML2.Type_T.Ptr) is
+               procedure Populate_Members_Vector (Type_V : Vk_XML.Type_T.Ptr) is
                begin
                   Members.Clear;
 
@@ -2091,7 +2091,7 @@ package body Vk_Package_Creator is
                   end loop;
                end Populate_Members_Vector;
 
-               procedure Generate_Code_For_Struct (Type_V : Vk_XML2.Type_T.Ptr) is
+               procedure Generate_Code_For_Struct (Type_V : Vk_XML.Type_T.Ptr) is
 
                   New_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
@@ -2112,8 +2112,8 @@ package body Vk_Package_Creator is
                   for Member of Members loop
                      if Member.Children.Length = 2 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2160,9 +2160,9 @@ package body Vk_Package_Creator is
                         end;
                      elsif Member.Children.Length = 3 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2232,10 +2232,10 @@ package body Vk_Package_Creator is
                         end;
                      elsif Member.Children.Length = 4 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
-                           Fourth : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           Fourth : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
                         begin
                            if
                              First.Kind_Id = Child_XML_Text and then
@@ -2316,11 +2316,11 @@ package body Vk_Package_Creator is
                         end;
                      elsif Member.Children.Length = 5 then
                         declare
-                           First         : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second        : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Left_Bracket  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
-                           Enum_Element  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
-                           Right_Bracket : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 4);
+                           First         : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second        : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Left_Bracket  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           Enum_Element  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 3);
+                           Right_Bracket : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 4);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2368,14 +2368,14 @@ package body Vk_Package_Creator is
                   Put_Line ("");
                end Generate_Code_For_Struct;
 
-               procedure Generate_Code_For_Union (Type_V : Vk_XML2.Type_T.Ptr) is
+               procedure Generate_Code_For_Union (Type_V : Vk_XML.Type_T.Ptr) is
 
                   New_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
                   procedure Generate_Code_For_Discriminant is
                      Prefix : Ada.Strings.Unbounded.Unbounded_String;
 
-                     use type Vk_XML2.Member.Ptr;
+                     use type Vk_XML.Member.Ptr;
                   begin
                      Adaify_Name (Old_Name => To_String (Type_V.Name.Value),
                                   New_Name => Prefix);
@@ -2388,8 +2388,8 @@ package body Vk_Package_Creator is
                      for Member of Members loop
                         if Member.Children.Length = 2 then
                            declare
-                              First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                              Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                              First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                              Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
@@ -2418,9 +2418,9 @@ package body Vk_Package_Creator is
                            end;
                         elsif Member.Children.Length = 3 then
                            declare
-                              First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                              Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                              Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                              First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                              Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                              Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
                            begin
                               if
                                 First.Kind_Id = Child_Nested_Type and then
@@ -2475,8 +2475,8 @@ package body Vk_Package_Creator is
                   for Member of Members loop
                      if Member.Children.Length = 2 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2522,9 +2522,9 @@ package body Vk_Package_Creator is
 
                      elsif Member.Children.Length = 3 then
                         declare
-                           First  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
-                           Second : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
-                           Third  : Vk_XML2.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
+                           First  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index);
+                           Second : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 1);
+                           Third  : Vk_XML.Member.Child_T renames Member.Children.Element (Member.Children.First_Index + 2);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2625,7 +2625,7 @@ package body Vk_Package_Creator is
             Put_Line ("");
          end Generate_Code_For_Special_Types;
 
-         procedure Handle_Command (Command_V : Vk_XML2.Command.T) is
+         procedure Handle_Command (Command_V : Vk_XML.Command.T) is
 
             Is_Function : Boolean := False;
             Return_Type : Ada.Strings.Unbounded.Unbounded_String;
@@ -2635,11 +2635,11 @@ package body Vk_Package_Creator is
             C_Subprogram_Name : Ada.Strings.Unbounded.Unbounded_String;
             Subprogram_Name   : Ada.Strings.Unbounded.Unbounded_String;
 
-            procedure Handle_Proto (Proto_V : Vk_XML2.Proto.Ptr) is
+            procedure Handle_Proto (Proto_V : Vk_XML.Proto.Ptr) is
 
                procedure Handle_Proto_Children is
-                  First  : Vk_XML2.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index);
-                  Second : Vk_XML2.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index + 1);
+                  First  : Vk_XML.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index);
+                  Second : Vk_XML.Proto.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index + 1);
 
                   procedure Generate_Code_For_Subprogram is
                   begin
@@ -2714,7 +2714,7 @@ package body Vk_Package_Creator is
                                                                The_Nested_Type_Name : String;
                                                                First                : String;
                                                                Third                : String;
-                                                               Command_V            : Vk_XML2.Command.T)
+                                                               Command_V            : Vk_XML.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -2764,7 +2764,7 @@ package body Vk_Package_Creator is
 
             procedure Generate_Potential_Access_Type (The_Nested_Type_Name : String;
                                                       Second               : String;
-                                                      Command_V            : Vk_XML2.Command.T)
+                                                      Command_V            : Vk_XML.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -2845,8 +2845,8 @@ package body Vk_Package_Creator is
                end if;
             end Generate_Potential_Access_Type;
 
-            function Is_Pointer_Actually_An_Array (Command_V : Vk_XML2.Command.T;
-                                                   Param_V   : Vk_XML2.Param.Ptr) return Boolean
+            function Is_Pointer_Actually_An_Array (Command_V : Vk_XML.Command.T;
+                                                   Param_V   : Vk_XML.Param.Ptr) return Boolean
             is
                Is_Found : Boolean := False;
             begin
@@ -2854,8 +2854,8 @@ package body Vk_Package_Creator is
                   for Param of Params loop
                      if Param.Children.Length = 2 then
                         declare
-                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                           First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2871,9 +2871,9 @@ package body Vk_Package_Creator is
                         end;
                      elsif Param.Children.Length = 3 then
                         declare
-                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                           Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                           First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                           Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
                         begin
                            if
                              First.Kind_Id = Child_Nested_Type and then
@@ -2893,10 +2893,10 @@ package body Vk_Package_Creator is
                         end;
                      elsif Param.Children.Length = 4 then
                         declare
-                           First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                           Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                           Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
-                           Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
+                           First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                           Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                           Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                           Fourth : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
                         begin
                            if
                              First.Kind_Id = Child_XML_Text and then
@@ -2942,7 +2942,7 @@ package body Vk_Package_Creator is
             procedure Generate_Potential_Array_Declaration (The_Nested_Type_Name : String;
                                                             Second               : String;
                                                             C_Variable_Name      : String;
-                                                            Command_V            : Vk_XML2.Command.T)
+                                                            Command_V            : Vk_XML.Command.T)
             is
                Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -3095,14 +3095,14 @@ package body Vk_Package_Creator is
                end if;
             end Generate_Potential_Array_Declaration;
 
-            procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML2.Command.T) is
+            procedure Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V : Vk_XML.Command.T) is
             begin
                for Param of Params loop
                   if Param.Children.Length = 3 then
                      declare
-                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
                      begin
                         if
                           First.Kind_Id = Child_Nested_Type and then
@@ -3125,10 +3125,10 @@ package body Vk_Package_Creator is
                      end;
                   elsif Param.Children.Length = 4 then
                      declare
-                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
-                        Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
+                        First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        Fourth : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
                      begin
                         if
                           First.Kind_Id = Child_XML_Text and then
@@ -3151,13 +3151,13 @@ package body Vk_Package_Creator is
 
             procedure Generate_Code_For_The_Subprogram_Parameters_If_Any is
 
-               procedure Generate_Code_For_Parameter (Param   : Vk_XML2.Param.Ptr;
+               procedure Generate_Code_For_Parameter (Param   : Vk_XML.Param.Ptr;
                                                       Is_Last : Boolean) is
                begin
                   if Param.Children.Length = 2 then
                      declare
-                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
                      begin
                         if
                           First.Kind_Id = Child_Nested_Type and then
@@ -3201,9 +3201,9 @@ package body Vk_Package_Creator is
                      end;
                   elsif Param.Children.Length = 3 then
                      declare
-                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
                      begin
                         if
                           First.Kind_Id = Child_Nested_Type and then
@@ -3282,10 +3282,10 @@ package body Vk_Package_Creator is
                      end;
                   elsif Param.Children.Length = 4 then
                      declare
-                        First  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
-                        Second : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
-                        Third  : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
-                        Fourth : Vk_XML2.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
+                        First  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index);
+                        Second : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 1);
+                        Third  : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 2);
+                        Fourth : Vk_XML.Param.Child_T renames Param.Children.Element (Param.Children.First_Index + 3);
                      begin
                         if
                           First.Kind_Id = Child_XML_Text and then
@@ -3411,7 +3411,7 @@ package body Vk_Package_Creator is
             Generate_Code_For_The_Subprogram_Ending;
          end Handle_Command;
 
-         procedure Handle_Commands (Commands_V : Vk_XML2.Commands.Ptr)
+         procedure Handle_Commands (Commands_V : Vk_XML.Commands.Ptr)
          is
          begin
             for Command of Commands_V.Children loop
@@ -3480,12 +3480,12 @@ package body Vk_Package_Creator is
 
       procedure Generate_Code_For_The_Private_Part is
 
-         procedure Handle_Child_Types (Types_V : Vk_XML2.Types.Ptr;
-                                       R       : Vk_XML2.Registry.Ptr)
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types.Ptr;
+                                       R       : Vk_XML.Registry.Ptr)
          is
 
-            procedure Handle_Child_Type_In_The_Private_Part (Type_V : Vk_XML2.Type_T.Ptr;
-                                                             R      : Vk_XML2.Registry.Ptr)
+            procedure Handle_Child_Type_In_The_Private_Part (Type_V : Vk_XML.Type_T.Ptr;
+                                                             R      : Vk_XML.Registry.Ptr)
             is
             begin
                if
@@ -3493,10 +3493,10 @@ package body Vk_Package_Creator is
                  Type_V.Children.Length = 4
                then
                   declare
-                     Nested_Type_Element   : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
-                     Left_Bracket_Element  : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
-                     Name_Element          : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
-                     Right_Bracket_Element : Vk_XML2.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 3);
+                     Nested_Type_Element   : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index);
+                     Left_Bracket_Element  : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 1);
+                     Name_Element          : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 2);
+                     Right_Bracket_Element : Vk_XML.Type_T.Child_T renames Type_V.Children.Element (Type_V.Children.First_Index + 3);
                   begin
                      if
                        (Left_Bracket_Element.Kind_Id = Child_XML_Text and then

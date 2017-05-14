@@ -1,4 +1,4 @@
-with Vk_XML2;
+with Vk_XML;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Vectors;
@@ -6,18 +6,18 @@ private with Ada.Containers.Hashed_Maps;
 
 package Vk_Package_Creator is
 
-   procedure Create_Vk_Package (R : Vk_XML2.Registry.Ptr) with
+   procedure Create_Vk_Package (R : Vk_XML.Registry.Ptr) with
      Global => null;
 
 private
 
    package Member_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
-                                                         Element_Type => Vk_XML2.Member.Ptr,
-                                                         "="          => Vk_XML2.Member."=");
+                                                         Element_Type => Vk_XML.Member.Ptr,
+                                                         "="          => Vk_XML.Member."=");
 
    package Param_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
-                                                        Element_Type => Vk_XML2.Param.Ptr,
-                                                        "="          => Vk_XML2.Param."=");
+                                                        Element_Type => Vk_XML.Param.Ptr,
+                                                        "="          => Vk_XML.Param."=");
 
    function Hash_Of_Unbounded_String (Key : Ada.Strings.Unbounded.Unbounded_String) return Ada.Containers.Hash_Type;
 
@@ -28,7 +28,7 @@ private
                                                                                 "="             => Ada.Strings.Unbounded."=");
 
    package Struct_Type_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
-                                                              Element_Type => Vk_XML2.Type_T.Ptr,
-                                                              "="          => Vk_XML2.Type_T."=");
+                                                              Element_Type => Vk_XML.Type_T.Ptr,
+                                                              "="          => Vk_XML.Type_T."=");
 
 end Vk_Package_Creator;

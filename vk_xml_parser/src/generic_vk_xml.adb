@@ -1,4 +1,4 @@
-package body Vk_XML is
+package body Generic_Vk_XML is
 
    use all type Name.Value_T;
    use all type Proto.Child_Kind_Id_T;
@@ -116,4 +116,4 @@ package body Vk_XML is
       end To_String;
    end Command;
 
-end Vk_XML;
+end Generic_Vk_XML;

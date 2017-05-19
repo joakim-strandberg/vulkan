@@ -1,13 +1,14 @@
-with Vk_XML;
+with Generic_Vk_XML;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Vectors;
 private with Ada.Containers.Hashed_Maps;
 
-package Vk_Package_Creator is
+generic
+   with package Vk_XML is new Generic_Vk_XML (<>);
+package Generic_Vk_Package_Creator is
 
-   procedure Create_Vk_Package (R : Vk_XML.Registry.Ptr) with
-     Global => null;
+   procedure Create_Vk_Package (R : Vk_XML.Registry.Ptr);
 
 private
 
@@ -31,4 +32,4 @@ private
                                                               Element_Type => Vk_XML.Type_T.Ptr,
                                                               "="          => Vk_XML.Type_T."=");
 
-end Vk_Package_Creator;
+end Generic_Vk_Package_Creator;

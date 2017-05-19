@@ -11,7 +11,7 @@ with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 
-package body Vk_Package_Creator is
+package body Generic_Vk_Package_Creator is
 
    use all type Aida.UTF8_Code_Point.T;
    use all type Aida.Containers.Count_Type;
@@ -3625,4 +3625,4 @@ package body Vk_Package_Creator is
       Ada.Text_IO.Close (File);
    end Create_Vk_Package;
 
-end Vk_Package_Creator;
+end Generic_Vk_Package_Creator;

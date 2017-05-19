@@ -1,12 +1,13 @@
 with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
-with Dynamic_Pools;
+with Basic_Dynamic_Pools;
 
-package Vk_XML is
+generic
+package Generic_Vk_XML is
 
-   Main_Pool : Dynamic_Pools.Dynamic_Pool;-- (Default_Block_Size => 0);
+   Main_Pool : Basic_Dynamic_Pools.Basic_Dynamic_Pool;
 
---     pragma Default_Storage_Pool (Main_Pool);
+--   pragma Default_Storage_Pool (Main_Pool);
 
    type XML_Text_T is new Ada.Strings.Unbounded.Unbounded_String;
 
@@ -1099,4 +1100,4 @@ package Vk_XML is
 
    end Registry;
 
-end Vk_XML;
+end Generic_Vk_XML;

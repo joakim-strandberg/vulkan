@@ -5,11 +5,11 @@ with Aida.XML;
 with GNAT.IO_Aux;
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
-with Vk_Package_Creator;
-with Vk_XML_Reader;
-with Vk_XML;
+with Generic_Vk_Package_Creator;
+with Generic_Vk_XML_Reader;
+with Generic_Vk_XML;
 
-with Dynamic_Pools;
+with Basic_Dynamic_Pools;
 
 use all type Aida.XML.Subprogram_Call_Result.T;
 with Ada.Text_IO;
@@ -17,11 +17,11 @@ with Ada.Text_IO;
 procedure Main is
    File_Name : String  := "vk.xml";
 
-   Scoped_Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Vk_XML.Main_Pool);
+   package Vk_XML is new Generic_Vk_XML;
 
-   Subpool : Dynamic_Pools.Subpool_Handle renames Scoped_Subpool.Handle;
+   package Vk_XML_Reader is new Generic_Vk_XML_Reader (Vk_XML);
 
---   type I_Ptr is access all Integer;
+   package Vk_Package_Creator is new Generic_Vk_Package_Creator (Vk_XML);
 
    procedure Main_Internal is
       File_Size : Natural := Natural (Ada.Directories.Size (File_Name));
@@ -32,10 +32,7 @@ procedure Main is
       File     : File_String_IO.File_Type;
       Contents : File_String;
 
-
---        I : I_Ptr := new (Subpool) Integer;
-
-      Registry : Vk_XML.Registry.Ptr := new (Subpool) Vk_XML.Registry.T;
+      Registry : Vk_XML.Registry.Ptr := new Vk_XML.Registry.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin
@@ -46,7 +43,6 @@ procedure Main is
 
       Vk_XML_Reader.Parse (Contents    => Contents,
                            Registry    => Registry,
-                           Subpool     => Subpool,
                            Call_Result => Call_Result);
 
       if not Has_Failed (Call_Result) then
@@ -57,13 +53,9 @@ procedure Main is
       end if;
 
       Ada.Text_IO.Put ("Allocated memory in default subpool plus subpool:");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Vk_XML.Main_Pool)'Img);
-      Ada.Text_IO.Put ("Allocated memory in subpool alone:               ");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Subpool)'Img);
+      Ada.Text_IO.Put_Line (Basic_Dynamic_Pools.Storage_Size (Vk_XML.Main_Pool)'Img);
       Ada.Text_IO.Put ("Used memory in default subpool plus subpool:     ");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Vk_XML.Main_Pool)'Img);
-      Ada.Text_IO.Put ("Used memory in subpool alone:                    ");
-      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Subpool)'Img);
+      Ada.Text_IO.Put_Line (Basic_Dynamic_Pools.Storage_Used (Vk_XML.Main_Pool)'Img);
    end Main_Internal;
 
 begin

@@ -7,8 +7,6 @@ package Generic_Vk_XML is
 
    Main_Pool : Basic_Dynamic_Pools.Basic_Dynamic_Pool;
 
---   pragma Default_Storage_Pool (Main_Pool);
-
    type XML_Text_T is new Ada.Strings.Unbounded.Unbounded_String;
 
    type XML_Text_Ptr is access all XML_Text_T with

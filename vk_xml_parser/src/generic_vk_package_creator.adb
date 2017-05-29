@@ -3,7 +3,6 @@ with Aida.UTF8;
 with Ada.Text_IO;
 with Std_String;
 with Aida.UTF8_Code_Point;
-with Aida.Containers;
 with GNAT.Source_Info;
 with Ada.Strings.Fixed.Hash;
 with Ada.Containers.Generic_Constrained_Array_Sort;
@@ -13,8 +12,9 @@ with Ada.Strings.Unbounded;
 
 package body Generic_Vk_Package_Creator is
 
+   use type Ada.Containers.Count_Type;
+
    use all type Aida.UTF8_Code_Point.T;
-   use all type Aida.Containers.Count_Type;
    use all type Ada.Strings.Unbounded.Unbounded_String;
 
    use all type Vk_XML.XML_Text_T;

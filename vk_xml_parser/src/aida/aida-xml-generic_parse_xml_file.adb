@@ -8,7 +8,7 @@ procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
 is
    use all type Aida.UTF8_Code_Point.T;
 
-   use Tag_Name;
+   use all type Tag_Name_T;
    use Subprogram_Call_Result;
 
    Tag_Names : Tag_Name_Vector_T;
@@ -55,7 +55,7 @@ is
    F : Natural := Contents'First;
    L : Natural := Contents'Last;
 
-   Shall_Ignore_Tag_Value_List : Boolean_Vectors.Vector (50);
+   Shall_Ignore_Tag_Value_List : Boolean_Vectors.Vector;
 
    function Is_Special_Symbol (CP : Aida.UTF8_Code_Point.T) return Boolean is
    begin
@@ -75,10 +75,8 @@ is
    procedure Append (This : in out Tag_Name_Vectors.Vector;
                      Item : String)
    is
-      N : Mutable_Tag_Name.Mutable_T;
    begin
-      Initialize (N, Item);
-      Tag_Name_Vectors.Append (This, Tag_Name.T (N));
+      Tag_Name_Vectors.Append (This, To_Unbounded_String (Item));
    end Append;
 
    type Expected_Quotation_Symbol_T is (
@@ -247,7 +245,7 @@ begin
                   State_Id := Expecting_NL_Sign_Or_Space_Or_Less_Sign;
 
                   declare
-                     Name : String := Tag_Name.To_String (Tag_Name_Vectors.Last_Element (Tag_Names));
+                     Name : String := To_String (Tag_Name_Vectors.Last_Element (Tag_Names));
                   begin
                      Tag_Name_Vectors.Delete_Last (Tag_Names);
 

@@ -1,12 +1,12 @@
-package body Aida.Generic_Subprogram_Call_Result with SPARK_Mode is
+package body Aida.Generic_Subprogram_Call_Result is
 
-   use Unbounded_String;
+   use all type Unbounded_String_T;
 
    procedure Initialize (This    : in out T;
                          Message : String) is
    begin
-      Initialize (This => This.My_Message,
-                  Text => Message);
+      Ada.Strings.Unbounded.Set_Unbounded_String (Ada.Strings.Unbounded.Unbounded_String (This.My_Message),
+                                                  Message);
       This.My_Has_Failed := True;
    end Initialize;
 

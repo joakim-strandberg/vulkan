@@ -7,17 +7,13 @@ with Ada.Containers.Hashed_Maps;
 with Aida.Strings;
 with Aida.XML;
 with Aida.Generic_Subprogram_Call_Result;
-with Aida.Containers;
 with Aida.XML.Generic_Parse_XML_File;
 with Ada.Characters.Latin_1;
-
+with Ada.Strings.Unbounded;
 with Aida.Text_IO;
-with Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable;
 
 pragma Elaborate_All (Aida.Generic_Subprogram_Call_Result);
 pragma Elaborate_All (Aida.XML.Generic_Parse_XML_File);
-pragma Elaborate_All (Aida.Strings.Generic_Immutable_Unbounded_String_Shared_Ptr.Mutable);
-with Ada.Strings.Unbounded;
 
 package body Generic_Vk_XML_Reader is
 
@@ -101,10 +97,9 @@ package body Generic_Vk_XML_Reader is
    XML_Tag_Extension_Attribute_Contact              : constant String := "contact";
 
    use all type Ada.Strings.Unbounded.Unbounded_String;
-   use all type Aida.XML.Tag_Name.T;
+   use all type Aida.XML.Tag_Name_T;
    use all type Aida.XML.Tag_Name_Vectors.Vector;
    use all type Aida.XML.Subprogram_Call_Result.T;
-   use all type Aida.Containers.Count_Type;
    use all type Vk_XML.XML_Text_T;
    use all type Vk_XML.XML_Out_Commented_Message_T;
    use all type Vk_XML.Registry.Child_Kind_Id_T;
@@ -147,6 +142,8 @@ package body Generic_Vk_XML_Reader is
    use all type Vk_XML.Name.Value_T;
    use all type Vk_XML.Nested_Type.Nullable_Value_T;
    use all type Vk_XML.Enum.Value_T;
+
+   use type Ada.Containers.Count_Type;
 
    package Current_Tag_Def is
 
@@ -295,33 +292,18 @@ package body Generic_Vk_XML_Reader is
 
    Parents_Including_Self_To_Current_Tag_Map : Current_Tag_To_Tags_Map_Type_Owner.Map;
 
-   package Mutable_Tag_Name is new Aida.XML.Tag_Name.Mutable;
-
-   use all type Mutable_Tag_Name.Mutable_T;
-
    procedure Populate_Parents_Including_Self (Parents_Including_Self : in out Aida.XML.Tag_Name_Vectors.Vector;
                                               Parents                : Aida.XML.Tag_Name_Vectors.Vector;
                                               Tag_Name               : String)
    is
    begin
-      for I in Integer range First_Index (Parents)..Last_Index (Parents) loop
-         declare
-            N : Mutable_Tag_Name.Mutable_T;
-         begin
-            Mutable_Tag_Name.Initialize (This => N,
-                                         Text => Aida.XML.Tag_Name.To_String (Element (Parents,  I)));
-            Append (Container => Parents_Including_Self,
-                    New_Item  => Aida.XML.Tag_Name.T (N));
-         end;
+      for Parent of Parents loop
+         Append (Container => Parents_Including_Self,
+                 New_Item  => Parent);
       end loop;
 
-      declare
-         N : Mutable_Tag_Name.Mutable_T;
-      begin
-         Mutable_Tag_Name.Initialize (N, Tag_Name);
-         Append (Container => Parents_Including_Self,
-                 New_Item  => Aida.XML.Tag_Name.T (N));
-      end;
+      Append (Container => Parents_Including_Self,
+              New_Item  => To_Unbounded_String (Tag_Name));
    end Populate_Parents_Including_Self;
 
    type Find_Tag_Call_Result_T (Exists : Boolean := False) is
@@ -335,8 +317,8 @@ package body Generic_Vk_XML_Reader is
    function To_String (Tags : Aida.XML.Tag_Name_Vector_T) return String is
       R : Aida.Strings.Unbounded_String_Type;
    begin
-      for I in Integer range First_Index (Tags)..Last_Index (Tags) loop
-         R.Append (Aida.XML.Tag_Name.To_String (Element (Tags, I)) & ", ");
+      for Tag of Tags loop
+         R.Append (To_String (Tag) & ", ");
       end loop;
 
       return R.To_String;

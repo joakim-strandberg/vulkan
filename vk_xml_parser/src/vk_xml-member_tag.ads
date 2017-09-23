@@ -88,6 +88,8 @@ package Vk_XML.Member_Tag is
    function Exists_Valid_Extension_Structs (This : T) return Boolean with
      Global => null;
 
+   function To_String (This : T) return Aida.String_T;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private

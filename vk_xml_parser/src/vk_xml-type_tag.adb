@@ -73,12 +73,12 @@ package body Vk_XML.Type_Tag is
 
       procedure Append_Category_To_String is
       begin
-         if This.Category'Length = 0 then
-            null;
-         else
+         if This.Exists_Category then
             Append (S, "category='");
             Append (S, String (This.Category));
             Append (S, "' ");
+         else
+            null;
          end if;
       end Append_Category_To_String;
 

@@ -607,8 +607,7 @@ package body Vk_Package_Creator is
 
    begin
       if
-        Type_V.Category = "include" and then
-        not Type_V.Exists_Requires
+        (Type_V.Exists_Category and then Type_V.Category = "include") and not Type_V.Exists_Requires
       then
          null; -- ignore for example <type category="include">#include "<name>vulkan.h</name>"</type>
       elsif
@@ -623,10 +622,10 @@ package body Vk_Package_Creator is
                                       )
       then
          null; -- ignore for example <type requires="android/native_window.h" name="ANativeWindow"/>
-      elsif Type_V.Category = "define" then
+      elsif Type_V.Exists_Category and then Type_V.Category = "define" then
          null; -- ignore for example <type category="define">#define <name>VK_VERSION_MAJOR</name>(version) ((uint32_t)(version) &gt;&gt; 22)</type>
       elsif
-        Type_V.Category = "basetype" and then
+        Type_V.Exists_Category and then Type_V.Category = "basetype" and then
         Type_V.Children.Length = 4
       then
          declare
@@ -708,7 +707,7 @@ package body Vk_Package_Creator is
       then
          null;
       elsif
-        Type_V.Category = "bitmask" and then
+        Type_V.Exists_Category and then Type_V.Category = "bitmask" and then
         Type_V.Children.Length = 4
       then
          declare
@@ -788,7 +787,7 @@ package body Vk_Package_Creator is
             end if;
          end;
       elsif
-        Type_V.Category = "handle" and then
+        Type_V.Exists_Category and then Type_V.Category = "handle" and then
         Type_V.Children.Length = 4
       then
          declare
@@ -828,14 +827,14 @@ package body Vk_Package_Creator is
             end if;
          end;
       elsif
-        Type_V.Category = "enum" and then
+        Type_V.Exists_Category and then Type_V.Category = "enum" and then
         Type_V.Exists_Name
       then
          null; -- Skip these since they are generated from the enum type definitions
          -- It should be checked that all expected enum type definitions has been generated in this step!
          -- TODO: Add this extra nice feature!
       elsif
-        Type_V.Category = "funcpointer" and then
+        Type_V.Exists_Category and then Type_V.Category = "funcpointer" and then
         not Type_V.Exists_Name
       then
          declare
@@ -1212,7 +1211,7 @@ package body Vk_Package_Creator is
             end if;
          end;
       elsif
-        (Type_V.Category = "struct" or Type_V.Category = "union") and then
+        Type_V.Exists_Category and then (Type_V.Category = "struct" or Type_V.Category = "union") and then
         Type_V.Exists_Name
       then
          null; -- Ignore for now. Will be generated later because the struct types need to be sorted first.
@@ -1531,7 +1530,7 @@ package body Vk_Package_Creator is
 
                   procedure If_Struct_Add_To_Vector (Type_V : Vk_XML.Type_Tag.Ptr) is
                   begin
-                     if (Type_V.Category = "struct" or Type_V.Category = "union" ) and then
+                     if Type_V.Exists_Category and then (Type_V.Category = "struct" or Type_V.Category = "union" ) and then
                        Type_V.Exists_Name
                      then
                         Unsorted_Structs.Append (Type_V);
@@ -3533,7 +3532,7 @@ package body Vk_Package_Creator is
             is
             begin
                if
-                 Type_V.Category = "handle" and then
+                 Type_V.Exists_Category and then Type_V.Category = "handle" and then
                  Type_V.Children.Length = 4
                then
                   declare

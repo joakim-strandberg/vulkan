@@ -1,4 +1,8 @@
+with Ada.Strings.Unbounded;
+
 package body Vk_XML.Member_Tag is
+
+   use all type Ada.Strings.Unbounded.Unbounded_String;
 
    procedure Set_Valid_Extension_Structs (This : in out T;
                                           Value : Aida.String_T;
@@ -40,5 +44,34 @@ package body Vk_XML.Member_Tag is
    begin
       This.My_Children.Append (Child);
    end Append_Child;
+
+   function To_String (This : T) return Aida.String_T is
+      S : Ada.Strings.Unbounded.Unbounded_String;
+
+   begin
+      if This.My_Children.Is_Empty then
+         Append (S, "<member ");
+         Append (S, "/>");
+      else
+         Append (S, "<member>");
+
+         for Type_V of This.My_Children loop
+            case Type_V.Kind_Id is
+               when Child_Name =>
+                  Append (S, "<name/>");
+               when Child_Nested_Type =>
+                  Append (S, "<type/>");
+               when Child_Enum =>
+                  Append (S, "<enum/>");
+               when Child_XML_Text =>
+                  Append (S, String (Type_V.XML_Text.all));
+            end case;
+         end loop;
+
+         Append (S, "</member>");
+      end if;
+
+      return Aida.String_T (To_String (S));
+   end To_String;
 
 end Vk_XML.Member_Tag;

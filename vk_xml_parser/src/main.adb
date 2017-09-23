@@ -33,7 +33,7 @@ procedure Main is
       File     : File_String_IO.File_Type;
       Contents : File_String;
 
-      Registry : Vk_XML.Registry_Tag.Ptr := new Vk_XML.Registry_Tag.T;
+      Registry : not null Vk_XML.Registry_Tag.Ptr := new (Subpool.Handle) Vk_XML.Registry_Tag.T;
 
       Call_Result : Aida.XML.Subprogram_Call_Result.T;
    begin

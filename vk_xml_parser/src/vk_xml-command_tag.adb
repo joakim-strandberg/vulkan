@@ -9,17 +9,19 @@ package body Vk_XML.Command_Tag is
    use all type Vk_XML.Proto_Tag.Child_Kind_Id_T;
 
    procedure Append_Success_Code (This : in out T;
-                                  Item : Aida.String_T)
+                                  Item : Aida.String_T;
+                                  SP    : Dynamic_Pools.Subpool_Handle)
    is
-      R : String_Ptr := new Aida.String_T'(Item);
+      R : String_Ptr := new (SP) Aida.String_T'(Item);
    begin
       This.My_Success_Codes.Append (R);
    end Append_Success_Code;
 
    procedure Append_Error_Code (This : in out T;
-                                Item : Aida.String_T)
+                                Item : Aida.String_T;
+                                SP    : Dynamic_Pools.Subpool_Handle)
    is
-      R : String_Ptr := new Aida.String_T'(Item);
+      R : String_Ptr := new (SP) Aida.String_T'(Item);
    begin
       This.My_Error_Codes.Append (R);
    end Append_Error_Code;

@@ -1349,10 +1349,10 @@ package body Vk_XML_Reader is
                end if;
             when Current_Tag_Def.Tag_Id.Command =>
                if Attribute_Name = XML_Tag_Command_Attribute_Success_Codes then
-                  Current_Tag_V.Command_V.Append_Success_Code (Attribute_Value);
+                  Current_Tag_V.Command_V.Append_Success_Code (Attribute_Value, SH);
                   -- TODO: Split the String into several success codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Error_Codes then
-                  Current_Tag_V.Command_V.Append_Error_Code (Attribute_Value);
+                  Current_Tag_V.Command_V.Append_Error_Code (Attribute_Value, SH);
                   -- TODO: Split the String into several error codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Queues then
                   if Attribute_Value = "sparse_binding" then

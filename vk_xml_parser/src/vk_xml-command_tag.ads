@@ -88,14 +88,16 @@ package Vk_XML.Command_Tag is
    function Success_Codes (This : aliased T) return Success_Codes_Ref;
 
    procedure Append_Success_Code (This : in out T;
-                                  Item : Aida.String_T) with
+                                  Item : Aida.String_T;
+                                  SP   : Dynamic_Pools.Subpool_Handle) with
      Global => null;--,
 --     Post   => This.Success_Codes'Result.Length = This.Success_Codes.Length + 1;
 
    function Error_Codes (This : aliased T) return Error_Codes_Ref;
 
    procedure Append_Error_Code (This : in out T;
-                                Item : Aida.String_T);
+                                Item : Aida.String_T;
+                                SP   : Dynamic_Pools.Subpool_Handle);
 
    function Children (This : aliased T) return Children_Ref;
 

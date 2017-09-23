@@ -3,7 +3,6 @@ with GNAT.Source_Info;
 with Ada.Strings.Hash;
 with Ada.Exceptions;
 with Ada.Containers.Hashed_Maps;
-with Aida.Strings;
 with Aida.XML;
 with Aida.Generic_Subprogram_Call_Result;
 with Aida.XML.Generic_Parse_XML_File;
@@ -354,13 +353,13 @@ package body Vk_XML_Reader is
       end record;
 
    function To_String (Tags : Aida.XML.Tag_Name_Vector_T) return String is
-      R : Aida.Strings.Unbounded_String_Type;
+      R : Ada.Strings.Unbounded.Unbounded_String;
    begin
       for Tag of Tags loop
-         R.Append (To_String (Tag) & ", ");
+         Append (R, To_String (Tag) & ", ");
       end loop;
 
-      return R.To_String;
+      return To_String (R);
    end To_String;
 
    function Find_Tag (Key : Aida.XML.Tag_Name_Vector_T) return Find_Tag_Call_Result_T
@@ -991,8 +990,8 @@ package body Vk_XML_Reader is
                   if Tag_Name = XML_Tag_Type then
                      declare
                         Nested_Type_V : not null Vk_XML.Nested_Type_Tag.Ptr := new Vk_XML.Nested_Type_Tag.T;
-                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id       => Child_Nested_Type,
-                                                          Nested_Type_V => Nested_Type_V);
+                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id     => Child_Nested_Type,
+                                                             Nested_Type => Nested_Type_V);
 
                         Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Nested_Type);
                      begin
@@ -1010,8 +1009,8 @@ package body Vk_XML_Reader is
                   elsif Tag_Name = XML_Tag_Name then
                      declare
                         Name_V : not null Vk_XML.Name_Tag.Ptr := new Vk_XML.Name_Tag.T;
-                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id       => Child_Name,
-                                                          Name_V => Name_V);
+                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id => Child_Name,
+                                                             Name    => Name_V);
 
                         Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Name);
                      begin
@@ -1619,8 +1618,8 @@ package body Vk_XML_Reader is
                   when Current_Tag_Def.Tag_Id.Usage =>
                      declare
                         XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Tag_Value);
-                        Child : Vk_XML.Usage_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                          XML_Text_V => XML_Text_V);
+                        Child : Vk_XML.Usage_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                             XML_Text => XML_Text_V);
                      begin
                         Current_Tag_V.Usage_V.Append_Child (Child);
                      end;
@@ -1717,8 +1716,8 @@ package body Vk_XML_Reader is
                   when Current_Tag_Def.Tag_Id.Param =>
                      declare
                         XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
-                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                          XML_Text_V => XML_Text_V);
+                        Child : Vk_XML.Param_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                             XML_Text => XML_Text_V);
                      begin
                         Current_Tag_V.Param_V.Append_Child (Child);
                      end;

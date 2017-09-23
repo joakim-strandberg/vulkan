@@ -9,8 +9,8 @@ package Vk_XML.Extensions_Tag is
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Extension) is record
       case Kind_Id is
-         when Child_Extension             => Extension_V             : Extension_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message_V : String_Ptr;
+         when Child_Extension             => Extension             : Extension_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
       end case;
    end record;
 

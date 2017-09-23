@@ -1159,8 +1159,8 @@ package body Vk_XML_Reader is
                   if Tag_Name = XML_Tag_Extension then
                      declare
                         Extension_V : not null Vk_XML.Extension_Tag.Ptr := new (SH) Vk_XML.Extension_Tag.T;
-                        Child : Vk_XML.Extensions_Tag.Child_T := (Kind_Id     => Child_Extension,
-                                                               Extension_V => Extension_V);
+                        Child : Vk_XML.Extensions_Tag.Child_T := (Kind_Id   => Child_Extension,
+                                                                  Extension => Extension_V);
 
                         Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Extension);
                      begin
@@ -1350,203 +1350,178 @@ package body Vk_XML_Reader is
                end if;
             when Current_Tag_Def.Tag_Id.Command =>
                if Attribute_Name = XML_Tag_Command_Attribute_Success_Codes then
-                  Current_Tag_V.Command_V.Success_Codes.Append (To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Command_V.Append_Success_Code (Attribute_Value);
                   -- TODO: Split the String into several success codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Error_Codes then
-                  Current_Tag_V.Command_V.Error_Codes.Append (To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Command_V.Append_Error_Code (Attribute_Value);
                   -- TODO: Split the String into several error codes later
                elsif Attribute_Name = XML_Tag_Command_Attribute_Queues then
                   if Attribute_Value = "sparse_binding" then
-                     Current_Tag_V.Command_V.Queues.Append (Sparse_Binding);
+                     Current_Tag_V.Command_V.Append_Queue (Sparse_Binding);
                   elsif Attribute_Value = "graphics,compute" then
-                     Current_Tag_V.Command_V.Queues.Append (Graphics);
-                     Current_Tag_V.Command_V.Queues.Append (Compute);
+                     Current_Tag_V.Command_V.Append_Queue (Graphics);
+                     Current_Tag_V.Command_V.Append_Queue (Compute);
                   elsif Attribute_Value = "graphics" then
-                     Current_Tag_V.Command_V.Queues.Append (Graphics);
+                     Current_Tag_V.Command_V.Append_Queue (Graphics);
                   elsif Attribute_Value = "compute" then
-                     Current_Tag_V.Command_V.Queues.Append (Compute);
+                     Current_Tag_V.Command_V.Append_Queue (Compute);
                   elsif Attribute_Value = "transfer,graphics,compute" then
-                     Current_Tag_V.Command_V.Queues.Append (Graphics);
-                     Current_Tag_V.Command_V.Queues.Append (Compute);
-                     Current_Tag_V.Command_V.Queues.Append (Transfer);
+                     Current_Tag_V.Command_V.Append_Queue (Graphics);
+                     Current_Tag_V.Command_V.Append_Queue (Compute);
+                     Current_Tag_V.Command_V.Append_Queue (Transfer);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                elsif Attribute_Name = XML_Tag_Command_Attribute_Render_Pass then
                   if Attribute_Value = "inside" then
-                     Current_Tag_V.Command_V.Render_Passes.Append (Inside);
+                     Current_Tag_V.Command_V.Append_Render_Pass (Inside);
                   elsif Attribute_Value = "outside" then
-                     Current_Tag_V.Command_V.Render_Passes.Append (Outside);
+                     Current_Tag_V.Command_V.Append_Render_Pass (Outside);
                   elsif Attribute_Value = "both" then
-                     Current_Tag_V.Command_V.Render_Passes.Append (Both);
+                     Current_Tag_V.Command_V.Append_Render_Pass (Both);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                elsif Attribute_Name = XML_Tag_Command_Attribute_Cmd_Buffer_Level then
                   if Attribute_Value = "primary,secondary" then
-                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Primary);
-                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Secondary);
+                     Current_Tag_V.Command_V.Append_Command_Buffer_Level (Primary);
+                     Current_Tag_V.Command_V.Append_Command_Buffer_Level (Secondary);
                   elsif Attribute_Value = "primary" then
-                     Current_Tag_V.Command_V.Command_Buffer_Levels.Append (Primary);
+                     Current_Tag_V.Command_V.Append_Command_Buffer_Level (Primary);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Param =>
                if Attribute_Name = XML_Tag_Param_Attribute_Optional then
                   if Attribute_Value = "true" or Attribute_Value = "false,true" then
-                     Current_Tag_V.Param_V.Optional := True;
+                     Current_Tag_V.Param_V.Set_Optional (True);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                elsif Attribute_Name = XML_Tag_Param_Attribute_External_Sync then
-                  Current_Tag_V.Param_V.External_Sync := (Exists => True,
-                                                          Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Param_V.Set_External_Sync (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Param_Attribute_Len then
-                  Current_Tag_V.Param_V.Len := (Exists => True,
-                                                Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Param_V.Set_Len (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Param_Attribute_No_Auto_Validity then
                   if Attribute_Value = "true" then
-                     Current_Tag_V.Param_V.No_Auto_Validity := (Exists => True,
-                                                                Value  => True);
+                     Current_Tag_V.Param_V.Set_No_Auto_Validity (True);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Feature =>
                if Attribute_Name = XML_Tag_Feature_Attribute_API then
-                  Current_Tag_V.Feature_V.API := (Exists => True,
-                                                  Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Feature_V.Set_API (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Feature_Attribute_Name then
-                  Current_Tag_V.Feature_V.Name := (Exists => True,
-                                                   Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Feature_V.Set_Name (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Feature_Attribute_Number then
-                  Current_Tag_V.Feature_V.Number := (Exists => True,
-                                                     Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Feature_V.Set_Number (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Require =>
                if Attribute_Name = XML_Tag_Require_Attribute_Comment then
-                  Current_Tag_V.Require_V.Comment := (Exists => True,
-                                                      Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_V.Set_Comment (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Require_Enum =>
                if Attribute_Name = XML_Tag_Require_Enum_Attribute_Name then
-                  Current_Tag_V.Require_Enum_V.Name := (Exists => True,
-                                                        Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Enum_V.Set_Name (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Value then
-                  Current_Tag_V.Require_Enum_V.Value := (Exists => True,
-                                                         Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Enum_V.Set_Value (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Offset then
                   declare
-                     V : Integer;
+                     V : Vk_XML.Require_Enum_Tag.Offset_T;
                      Has_Failed : Boolean;
                   begin
-                     Std_String.To_Integer (Source     => Attribute_Value,
-                                            Target     => V,
-                                            Has_Failed => Has_Failed);
+                     To_Int32 (Source     => Attribute_Value,
+                               Target     => Aida.Int32_T (V),
+                               Has_Failed => Has_Failed);
 
                      if Has_Failed then
-                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                      else
-                        Current_Tag_V.Require_Enum_V.Offset := (Exists => True,
-                                                                Value  => V);
+                        Current_Tag_V.Require_Enum_V.Set_Offset (V);
                      end if;
                   end;
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Dir then
-                  Current_Tag_V.Require_Enum_V.Dir := (Exists => True,
-                                                       Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Enum_V.Set_Dir (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Extends then
-                  Current_Tag_V.Require_Enum_V.Extends := (Exists => True,
-                                                           Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Enum_V.Set_Extends (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Comment then
-                  Current_Tag_V.Require_Enum_V.Comment := (Exists => True,
-                                                           Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Enum_V.Set_Comment (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Bit_Position then
                   declare
-                     V : Integer;
+                     V : Vk_XML.Require_Enum_Tag.Bit_Position_T;
                      Has_Failed : Boolean;
                   begin
-                     Std_String.To_Integer (Source     => Attribute_Value,
-                                            Target     => V,
-                                            Has_Failed => Has_Failed);
+                     To_Int32 (Source     => Attribute_Value,
+                               Target     => Aida.Int32_T (V),
+                               Has_Failed => Has_Failed);
 
                      if Has_Failed then
-                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                      else
-                        Current_Tag_V.Require_Enum_V.Bit_Position := (Exists => True,
-                                                                      Value  => V);
+                        Current_Tag_V.Require_Enum_V.Set_Bit_Position (V);
                      end if;
                   end;
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Require_Command =>
                if Attribute_Name = XML_Tag_Require_Command_Attribute_Name then
-                  Current_Tag_V.Require_Command_V.Name := (Exists => True,
-                                                           Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Require_Command_V.Set_Name (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Extension =>
                if Attribute_Name = XML_Tag_Extension_Attribute_Name then
-                  Current_Tag_V.Extension_V.Name := (Exists => True,
-                                                     Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Extension_V.Set_Name (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Number then
                   declare
-                     V : Integer;
+                     V : Vk_XML.Extension_Tag.Number_T;
                      Has_Failed : Boolean;
                   begin
-                     Std_String.To_Integer (Source     => Attribute_Value,
-                                            Target     => V,
-                                            Has_Failed => Has_Failed);
+                     To_Int32 (Source     => Attribute_Value,
+                               Target     => Aida.Int32_T (V),
+                               Has_Failed => Has_Failed);
 
                      if Has_Failed then
-                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                        Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                      else
-                        Current_Tag_V.Extension_V.Number := (Exists => True,
-                                                             Value  => V);
-
+                        Current_Tag_V.Extension_V.Set_Number (V);
                      end if;
                   end;
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Supported then
                   if Attribute_Value = "vulkan" then
-                     Current_Tag_V.Extension_V.Supported := (Exists => True,
-                                                             Value  => Vulkan);
+                     Current_Tag_V.Extension_V.Set_Supported (Vulkan);
                   elsif Attribute_Value = "disabled" then
-                     Current_Tag_V.Extension_V.Supported := (Exists => True,
-                                                             Value  => Disabled);
+                     Current_Tag_V.Extension_V.Set_Supported (Disabled);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Protect then
-                  Current_Tag_V.Extension_V.Protect := (Exists => True,
-                                                        Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Extension_V.Set_Protect (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Author then
-                  Current_Tag_V.Extension_V.Author := (Exists => True,
-                                                       Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Extension_V.Set_Author (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Contact then
-                  Current_Tag_V.Extension_V.Contact := (Exists => True,
-                                                        Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Extension_V.Set_Contact (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Usage =>
                if Attribute_Name = XML_Tag_Usage_Attribute_Command then
-                  Current_Tag_V.Usage_V.Command := (Exists => True,
-                                                    Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Usage_V.Set_Command (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Usage_Attribute_Struct then
-                  Current_Tag_V.Usage_V.Struct := (Exists => True,
-                                                   Value  => To_Unbounded_String (Attribute_Value));
+                  Current_Tag_V.Usage_V.Set_Struct (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
             when Current_Tag_Def.Tag_Id.Registry |
                  Current_Tag_Def.Tag_Id.Comment |
@@ -1562,17 +1537,17 @@ package body Vk_XML_Reader is
                  Current_Tag_Def.Tag_Id.Implicit_External_Sync_Parameters |
                  Current_Tag_Def.Tag_Id.External_Sync_Parameter |
                  Current_Tag_Def.Tag_Id.Extensions =>
-               Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Attribute_Name & " and value " & Attribute_Value);
+               Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
             end case;
          end;
       end Attribute;
 
-      procedure End_Tag (Tag_Name    : String;
+      procedure End_Tag (Tag_Name    : Aida.String_T;
                          Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                          Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
         Global => null;
 
-      procedure End_Tag (Tag_Name    : String;
+      procedure End_Tag (Tag_Name    : Aida.String_T;
                          Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                          Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
       is
@@ -1589,18 +1564,18 @@ package body Vk_XML_Reader is
             Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                        Key       => Parents_Including_Self);
          else
-            Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
+            Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag ");
          end if;
       end End_Tag;
 
-      procedure End_Tag (Tag_Name    : String;
-                         Tag_Value   : String;
+      procedure End_Tag (Tag_Name    : Aida.String_T;
+                         Tag_Value   : Aida.String_T;
                          Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                          Call_Result : in out Aida.XML.Subprogram_Call_Result.T) with
         Global => null;
 
-      procedure End_Tag (Tag_Name    : String;
-                         Tag_Value   : String;
+      procedure End_Tag (Tag_Name    : Aida.String_T;
+                         Tag_Value   : Aida.String_T;
                          Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                          Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
       is
@@ -1623,40 +1598,36 @@ package body Vk_XML_Reader is
                      Current_Tag_To_Tags_Map_Type_Owner.Delete (Container => Parents_Including_Self_To_Current_Tag_Map,
                                                                 Key       => Parents_Including_Self);
                   else
-                     Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag " & Tag_Name);
+                     Initialize (Call_Result, "Parents_Including_Self_To_Current_Tag_Map did not contain expected key for end tag ");
                   end if;
 
                   case Current_Tag_V.Kind_Id is
                   when Current_Tag_Def.Tag_Id.Comment =>
-                     Current_Tag_V.Comment.Value := To_Unbounded_String (Tag_Value);
+                     Current_Tag_V.Comment.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
-                        Child : Vk_XML.Type_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                           XML_Text_V => XML_Text_V);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Tag_Value);
+                        Child : Vk_XML.Type_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                            XML_Text => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Tag_Value);
-                        Current_Tag_V.Type_V.Children.Append (Child);
+                        Current_Tag_V.Type_V.Append_Child (Child);
                      end;
                   when Current_Tag_Def.Tag_Id.Name =>
-                     Current_Tag_V.Name_V.Value := To_Unbounded_String (Tag_Value);
+                     Current_Tag_V.Name_V.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.Nested_Type =>
-                     Current_Tag_V.Nested_Type_V.Value := (Exists => True,
-                                                           Value  => To_Unbounded_String (Tag_Value));
+                     Current_Tag_V.Nested_Type_V.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.Usage =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
+                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Tag_Value);
                         Child : Vk_XML.Usage_Tag.Child_T := (Kind_Id    => Child_XML_Text,
                                                           XML_Text_V => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Tag_Value);
-                        Current_Tag_V.Usage_V.Children.Append (Child);
+                        Current_Tag_V.Usage_V.Append_Child (Child);
                      end;
                   when Current_Tag_Def.Tag_Id.Enum =>
-                     Current_Tag_V.Enum_V.Value := To_Unbounded_String (Tag_Value);
+                     Current_Tag_V.Enum_V.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.External_Sync_Parameter =>
-                     Current_Tag_V.External_Sync_Parameter_V.XML_Value := (Exists => True,
-                                                                           Value  => To_Unbounded_String (Tag_Value));
+                     Current_Tag_V.External_Sync_Parameter_V.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.Registry |
                        Current_Tag_Def.Tag_Id.Vendor_Ids |
                        Current_Tag_Def.Tag_Id.Vendor_Id |
@@ -1679,7 +1650,7 @@ package body Vk_XML_Reader is
                        Current_Tag_Def.Tag_Id.Require_Command |
                        Current_Tag_Def.Tag_Id.Extensions |
                        Current_Tag_Def.Tag_Id.Extension =>
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "' and previous tag is " & Current_Tag_V.Kind_Id'Img);
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '");
                   end case;
                end;
             else
@@ -1687,20 +1658,20 @@ package body Vk_XML_Reader is
                   Prev_Tag : Find_Tag_Call_Result_T := Find_Tag (Parent_Tags);
                begin
                   if not Prev_Tag.Exists then
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Both Current_Tag and Prev_Tag was null for end tag '" & Tag_Name & "' and value '" & Tag_Value & "'");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Both Current_Tag and Prev_Tag was null for end tag '");
                      return;
                   end if;
 
                   case Prev_Tag.Current_Tag_V.Kind_Id is
                   when others =>
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '" & Tag_Name & "'");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '");
                   end case;
                end;
             end if;
          end;
       end End_Tag;
 
-      procedure Text (Value       : String;
+      procedure Text (Value       : Aida.String_T;
                       Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                       Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
       is
@@ -1721,43 +1692,39 @@ package body Vk_XML_Reader is
                   case Current_Tag_V.Kind_Id is
                   when Current_Tag_Def.Tag_Id.Registry =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
-                        Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                             XML_Text_V => XML_Text_V);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                                XML_Text => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Value);
-                        Current_Tag_V.Registry.Children.Append (Child);
+                        Current_Tag_V.Registry.Append_Child (Child);
                      end;
                   when Current_Tag_Def.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
-                        Child : Vk_XML.Type_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                           XML_Text_V => XML_Text_V);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        Child : Vk_XML.Type_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                            XML_Text => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Value);
-                        Current_Tag_V.Type_V.Children.Append (Child);
+                        Current_Tag_V.Type_V.Append_Child (Child);
                      end;
                   when Current_Tag_Def.Tag_Id.Member =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
-                        Child : Vk_XML.Member_Tag.Child_T := (Kind_Id    => Child_XML_Text,
-                                                           XML_Text_V => XML_Text_V);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        Child : Vk_XML.Member_Tag.Child_T := (Kind_Id  => Child_XML_Text,
+                                                              XML_Text => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Value);
-                        Current_Tag_V.Member_V.Children.Append (Child);
+                        Current_Tag_V.Member_V.Append_Child (Child);
                      end;
                   when Current_Tag_Def.Tag_Id.Param =>
                      declare
-                        XML_Text_V : not null Vk_XML.XML_Text_Ptr := new Vk_XML.XML_Text_T;
+                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
                         Child : Vk_XML.Param_Tag.Child_T := (Kind_Id    => Child_XML_Text,
                                                           XML_Text_V => XML_Text_V);
                      begin
-                        Set_Unbounded_String (XML_Text_V.all, Value);
-                        Current_Tag_V.Param_V.Children.Append (Child);
+                        Current_Tag_V.Param_V.Append_Child (Child);
                      end;
                   when others =>
                      Aida.Text_IO.Put ("Text:");
-                     Aida.Text_IO.Put_Line (Value);
+                     Aida.Text_IO.Put_Line (String (Value));
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", does not have text, " & To_String (Parent_Tags));
                   end case;
                end;
@@ -1765,7 +1732,7 @@ package body Vk_XML_Reader is
          end if;
       end Text;
 
-      procedure Comment (Value       : String;
+      procedure Comment (Value       : Aida.String_T;
                          Parent_Tags : Aida.XML.Tag_Name_Vector_T;
                          Call_Result : in out Aida.XML.Subprogram_Call_Result.T)
       is
@@ -1782,57 +1749,51 @@ package body Vk_XML_Reader is
             case Current_Tag_V.Kind_Id is
             when Current_Tag_Def.Tag_Id.Registry =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                       Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                          Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Registry.Children.Append (Child);
+                  Current_Tag_V.Registry.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Types =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Types_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                    Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Types_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                       Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Types_V.Children.Append (Child);
+                  Current_Tag_V.Types_V.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Type_T =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Type_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                     Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Type_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                      Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Type_V.Children.Append (Child);
+                  Current_Tag_V.Type_V.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Enums =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Enums_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                    Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Enums_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                       Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Enums_V.Children.Append (Child);
+                  Current_Tag_V.Enums_V.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Require =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Require_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                      Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Require_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                         Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Require_V.Children.Append (Child);
+                  Current_Tag_V.Require_V.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Extensions =>
                declare
-                  Comment : not null Vk_XML.XML_Out_Commented_Message_Ptr := new Vk_XML.XML_Out_Commented_Message_T;
-                  Child : Vk_XML.Extensions_Tag.Child_T := (Kind_Id                 => Child_Out_Commented_Message,
-                                                         Out_Commented_Message_V => Comment);
+                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Child : Vk_XML.Extensions_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
+                                                            Out_Commented_Message => Comment);
                begin
-                  Set_Unbounded_String (Comment.all, Value);
-                  Current_Tag_V.Extensions_V.Children.Append (Child);
+                  Current_Tag_V.Extensions_V.Append_Child (Child);
                end;
             when Current_Tag_Def.Tag_Id.Comment |
                  Current_Tag_Def.Tag_Id.Vendor_Ids |

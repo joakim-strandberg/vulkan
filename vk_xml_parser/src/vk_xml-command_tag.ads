@@ -5,6 +5,8 @@ with Vk_XML.Implicit_External_Sync_Parameters_Tag;
 
 package Vk_XML.Command_Tag is
 
+   use all type Ada.Containers.Count_Type;
+
    package Success_Code_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
                                                                Element_Type => String_Ptr,
                                                                "="          => "=");
@@ -83,20 +85,37 @@ package Vk_XML.Command_Tag is
 
    type T is tagged limited private;
 
-   procedure Append_Child (This  : in out T;
-                           Child : Child_T);
-
    function Success_Codes (This : aliased T) return Success_Codes_Ref;
+
+   procedure Append_Success_Code (This : in out T;
+                                  Item : Aida.String_T) with
+     Global => null;--,
+--     Post   => This.Success_Codes'Result.Length = This.Success_Codes.Length + 1;
 
    function Error_Codes (This : aliased T) return Error_Codes_Ref;
 
+   procedure Append_Error_Code (This : in out T;
+                                Item : Aida.String_T);
+
    function Children (This : aliased T) return Children_Ref;
+
+   procedure Append_Child (This  : in out T;
+                           Item : Child_T);
 
    function Queues (This : aliased T) return Queues_Ref;
 
+   procedure Append_Queue (This : in out T;
+                           Item : Queue_T);
+
    function Render_Passes (This : aliased T) return Render_Passes_Ref;
 
+   procedure Append_Render_Pass (This : in out T;
+                                 Item : Render_Pass_T);
+
    function Command_Buffer_Levels (This : aliased T) return Command_Buffer_Levels_Ref;
+
+   procedure Append_Command_Buffer_Level (This : in out T;
+                                          Item : Command_Buffer_Level_T);
 
    function To_String (This : T) return String;
 

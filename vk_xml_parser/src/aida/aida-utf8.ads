@@ -65,13 +65,15 @@ use type Ada.Containers.Count_Type;
 
 package Aida.UTF8 with SPARK_Mode is
 
+   use all type Aida.Character_T;
+
    --     package Subprogram_Call_Result is new Aida.Generic_Subprogram_Call_Result (1000);
    --
    --     use Subprogram_Call_Result;
 
    use all type Aida.UTF8_Code_Point.T;
 
-   function Is_Valid_UTF8_Code_Point (Source      : String;
+   function Is_Valid_UTF8_Code_Point (Source      : String_T;
                                       Pointer     : Integer) return Boolean is ((Source'First <= Pointer and Pointer <= Source'Last) and then
                                                                                   (if (Character'Pos (Source (Pointer)) in 0..16#7F#) then Pointer < Integer'Last
                                                                                    else (Pointer < Source'Last and then (if Character'Pos (Source (Pointer)) in 16#C2#..16#DF# and Character'Pos (Source (Pointer + 1)) in 16#80#..16#BF# then Pointer < Integer'Last - 1
@@ -93,12 +95,12 @@ package Aida.UTF8 with SPARK_Mode is
    -- advanced to the first character following the input.  The  result  is
    -- returned through the parameter Value.
    --
-   procedure Get (Source      : String;
+   procedure Get (Source      : String_T;
                   Pointer     : in out Integer;
                   Value       : out Aida.UTF8_Code_Point.T) with
      Global => null,
      Pre    => Is_Valid_UTF8_Code_Point (Source, Pointer),
-     Post   => (if (Character'Pos (Source (Pointer'Old)) in 0..16#7F#) then Character'Pos (Source (Pointer'Old)) = Value and Pointer = Pointer'Old + 1
+     Post   => Pointer <= Pointer'Old + 4 and (if (Character'Pos (Source (Pointer'Old)) in 0..16#7F#) then Character'Pos (Source (Pointer'Old)) = Value and Pointer = Pointer'Old + 1
                     elsif (Pointer'Old < Source'Last and then (Character'Pos (Source (Pointer'Old)) in 16#C2#..16#DF# and Character'Pos (Source (Pointer'Old + 1)) in 16#80#..16#BF#)) then Pointer = Pointer'Old + 2
                   elsif (Pointer'Old < Source'Last - 1 and then ((Character'Pos (Source (Pointer'Old)) = 16#E0# and Character'Pos (Source (Pointer'Old + 1)) in 16#A0#..16#BF# and Character'Pos (Source (Pointer'Old + 2)) in 16#80#..16#BF#) or
                         (Character'Pos (Source (Pointer'Old)) in 16#E1#..16#EF# and Character'Pos (Source (Pointer'Old + 1)) in 16#80#..16#BF# and Character'Pos (Source (Pointer'Old + 2)) in 16#80#..16#BF#))) then Pointer = Pointer'Old + 3
@@ -118,8 +120,9 @@ package Aida.UTF8 with SPARK_Mode is
    --
    --    The number of UTF-8 encoded code points in Source
    --
-   function Length (Source : String) return Natural with
-     Global => null;
+   function Length (Source : String_T) return Natural with
+     Global => null,
+     Post   => Length'Result <= Source'Length or ((for all I in Source'Range => (Is_One_Byte_UTF8 (Aida.Character_T (Source (I))))) and then (Length'Result = Source'Length));
 
    --
    -- Put -- Put one UTF-8 code point
@@ -132,7 +135,7 @@ package Aida.UTF8 with SPARK_Mode is
    -- starting from the position Source (Pointer). Pointer is then advanced
    -- to the first character following the output.
    --
-   procedure Put (Destination : in out String;
+   procedure Put (Destination : in out String_T;
                   Pointer     : in out Integer;
                   Value       : Aida.UTF8_Code_Point.T) with
      Global => null,
@@ -142,10 +145,10 @@ package Aida.UTF8 with SPARK_Mode is
                                                                                               else Pointer < Integer'Last - 3 and then (Pointer + 1 in Destination'Range and Pointer + 2 in Destination'Range and Pointer + 3 in Destination'Range)),
      Post   => Pointer /= Pointer'Old and (Pointer in Destination'Range or Pointer = Destination'Last + 1);
 
-   function To_Lowercase (Value : String) return String with
+   function To_Lowercase (Value : String_T) return String_T with
      Global => null;
 
-   function To_Uppercase (Value : String) return String with
+   function To_Uppercase (Value : String_T) return String_T with
      Global => null;
 
 end Aida.UTF8;

@@ -3,8 +3,8 @@ package Vk_XML.External_Sync_Parameter_Tag is
    type T is tagged limited private;
 
    procedure Set_Value (This  : in out T;
-                               Value : Aida.String_T;
-                               SP    : Dynamic_Pools.Subpool_Handle) with
+                        Value : Aida.String_T;
+                        SP    : Dynamic_Pools.Subpool_Handle) with
      Global => null,
      Pre    => not This.Exists_Value,
      Post   => This.Exists_Value and This.Value = Value;

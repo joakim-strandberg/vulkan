@@ -1,6 +1,6 @@
 package body Aida.UTF8 with SPARK_Mode is
 
-   procedure Get (Source      : String;
+   procedure Get (Source      : String_T;
                   Pointer     : in out Integer;
                   Value       : out Aida.UTF8_Code_Point.T)
    is
@@ -62,7 +62,7 @@ package body Aida.UTF8 with SPARK_Mode is
       end case;
    end Get;
 
-   function Length (Source : String) return Natural is
+   function Length (Source : String_T) return Natural is
       Count : Natural := 0;
       Accum : Aida.UTF8_Code_Point.T;
       pragma Unreferenced (Accum);
@@ -81,7 +81,7 @@ package body Aida.UTF8 with SPARK_Mode is
       return Count;
    end Length;
 
-   procedure Put (Destination : in out String;
+   procedure Put (Destination : in out String_T;
                   Pointer     : in out Integer;
                   Value       : Aida.UTF8_Code_Point.T)  is
    begin
@@ -106,8 +106,8 @@ package body Aida.UTF8 with SPARK_Mode is
       end if;
    end Put;
 
-   function To_Lowercase (Value : String) return String is
-      Result : String (1..Value'Length);
+   function To_Lowercase (Value : String_T) return String_T is
+      Result : String_T (1..Value'Length);
       From   : Integer := Value'First;
       To     : Integer := 1;
       Code   : Aida.UTF8_Code_Point.T;
@@ -118,21 +118,10 @@ package body Aida.UTF8 with SPARK_Mode is
          Aida.UTF8.Put (Result, To, Code);
       end loop;
       return Result (1..To - 1);
---     exception
---        when Layout_Error =>
---           if From > Value'Last then
---              return Result (1..To - 1) & Image (Code);
---           else
---              return
---              (  Result (1..To - 1)
---              &  Image (Code)
---              &  To_Lowercase (Value (From..Value'Last))
---              );
---           end if;
    end To_Lowercase;
 
-   function To_Uppercase (Value : String) return String is
-      Result : String (1..Value'Length);
+   function To_Uppercase (Value : String_T) return String_T is
+      Result : String_T (1..Value'Length);
       From   : Integer := Value'First;
       To     : Integer := 1;
       Code   : Aida.UTF8_Code_Point.T;
@@ -143,17 +132,6 @@ package body Aida.UTF8 with SPARK_Mode is
          Aida.UTF8.Put (Result, To, Code);
       end loop;
       return Result (1..To - 1);
---     exception
---        when Layout_Error =>
---           if From > Value'Last then
---              return Result (1..To - 1) & Image (Code);
---           else
---              return
---              (  Result (1..To - 1)
---              &  Image (Code)
---              &  To_Uppercase (Value (From..Value'Last))
---              );
---           end if;
    end To_Uppercase;
 
 end Aida.UTF8;

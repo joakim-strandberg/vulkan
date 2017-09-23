@@ -1109,8 +1109,8 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       (16#1D7CB#,16#1D7CB#,16#1D7CB#)
    );
 
-   function Image (Value : T) return String is
-      Result  : String (1..4) := (others => ' ');
+   function Image (Value : T) return String_T is
+      Result  : String_T (1..4) := (others => ' ');
       Pointer : Integer := Result'First;
    begin
       Aida.UTF8.Put (Result, Pointer, Value);
@@ -1120,56 +1120,15 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
 -- The Find procedure can be formally verified by SPARK GPL 2016, Level=None
 -- and it takes around 20 seconds:
 --
---     procedure Find (Code  : T;
---                     CA    : Categorization_Array;
---                     Found : out Boolean;
---                     Index : in out Categorization_Index) with
---       Global => null,
---       Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
---
---     procedure Find (Code  : T;
---                     CA    : Categorization_Array;
---                     Found : out Boolean;
---                     Index : in out Categorization_Index)
---     is
---        From : Categorization_Index'Base := Mapping'First;
---        To   : Categorization_Index'Base := Mapping'Last;
---        This : Categorization_Index;
---        Current : Code_Point;
---     begin
---        while From <= To loop
---           pragma Loop_Invariant (From >= CA'First);
---           pragma Loop_Invariant (To <= CA'Last);
---           pragma Loop_Invariant (for all I in CA'First..(From - 1) => CA (I).Code < Code);
---           pragma Loop_Invariant (for all I in (To + 1)..CA'Last => Code < CA (I).Code);
---
---           This := From + (To - From) / 2;
---           Current := CA (This).Code;
---
---           if Current < Code then
---              From := This + 1;
---           elsif Current > Code then
---              To := This - 1;
---           elsif Current = Code then
---              Found := True;
---              Index := This;
---              return;
---           else
---              Found := False;
---              return;
---           end if;
---        end loop;
---        Found := False;
---     end Find;
-
    procedure Find (Code  : T;
+                   CA    : Categorization_Array;
                    Found : out Boolean;
                    Index : in out Categorization_Index) with
-     Global => null;
+     Global => null,
+     Pre => (for all I in CA'Range => (for all J in I..CA'Last => CA (I).Code <= CA (J).Code));
 
-   -- Has not been able to formally verify this procedure with SPARK GPL 2016.
-   -- But the out-commented Find procedure above can be formally verified.
    procedure Find (Code  : T;
+                   CA    : Categorization_Array;
                    Found : out Boolean;
                    Index : in out Categorization_Index)
    is
@@ -1179,13 +1138,13 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
       Current : Code_Point;
    begin
       while From <= To loop
-         pragma Loop_Invariant (From >= Mapping'First);
-         pragma Loop_Invariant (To <= Mapping'Last);
-         pragma Loop_Invariant (for all I in Mapping'First..(From - 1) => Mapping (I).Code < Code);
-         pragma Loop_Invariant (for all I in (To + 1)..Mapping'Last => Code < Mapping (I).Code);
+         pragma Loop_Invariant (From >= CA'First);
+         pragma Loop_Invariant (To <= CA'Last);
+         pragma Loop_Invariant (for all I in CA'First..(From - 1) => CA (I).Code < Code);
+         pragma Loop_Invariant (for all I in (To + 1)..CA'Last => Code < CA (I).Code);
 
          This := From + (To - From) / 2;
-         Current := Mapping (This).Code;
+         Current := CA (This).Code;
 
          if Current < Code then
             From := This + 1;
@@ -1201,6 +1160,26 @@ package body Aida.UTF8_Code_Point with SPARK_Mode is
          end if;
       end loop;
       Found := False;
+   end Find;
+
+   procedure Find (Code  : T;
+                   Found : out Boolean;
+                   Index : in out Categorization_Index) with
+     Global => null;
+
+   -- Has not been able to formally verify this procedure with SPARK GPL 2016.
+   -- But the out-commented Find procedure above can be formally verified.
+   procedure Find (Code  : T;
+                   Found : out Boolean;
+                   Index : in out Categorization_Index) is
+   begin
+      pragma Assume (for all I in Mapping'Range => (for all J in I..Mapping'Last => Mapping (I).Code <= Mapping (J).Code));
+      -- It is very memory consuming (more than 16GB) to prove this assertion, which can shown to be true by brute-force
+
+      Find (Code  => Code,
+            CA    => Mapping,
+            Found => Found,
+            Index => Index);
    end Find;
 
    -- Verified by: SPARK GPL 2016

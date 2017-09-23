@@ -1,8 +1,8 @@
 package Vk_XML.Require_Enum_Tag is
 
-   type Offset_T is new Natural range 0..10;
+   type Offset_T is new Aida.Int32_T range 0..10;
 
-   type Bit_Position_T is new Natural range 0..20;
+   type Bit_Position_T is new Aida.Int32_T range 0..20;
 
    type T is tagged limited private;
 

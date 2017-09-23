@@ -8,12 +8,49 @@ package body Vk_XML.Command_Tag is
 
    use all type Vk_XML.Proto_Tag.Child_Kind_Id_T;
 
+   procedure Append_Success_Code (This : in out T;
+                                  Item : Aida.String_T)
+   is
+      R : String_Ptr := new Aida.String_T'(Item);
+   begin
+      This.My_Success_Codes.Append (R);
+   end Append_Success_Code;
+
+   procedure Append_Error_Code (This : in out T;
+                                Item : Aida.String_T)
+   is
+      R : String_Ptr := new Aida.String_T'(Item);
+   begin
+      This.My_Error_Codes.Append (R);
+   end Append_Error_Code;
+
    procedure Append_Child (This  : in out T;
-                           Child : Child_T)
+                           Item  : Child_T)
    is
    begin
-      This.My_Children.Append (Child);
+      This.My_Children.Append (Item);
    end Append_Child;
+
+   procedure Append_Queue (This : in out T;
+                           Item : Queue_T)
+   is
+   begin
+      This.My_Queues.Append (Item);
+   end Append_Queue;
+
+   procedure Append_Render_Pass (This : in out T;
+                                 Item : Render_Pass_T)
+   is
+   begin
+      This.My_Render_Passes.Append (Item);
+   end Append_Render_Pass;
+
+   procedure Append_Command_Buffer_Level (This : in out T;
+                                          Item : Command_Buffer_Level_T)
+   is
+   begin
+      This.My_Command_Buffer_Levels.Append (Item);
+   end Append_Command_Buffer_Level;
 
    function To_String (This : T) return String is
       R : Ada.Strings.Unbounded.Unbounded_String;

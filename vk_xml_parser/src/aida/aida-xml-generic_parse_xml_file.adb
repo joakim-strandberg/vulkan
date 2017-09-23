@@ -3,7 +3,7 @@ with Aida.UTF8_Code_Point;
 with Ada.Characters.Latin_1;
 with Aida.Text_IO;
 
-procedure Aida.XML.Generic_Parse_XML_File (Contents      : String;
+procedure Aida.XML.Generic_Parse_XML_File (Contents      : Aida.String_T;
                                            Call_Result   : out Subprogram_Call_Result.T)
 is
    use all type Aida.UTF8_Code_Point.T;
@@ -49,8 +49,8 @@ is
 
    State_Id : State_Id_Type := Searching_For_XML_Start_String;
 
-   XML_File_Start_String  : String := "<?xml version=""1.0"" encoding=""utf-8""?>";
-   XML_File_Start_String2 : String := "<?xml version=""1.0"" encoding=""UTF-8""?>";
+   XML_File_Start_String  : Aida.String_T := "<?xml version=""1.0"" encoding=""utf-8""?>";
+   XML_File_Start_String2 : Aida.String_T := "<?xml version=""1.0"" encoding=""UTF-8""?>";
 
    F : Natural := Contents'First;
    L : Natural := Contents'Last;
@@ -73,10 +73,10 @@ is
    end Is_Special_Symbol;
 
    procedure Append (This : in out Tag_Name_Vectors.Vector;
-                     Item : String)
+                     Item : Aida.String_T)
    is
    begin
-      Tag_Name_Vectors.Append (This, To_Unbounded_String (Item));
+      Tag_Name_Vectors.Append (This, To_Unbounded_String (String (Item)));
    end Append;
 
    type Expected_Quotation_Symbol_T is (
@@ -171,21 +171,21 @@ begin
                   State_Id := Extracting_Start_Tag_Name;
                   Start_Tag_Name_First_Index := Prev_P;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Found_Less_Followed_By_Exclamation_Sign =>
                if CP = Character'Pos ('-') then
                   State_Id := Found_Less_Followed_By_Exclamation_And_Dash_Sign;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Found_Less_Followed_By_Exclamation_And_Dash_Sign =>
                if CP = Character'Pos ('-') then
                   State_Id := Extracting_Comment;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Extracting_Start_Tag_Name =>
@@ -225,7 +225,7 @@ begin
 
                   State_Id := Expecting_New_Tag_Or_Extracting_Tag_Value;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Expecting_G_Sign_Or_Extracting_Attributes =>
@@ -249,7 +249,7 @@ begin
                   begin
                      Tag_Name_Vectors.Delete_Last (Tag_Names);
 
-                     End_Tag (Name,
+                     End_Tag (String_T(Name),
                               Tag_Names,
                               Call_Result);
                      if Has_Failed (Call_Result) then
@@ -259,7 +259,7 @@ begin
                   Tag_Value_First_Index := P;
                   Shall_Ignore_Tag_Value := True;
                else
-                  Initialize (Call_Result, "Expected '>', state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Expected '>', state ");
                   return;
                end if;
             when Extracting_Attribute_Name =>
@@ -268,7 +268,7 @@ begin
                   State_Id := Expecting_Attribute_Value_Quotation_Mark;
 --                  Ada.Text_IO.Put_Line ("Extracted attribute name: '" & Contents (Attribute_First_Index..Attribute_Last_Index) & "'");
                elsif CP = Character'Pos (Ada.Characters.Latin_1.LF) then
-                  Initialize (Call_Result, "New line is forbidden inside attribute name, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "New line is forbidden inside attribute name, state ");
                   return;
                elsif not Is_Special_Symbol (CP) then
                   null; -- Normal
@@ -283,7 +283,7 @@ begin
                   Attribute_Value_First_Index := P;
                   State_Id := Extracting_Attribute_Value;
                else
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Extracting_Attribute_Value =>
@@ -295,8 +295,8 @@ begin
                   State_Id := Expecting_G_Sign_Or_Extracting_Attributes;
                   --                  Ada.Text_IO.Put_Line ("Extracted attribute value: '" & Contents (Attribute_Value_First_Index..Attribute_Value_Last_Index) & "'");
                   declare
-                     Name : String := Contents (Attribute_First_Index..Attribute_Last_Index);
-                     Value : String := Contents (Attribute_Value_First_Index..Attribute_Value_Last_Index);
+                     Name : String_T := Contents (Attribute_First_Index..Attribute_Last_Index);
+                     Value : String_T := Contents (Attribute_Value_First_Index..Attribute_Value_Last_Index);
                   begin
                      Attribute (Name,
                                 Value,
@@ -308,7 +308,7 @@ begin
                      return;
                   end if;
                elsif CP = Character'Pos (Ada.Characters.Latin_1.LF) then
-                  Initialize (Call_Result, "New line is forbidden inside attribute value, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "New line is forbidden inside attribute value, state ");
                   return;
                end if;
             when Expecting_New_Tag_Or_Extracting_Tag_Value =>
@@ -327,12 +327,12 @@ begin
                   State_Id := Extracting_End_Tag_Name;
                   End_Tag_Name_First_Index := P;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                else
                   -- Will ignore tag value, and start parsing child tag!
                   declare
-                     Value : String := Contents (Tag_Value_First_Index..(P - 3));
+                     Value : String_T := Contents (Tag_Value_First_Index..(P - 3));
                   begin
                      Text (Value       => Value,
                            Parent_Tags => Tag_Names,
@@ -408,7 +408,7 @@ begin
                if CP = Character'Pos ('<') then
                   State_Id := Extracting_CDATA_Found_Two_Square_Brackets_And_G_Sign_And_L_Sign;
                else
-                  Initialize (Call_Result, "Expecting '<' followed by end tag but was something else, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Expecting '<' followed by end tag but was something else, state ");
                   return;
                end if;
             when Extracting_CDATA_Found_Two_Square_Brackets_And_G_Sign_And_L_Sign =>
@@ -416,7 +416,7 @@ begin
                   State_Id := Extracting_End_Tag_Name;
                   End_Tag_Name_First_Index := P;
                else
-                  Initialize (Call_Result, "Expecting '/' followed by end tag but was something else, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Expecting '/' followed by end tag but was something else, state ");
                   return;
                end if;
             when Extracting_End_Tag_Name =>
@@ -424,12 +424,11 @@ begin
                   End_Tag_Name_Last_Index := Prev_Prev_P;
 
                   declare
-                     Tag_Name : String := To_String (Tag_Name_Vectors.Last_Element (Tag_Names));
-                     Value : String := Contents (Tag_Value_First_Index..Tag_Value_Last_Index);
+                     Tag_Name : String_T := Aida.String_T (To_String (Tag_Name_Vectors.Last_Element (Tag_Names)));
+                     Value : String_T := Contents (Tag_Value_First_Index..Tag_Value_Last_Index);
                   begin
                      if Tag_Name /= Contents (End_Tag_Name_First_Index..End_Tag_Name_Last_Index) then
-                        Initialize (Call_Result, "Tag names does not match! Start tag is '" & Tag_Name &
-                                                "', and end tag is '" & Contents (End_Tag_Name_First_Index..End_Tag_Name_Last_Index) & "' state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                        Initialize (Call_Result, "Tag names does not match! Start tag is '");
                         return;
                      end if;
 
@@ -445,7 +444,7 @@ begin
                         end if;
                      else
                         declare
-                           Text_Value : String := Contents (Tag_Value_First_Index..Tag_Value_Last_Index);
+                           Text_Value : String_T := Contents (Tag_Value_First_Index..Tag_Value_Last_Index);
                         begin
                            Text (Value       => Text_Value,
                                  Parent_Tags => Tag_Names,
@@ -473,16 +472,16 @@ begin
 
                   State_Id := Expecting_New_Tag_Or_Extracting_Tag_Value;
                elsif CP = Character'Pos (Ada.Characters.Latin_1.LF) then
-                  Initialize (Call_Result, "New line is forbidden inside attribute value, state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "New line is forbidden inside attribute value, state ");
                   return;
                elsif Is_Special_Symbol (CP) then
-                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point" & Image (CP) & "), state " & State_Id_Type'Image (State_Id) & " " & Contents (F..P));
+                  Initialize (Call_Result, "Unexpected UTF8 symbol (code point");
                   return;
                end if;
             when Expecting_New_Tag_Or_Extracting_Tag_Value_And_Found_L_And_Exclamation_And_Dash =>
                if CP = Character'Pos ('-') then
                   declare
-                     Value : String := Contents (Tag_Value_First_Index..(P - 5));
+                     Value : String_T := Contents (Tag_Value_First_Index..(P - 5));
                   begin
                      Text (Value       => Value,
                            Parent_Tags => Tag_Names,
@@ -504,7 +503,7 @@ begin
             when Extracting_Comment_And_Found_Dash_Dash =>
                if CP = Character'Pos ('>') then
                   declare
-                     Value : String := Contents (Comment_First_Index..(P - 4));
+                     Value : String_T := Contents (Comment_First_Index..(P - 4));
                   begin
                      Comment (Value       => Value,
                               Parent_Tags => Tag_Names,

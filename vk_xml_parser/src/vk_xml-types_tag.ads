@@ -9,8 +9,8 @@ package Vk_XML.Types_Tag is
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
       case Kind_Id is
-         when Child_Type                  => Type_V                  : Type_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message_V : String_Ptr;
+         when Child_Type                  => Type_V                : Type_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
       end case;
    end record;
 

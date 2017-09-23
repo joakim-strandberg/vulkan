@@ -55,9 +55,14 @@ procedure Main is
       end if;
 
       Ada.Text_IO.Put ("Allocated memory in default subpool plus subpool:");
-      Ada.Text_IO.Put_Line (Vk_XML.Main_Pool.Storage_Size'Image);
-      Ada.Text_IO.Put ("Used memory in default subpool plus subpool:     ");
-      Ada.Text_IO.Put_Line (Vk_XML.Main_Pool.Storage_Used'Image);
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Vk_XML.Main_Pool)'Image);
+      Ada.Text_IO.Put ("Used memory in default subpool plus subpool:");
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Vk_XML.Main_Pool)'Image);
+
+      Ada.Text_IO.Put ("Allocated memory in subpool:");
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Size (Subpool.Handle)'Image);
+      Ada.Text_IO.Put ("Used memory in subpool:");
+      Ada.Text_IO.Put_Line (Dynamic_Pools.Storage_Used (Subpool.Handle)'Image);
    end Main_Internal;
 
 begin

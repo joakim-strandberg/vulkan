@@ -989,7 +989,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Def.Tag_Id.Param =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Nested_Type_V : not null Vk_XML.Nested_Type_Tag.Ptr := new Vk_XML.Nested_Type_Tag.T;
+                        Nested_Type_V : not null Vk_XML.Nested_Type_Tag.Ptr := new (SH) Vk_XML.Nested_Type_Tag.T;
                         Child : Vk_XML.Param_Tag.Child_T := (Kind_Id     => Child_Nested_Type,
                                                              Nested_Type => Nested_Type_V);
 
@@ -1008,7 +1008,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Name then
                      declare
-                        Name_V : not null Vk_XML.Name_Tag.Ptr := new Vk_XML.Name_Tag.T;
+                        Name_V : not null Vk_XML.Name_Tag.Ptr := new (SH) Vk_XML.Name_Tag.T;
                         Child : Vk_XML.Param_Tag.Child_T := (Kind_Id => Child_Name,
                                                              Name    => Name_V);
 
@@ -1031,7 +1031,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Def.Tag_Id.Implicit_External_Sync_Parameters =>
                   if Tag_Name = XML_Tag_External_Sync_Parameter then
                      declare
-                        External_Sync_Parameter_V : not null Vk_XML.External_Sync_Parameter_Tag.Ptr := new Vk_XML.External_Sync_Parameter_Tag.T;
+                        External_Sync_Parameter_V : not null Vk_XML.External_Sync_Parameter_Tag.Ptr := new (SH) Vk_XML.External_Sync_Parameter_Tag.T;
                         Child : Vk_XML.Implicit_External_Sync_Parameters_Tag.Child_T := (Kind_Id                 => Child_External_Sync_Parameter,
                                                                                          External_Sync_Parameter => External_Sync_Parameter_V);
 
@@ -1077,7 +1077,7 @@ package body Vk_XML_Reader is
                when Current_Tag_Def.Tag_Id.Require =>
                   if Tag_Name = XML_Tag_Type then
                      declare
-                        Type_V : not null Vk_XML.Type_Tag.Ptr := new Vk_XML.Type_Tag.T;
+                        Type_V : not null Vk_XML.Type_Tag.Ptr := new (SH) Vk_XML.Type_Tag.T;
                         Child : Vk_XML.Require_Tag.Child_T := (Kind_Id => Child_Type,
                                                             Type_V  => Type_V);
 
@@ -1617,7 +1617,7 @@ package body Vk_XML_Reader is
                      Current_Tag_V.Nested_Type_V.Set_Value (Tag_Value, SH);
                   when Current_Tag_Def.Tag_Id.Usage =>
                      declare
-                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Tag_Value);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Tag_Value);
                         Child : Vk_XML.Usage_Tag.Child_T := (Kind_Id  => Child_XML_Text,
                                                              XML_Text => XML_Text_V);
                      begin
@@ -1691,7 +1691,7 @@ package body Vk_XML_Reader is
                   case Current_Tag_V.Kind_Id is
                   when Current_Tag_Def.Tag_Id.Registry =>
                      declare
-                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                         Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id  => Child_XML_Text,
                                                                 XML_Text => XML_Text_V);
                      begin
@@ -1699,7 +1699,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Def.Tag_Id.Type_T =>
                      declare
-                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                         Child : Vk_XML.Type_Tag.Child_T := (Kind_Id  => Child_XML_Text,
                                                             XML_Text => XML_Text_V);
                      begin
@@ -1707,7 +1707,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Def.Tag_Id.Member =>
                      declare
-                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                         Child : Vk_XML.Member_Tag.Child_T := (Kind_Id  => Child_XML_Text,
                                                               XML_Text => XML_Text_V);
                      begin
@@ -1715,7 +1715,7 @@ package body Vk_XML_Reader is
                      end;
                   when Current_Tag_Def.Tag_Id.Param =>
                      declare
-                        XML_Text_V : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                        XML_Text_V : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                         Child : Vk_XML.Param_Tag.Child_T := (Kind_Id  => Child_XML_Text,
                                                              XML_Text => XML_Text_V);
                      begin
@@ -1748,7 +1748,7 @@ package body Vk_XML_Reader is
             case Current_Tag_V.Kind_Id is
             when Current_Tag_Def.Tag_Id.Registry =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Registry_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                           Out_Commented_Message => Comment);
                begin
@@ -1756,7 +1756,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Def.Tag_Id.Types =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Types_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                        Out_Commented_Message => Comment);
                begin
@@ -1764,7 +1764,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Def.Tag_Id.Type_T =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Type_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                       Out_Commented_Message => Comment);
                begin
@@ -1772,7 +1772,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Def.Tag_Id.Enums =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Enums_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                        Out_Commented_Message => Comment);
                begin
@@ -1780,7 +1780,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Def.Tag_Id.Require =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Require_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                          Out_Commented_Message => Comment);
                begin
@@ -1788,7 +1788,7 @@ package body Vk_XML_Reader is
                end;
             when Current_Tag_Def.Tag_Id.Extensions =>
                declare
-                  Comment : not null Vk_XML.String_Ptr := new Aida.String_T'(Value);
+                  Comment : not null Vk_XML.String_Ptr := new (SH) Aida.String_T'(Value);
                   Child : Vk_XML.Extensions_Tag.Child_T := (Kind_Id               => Child_Out_Commented_Message,
                                                             Out_Commented_Message => Comment);
                begin

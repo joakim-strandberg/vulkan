@@ -905,7 +905,7 @@ package body Vk_XML_Reader is
                      end;
                   elsif Tag_Name = XML_Tag_Validity then
                      declare
-                        Validity_V : not null Vk_XML.Validity_Tag.Ptr := new Vk_XML.Validity_Tag.T;
+                        Validity_V : not null Vk_XML.Validity_Tag.Ptr := new (SH) Vk_XML.Validity_Tag.T;
                         Child : Vk_XML.Command_Tag.Child_T := (Kind_Id => Child_Validity,
                                                                Validity => Validity_V);
 

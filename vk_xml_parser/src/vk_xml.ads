@@ -5,7 +5,7 @@ pragma Unreferenced (Ada.Containers.Vectors); -- Is used in child packages
 
 package Vk_XML is
 
-   Main_Pool : Dynamic_Pools.Dynamic_Pool;
+   Main_Pool : Dynamic_Pools.Dynamic_Pool (0);
 
    use all type Aida.String_T; -- Is used in child packages
 

@@ -1,0 +1,51 @@
+with "Default";
+
+project Aida is
+
+   for Source_Dirs use ("src/");
+   for Object_Dir use "obj";
+
+   for Source_Files use (
+                         "aida.adb",
+                         "aida.ads",
+                         "aida_z.ads",
+                         "aida_z-character.adb",
+                         "aida_z-character.ads",
+                         "aida_z-float.adb",
+                         "aida_z-float.ads",
+                         "aida_z-hash32.ads",
+                         "aida_z-int32.adb",
+                         "aida_z-int32.ads",
+                         "aida_z-string.adb",
+                         "aida_z-string.ads",
+                         "aida-execute_command.adb",
+                         "aida-execute_command.ads",
+                         "aida-generic_shared_ptr.adb",
+                         "aida-generic_shared_ptr.ads",
+                         "aida-generic_subprogram_call_result.adb",
+                         "aida-generic_subprogram_call_result.ads",
+                         "aida-hexadecimal.adb",
+                         "aida-hexadecimal.ads",
+                         "aida-text_io.adb",
+                         "aida-text_io.ads",
+                         "aida-utf8.adb",
+                         "aida-utf8.ads",
+                         "aida-utf8_code_point.adb",
+                         "aida-utf8_code_point.ads",
+                         "aida-xml.ads",
+                         "aida-xml-generic_parse_xml_file.adb",
+                         "aida-xml-generic_parse_xml_file.ads"
+                        );
+
+   package Compiler is
+      for Default_Switches ("Ada") use Default.Compiler'Switches ("Ada");
+   end Compiler;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use Default.Linker'Switches ("Ada");
+   end Linker;
+
+end Aida;

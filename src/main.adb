@@ -6,8 +6,6 @@ with GNAT.IO_Aux;
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 
-with Basic_Dynamic_Pools;
-
 with Vk_XML_Reader;
 with Vk_XML.Registry_Tag;
 with Vk_Package_Creator;
@@ -23,7 +21,7 @@ procedure Main is
 
    procedure Main_Internal is
 
-      Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Vk_XML.Main_Pool);
+      Subpool : Dynamic_Pools.Scoped_Subpool := Dynamic_Pools.Create_Subpool (Vk_XML.Main_Pool, 1_000_000);
 
       File_Size : Natural := Natural (Ada.Directories.Size (File_Name));
 

@@ -1,0 +1,24 @@
+with "Default";
+
+project Deepend is
+
+   for Source_Dirs use ("src/");
+   for Object_Dir use "obj";
+
+   for Source_Files use (
+                         "dynamic_pools.adb",
+                         "dynamic_pools.ads"
+                        );
+
+   package Compiler is
+      for Default_Switches ("Ada") use Default.Compiler'Switches ("Ada");
+   end Compiler;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use Default.Linker'Switches ("Ada");
+   end Linker;
+
+end Deepend;

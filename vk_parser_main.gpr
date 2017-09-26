@@ -1,0 +1,30 @@
+with "Vk_XML";
+with "Default";
+
+project Vk_Parser_Main is
+
+   for Source_Dirs use ("src/");
+   for Object_Dir use "obj";
+   for Exec_Dir use "bin";
+   for Main use ("main.adb");
+
+   for Source_Files use (
+                         "main.adb",
+                         "vk_xml_reader.adb",
+                         "vk_xml_reader.ads",
+                         "vk_package_creator.adb",
+                         "vk_package_creator.ads"
+                        );
+
+   package Compiler is
+      for Default_Switches ("Ada") use Default.Compiler'Switches ("Ada");
+   end Compiler;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use Default.Linker'Switches ("Ada");
+   end Linker;
+
+end Vk_Parser_Main;

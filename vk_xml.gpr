@@ -1,0 +1,83 @@
+with "Aida";
+with "Deepend";
+with "Default";
+
+project Vk_XML is
+
+   for Source_Dirs use ("src/");
+   for Object_Dir use "obj";
+
+   for Source_Files use (
+                         "vk_xml.ads",
+                         "vk_xml-command_tag.adb",
+                         "vk_xml-command_tag.ads",
+                         "vk_xml-commands_tag.adb",
+                         "vk_xml-commands_tag.ads",
+                         "vk_xml-comment_tag.adb",
+                         "vk_xml-comment_tag.ads",
+                         "vk_xml-enum_tag.adb",
+                         "vk_xml-enum_tag.ads",
+                         "vk_xml-enums_enum_tag.adb",
+                         "vk_xml-enums_enum_tag.ads",
+                         "vk_xml-enums_tag.adb",
+                         "vk_xml-enums_tag.ads",
+                         "vk_xml-extension_tag.adb",
+                         "vk_xml-extension_tag.ads",
+                         "vk_xml-extensions_tag.adb",
+                         "vk_xml-extensions_tag.ads",
+                         "vk_xml-external_sync_parameter_tag.adb",
+                         "vk_xml-external_sync_parameter_tag.ads",
+                         "vk_xml-feature_tag.adb",
+                         "vk_xml-feature_tag.ads",
+                         "vk_xml-implicit_external_sync_parameters_tag.adb",
+                         "vk_xml-implicit_external_sync_parameters_tag.ads",
+                         "vk_xml-member_tag.adb",
+                         "vk_xml-member_tag.ads",
+                         "vk_xml-name_tag.adb",
+                         "vk_xml-name_tag.ads",
+                         "vk_xml-nested_type_tag.adb",
+                         "vk_xml-nested_type_tag.ads",
+                         "vk_xml-param_tag.adb",
+                         "vk_xml-param_tag.ads",
+                         "vk_xml-proto_tag.adb",
+                         "vk_xml-proto_tag.ads",
+                         "vk_xml-registry_tag.adb",
+                         "vk_xml-registry_tag.ads",
+                         "vk_xml-require_command_tag.adb",
+                         "vk_xml-require_command_tag.ads",
+                         "vk_xml-require_enum_tag.adb",
+                         "vk_xml-require_enum_tag.ads",
+                         "vk_xml-require_tag.adb",
+                         "vk_xml-require_tag.ads",
+                         "vk_xml-tag_tag.adb",
+                         "vk_xml-tag_tag.ads",
+                         "vk_xml-tags_tag.adb",
+                         "vk_xml-tags_tag.ads",
+                         "vk_xml-type_tag.adb",
+                         "vk_xml-type_tag.ads",
+                         "vk_xml-types_tag.adb",
+                         "vk_xml-types_tag.ads",
+                         "vk_xml-unused_tag.adb",
+                         "vk_xml-unused_tag.ads",
+                         "vk_xml-usage_tag.adb",
+                         "vk_xml-usage_tag.ads",
+                         "vk_xml-validity_tag.adb",
+                         "vk_xml-validity_tag.ads",
+                         "vk_xml-vendor_id_tag.adb",
+                         "vk_xml-vendor_id_tag.ads",
+                         "vk_xml-vendor_ids_tag.adb",
+                         "vk_xml-vendor_ids_tag.ads"
+                        );
+
+   package Compiler is
+      for Default_Switches ("Ada") use Default.Compiler'Switches ("Ada");
+   end Compiler;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use Default.Linker'Switches ("Ada");
+   end Linker;
+
+end Vk_XML;

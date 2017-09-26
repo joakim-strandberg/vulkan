@@ -1,0 +1,14 @@
+abstract project Default is
+
+   package Compiler is
+      for Switches ("Ada") use ("-fstack-check", "-gnato");
+   end Compiler;
+
+   package Binder is
+   end Binder;
+
+   package Linker is
+      for Switches ("Ada") use ("");
+   end Linker;
+
+end Default;

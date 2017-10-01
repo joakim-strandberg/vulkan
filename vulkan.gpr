@@ -6,6 +6,12 @@ library project Vulkan is
    for Object_Dir   use "obj";
    for Library_Dir  use "lib";
 
+   for Source_Files use (
+                         "vk.ads",
+			 "generic_address_to_access_conversions.adb",
+			 "generic_address_to_access_conversions.ads"
+			);
+
    for Languages    use ("Ada");
 
 end Vulkan;

@@ -1,4 +1,4 @@
-# Ada binding to the Vulkan STD
+# Ada binding to the Vulkan SDK
 
 To use the Ada binding simply with the vulkan.gpr file in your project.
 

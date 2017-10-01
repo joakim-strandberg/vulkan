@@ -1,7 +1,9 @@
-# vulkan
+# Ada binding to the Vulkan STD
 
-The goal is to create an Ada binding for the Vulkan SDK. The vk.xml file that describes the API can now be parsed. Work is ongoing to interpret the contents and generate the Ada binding.
+To use the Ada binding simply with the vulkan.gpr file in your project.
 
-This is work in progress...
+It is possible to query the Vulkan API for information on all the GPU:s installed on the computer. It may even be possible to use the vulkan API in its current state for drawing graphics, but is yet untested.
 
-One subgoal has been to implement the parser of the vk.xml-file in SPARK (or use SPARK as much as possible to be able to use the SPARK tools to be able to formally verify the code and to prove it free from run-time errors under the assumption that the RAM memory of the computer does not become exhausted).
+For examples using the Ada binding consult the /examples directory.
+
+Open the file vk_xml_parser.gpr with the GNAT Programming studio yo view the code that parses the vk.xml file and auto-generates the Ada binding to the Vulkan API. The application is written in Ada 2012 and demonstrates how to take advantage of the new subpool features introduced in the Ada 2012 standard and uses Brad Moore's Deepend.

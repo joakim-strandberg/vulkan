@@ -374,6 +374,14 @@ package body Vk_Package_Creator is
    begin
       Adaify_Name (Old_Name => Old_Name,
                    New_Name => New_Name);
+      -- if statement to handle the cases where Old_Name is Uint_32_T and Size_T.
+--        if Old_Name (Old_Name'Last-1..Old_Name'Last) /= "_t" then
+--           Adaify_Name (Old_Name => Old_Name,
+--                        New_Name => New_Name);
+--        else
+--           Adaify_Name (Old_Name => Old_Name (Old_Name'First..Old_Name'Last-2),
+--                        New_Name => New_Name);
+--        end if;
 
       declare
          R : String := To_String (New_Name);
@@ -2086,41 +2094,42 @@ package body Vk_Package_Creator is
 
                procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML.Type_Tag.Ptr) is
                begin
-                  for Type_Child of Type_V.Children loop
-                     if Type_Child.Kind_Id = Child_Validity then
-                        declare
-                           Validity_V : Vk_XML.Validity_Tag.Ptr := Type_Child.Validity;
-                        begin
-                           for Validity_Child of Validity_V.Children loop
-                              if Validity_Child.Kind_Id = Child_Usage then
-                                 declare
-                                    Usage_V : Vk_XML.Usage_Tag.Ptr := Validity_Child.Usage;
-                                 begin
-                                    for Usage_Child of Usage_V.Children loop
-                                       if Usage_Child.Kind_Id = Child_XML_Text then
-                                          declare
-                                             Text_V : Aida.String_T := Usage_Child.XML_Text.all;
-                                             N : Natural := Text_V'Last;
-                                          begin
-                                             for J in Positive range Text_V'First..Text_V'Last loop
-                                                if Text_V (J) = Ada.Characters.Latin_1.LF or Text_V (J) = Ada.Characters.Latin_1.CR then
-                                                   N := J - 1;
-                                                   exit;
-                                                end if;
-                                             end loop;
-
-                                             -- TODO: Handle text containing new-lines better!
-                                             Put_Tabs (1); Put ("-- ");
-                                             Put_Line (Text_V (Text_V'First..N));
-                                          end;
-                                       end if;
-                                    end loop;
-                                 end;
-                              end if;
-                           end loop;
-                        end;
-                     end if;
-                  end loop;
+--                    for Type_Child of Type_V.Children loop
+--                       if Type_Child.Kind_Id = Child_Validity then
+--                          declare
+--                             Validity_V : Vk_XML.Validity_Tag.Ptr := Type_Child.Validity;
+--                          begin
+--                             for Validity_Child of Validity_V.Children loop
+--                                if Validity_Child.Kind_Id = Child_Usage then
+--                                   declare
+--                                      Usage_V : Vk_XML.Usage_Tag.Ptr := Validity_Child.Usage;
+--                                   begin
+--                                      for Usage_Child of Usage_V.Children loop
+--                                         if Usage_Child.Kind_Id = Child_XML_Text then
+--                                            declare
+--                                               Text_V : Aida.String_T := Usage_Child.XML_Text.all;
+--                                               N : Natural := Text_V'Last;
+--                                            begin
+--                                               for J in Positive range Text_V'First..Text_V'Last loop
+--                                                  if Text_V (J) = Ada.Characters.Latin_1.LF or Text_V (J) = Ada.Characters.Latin_1.CR then
+--                                                     N := J - 1;
+--                                                     exit;
+--                                                  end if;
+--                                               end loop;
+--
+--                                               -- TODO: Handle text containing new-lines better!
+--                                               Put_Tabs (1); Put ("-- ");
+--                                               Put_Line (Text_V (Text_V'First..N));
+--                                            end;
+--                                         end if;
+--                                      end loop;
+--                                   end;
+--                                end if;
+--                             end loop;
+--                          end;
+--                       end if;
+--                    end loop;
+                  null;
                end Generate_Usage_Comments_After_Record_Definition_If_Any;
 
                procedure Populate_Members_Vector (Type_V : Vk_XML.Type_Tag.Ptr) is
@@ -2747,7 +2756,8 @@ package body Vk_Package_Creator is
             begin
                for Command_Child of Command_V.Children loop
                   case Command_Child.Kind_Id is
-                     when Child_Proto => Handle_Proto (Command_Child.Proto);
+                     when Child_Proto =>
+                        Handle_Proto (Command_Child.Proto);
                      when others      => null;
                   end case;
                end loop;
@@ -2833,13 +2843,16 @@ package body Vk_Package_Creator is
                         Adaify_Access_Type_Name (Old_Name => The_Nested_Type_Name,
                                                  New_Name => Adafied_Access_Type_Name);
 
-                        Put_Tabs (1);
-                        Put ("type ");
-                        Puts (To_String (Adafied_Access_Type_Name));
-                        Put (" is access all ");
-                        Puts (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
-                        Put_Line (";");
-                        Put_Line ("");
+                        Set_Unbounded_String (Adafied_Access_Type_Name, "access " & To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
+
+
+--                          Put_Tabs (1);
+--                          Put ("type ");
+--                          Puts (To_String (Adafied_Access_Type_Name));
+--                          Put (" is access all ");
+--                          Puts (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
+--                          Put_Line (";");
+--                          Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, String (The_Nested_Type_Name) & "*");
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
@@ -3270,8 +3283,7 @@ package body Vk_Package_Creator is
 
                                  Set_Unbounded_String (Nested_Type_Name, String (First.Nested_Type.Value) & "*");
 
-                                 Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map_Owner.Find (Container => C_Type_Name_To_Ada_Name_Map,
-                                                                                                Key       => Nested_Type_Name);
+                                 Searched_For_Cursor := C_Type_Name_To_Ada_Name_Map.Find (Nested_Type_Name);
 
                                  if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
                                     Put_Tabs (2);
@@ -3429,29 +3441,83 @@ package body Vk_Package_Creator is
             begin
                if Params.Length > 0 then
                   if Is_Function then
-                     Puts_Line (") return " & To_String (Return_Type) & ";");
+                     Puts_Line (") return " & To_String (Return_Type) & " with");
                   else
-                     Put_Line (");");
+                     Put_Line (") with");
                   end if;
                else
-                  Put_Line (";");
+                  Put_Line (" with");
                end if;
 
+               Put_Line ("Import        => True,");
+
                if Generating_Code_For_OS = Windows then
-                  Puts_Line ("pragma Import (StdCall, " & To_String (Subprogram_Name) & ", """ & To_String (C_Subprogram_Name) & """);");
+                  Put_Line ("Convention    => Stdcall,");
                else
-                  Puts_Line ("pragma Import (C, " & To_String (Subprogram_Name) & ", """ & To_String (C_Subprogram_Name) & """);");
+                  Put_Line ("Convention    => C,");
                end if;
+
+               Puts_Line ("External_Name => """ & To_String (C_Subprogram_Name) & """;");
 
                Put_Line ("");
             end Generate_Code_For_The_Subprogram_Ending;
 
+            function Shall_Generate_Code_For_Subprogram return Boolean is
+            begin
+               for Command_Child of Command_V.Children loop
+                  case Command_Child.Kind_Id is
+                     when Child_Proto =>
+                        if Command_Child.Proto.Children.Length = 2 then
+                           declare
+                              First  : Vk_XML.Proto_Tag.Child_T renames Command_Child.Proto.Children.Element (Command_Child.Proto.Children.First_Index);
+                              Second : Vk_XML.Proto_Tag.Child_T renames Command_Child.Proto.Children.Element (Command_Child.Proto.Children.First_Index + 1);
+                           begin
+                              if
+                                First.Kind_Id = Child_Nested_Type and then
+                                First.Nested_Type.Exists_Value and then
+                                Second.Kind_Id = Child_Name
+                              then
+                                 case Generating_Code_For_OS is
+                                    when Windows =>
+                                       if
+                                         Second.Name.Value = "vkCreateAndroidSurfaceKHR" or
+                                         Second.Name.Value = "vkGetPhysicalDeviceMirPresentationSupportKHR" or
+                                         Second.Name.Value = "vkCreateMirSurfaceKHR" or
+                                         Second.Name.Value = "vkCreateWaylandSurfaceKHR" or
+                                         Second.Name.Value = "vkGetPhysicalDeviceWaylandPresentationSupportKHR" or
+                                         Second.Name.Value = "vkGetPhysicalDeviceXlibPresentationSupportKHR" or
+                                         Second.Name.Value = "vkCreateXlibSurfaceKHR" or
+                                         Second.Name.Value = "vkGetPhysicalDeviceXcbPresentationSupportKHR" or
+                                         Second.Name.Value = "vkCreateXcbSurfaceKHR"
+                                       then
+                                          return False;
+                                       end if;
+                                 end case;
+                              else
+                                 Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                                 Aida.Text_IO.Put_Line (To_String (Command_V));
+                              end if;
+                           end;
+                        else
+                           Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
+                           Aida.Text_IO.Put_Line (To_String (Command_V));
+                        end if;
+                     when others      => null;
+                  end case;
+               end loop;
+
+               return True;
+            end Shall_Generate_Code_For_Subprogram;
+
          begin
             Populate_Params_Vector;
-            Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V);
-            Generate_Code_For_The_Subprogram_Name;
-            Generate_Code_For_The_Subprogram_Parameters_If_Any;
-            Generate_Code_For_The_Subprogram_Ending;
+
+            if Shall_Generate_Code_For_Subprogram then
+               Generate_Code_For_The_Constant_Access_Types_If_Any (Command_V);
+               Generate_Code_For_The_Subprogram_Name;
+               Generate_Code_For_The_Subprogram_Parameters_If_Any;
+               Generate_Code_For_The_Subprogram_Ending;
+            end if;
          end Handle_Command;
 
          procedure Handle_Commands (Commands_V : Vk_XML.Commands_Tag.Ptr)

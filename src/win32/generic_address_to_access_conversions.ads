@@ -9,8 +9,7 @@ package Generic_Address_To_Access_Conversions is
       "Object is unconstrained array type" & ASCII.LF &
         "To_Pointer results may not have bounds");
 
-   type Object_Pointer is access all Object;
-   for Object_Pointer'Size use Standard'Address_Size;
+   type Object_Pointer is access all Object with Size => Standard'Address_Size;
 
    pragma No_Strict_Aliasing (Object_Pointer);
    --  Strictly speaking, this routine should not be used to generate pointers
@@ -23,11 +22,9 @@ package Generic_Address_To_Access_Conversions is
 
    Null_Address : constant Object_Address := Object_Address (System.Null_Address);
 
-   function To_Pointer (Value : Object_Address) return Object_Pointer;
-   pragma Inline (To_Pointer);
+   function To_Pointer (Value : Object_Address) return Object_Pointer with Inline => True;
 
-   function To_Address (Value : Object_Pointer) return Object_Address;
-   pragma Inline (To_Address);
+   function To_Address (Value : Object_Pointer) return Object_Address with Inline => True;
 
 private
 

@@ -2791,16 +2791,18 @@ package body Vk_Package_Creator is
 
                      if Searched_For_Cursor /= C_Type_Name_To_Ada_Name_Map_Owner.No_Element then
 
-                        Adaify_Constant_Access_Type_Name (Old_Name => The_Nested_Type_Name,
-                                                          New_Name => Adafied_Constant_Access_Type_Name);
+--                          Adaify_Constant_Access_Type_Name (Old_Name => The_Nested_Type_Name,
+--                                                            New_Name => Adafied_Constant_Access_Type_Name);
 
-                        Put_Tabs (1);
-                        Put ("type ");
-                        Puts (To_String (Adafied_Constant_Access_Type_Name));
-                        Put (" is access constant ");
-                        Puts (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
-                        Put_Line (";");
-                        Put_Line ("");
+                        Set_Unbounded_String (Adafied_Constant_Access_Type_Name, "access constant " & To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
+
+--                          Put_Tabs (1);
+--                          Put ("type ");
+--                          Puts (To_String (Adafied_Constant_Access_Type_Name));
+--                          Put (" is access constant ");
+--                          Puts (To_String (C_Type_Name_To_Ada_Name_Map.Constant_Reference (Searched_For_Cursor)));
+--                          Put_Line (";");
+--                          Put_Line ("");
 
                         Set_Unbounded_String (Nested_Type_Name, "const " & String (The_Nested_Type_Name) & "*");
                         C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Constant_Access_Type_Name);

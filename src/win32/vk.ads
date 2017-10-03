@@ -1607,13 +1607,6 @@ package Vk is
       Max_Depth : Interfaces.C.C_float;
    end record;
    pragma Convention (C_Pass_By_Copy, Viewport_T);
-   -- pname:width must: be greater than `0.0` and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxViewportDimensions[0]
-   -- pname:height must: be greater than `0.0` and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxViewportDimensions[1]
-   -- pname:x and pname:y must: each be between pname:viewportBoundsRange[0] and pname:viewportBoundsRange[1], inclusive
-   -- pname:x + pname:width must: be less than or equal to pname:viewportBoundsRange[1]
-   -- pname:y + pname:height must: be less than or equal to pname:viewportBoundsRange[1]
-   -- pname:minDepth must: be between `0.0` and `1.0`, inclusive
-   -- pname:maxDepth must: be between `0.0` and `1.0`, inclusive
 
    type Rect_2D_T is record
       Offset : Offset_2D_T;
@@ -1681,7 +1674,6 @@ package Vk is
       Api_Version         : Version_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Application_Info_T);
-   -- pname:apiVersion must: be zero, or otherwise it must: be a version that the implementation supports, or supports an effective substitute for
 
    type Allocation_Callbacks_T is record
       User_Data               : Void_Ptr;
@@ -1692,10 +1684,6 @@ package Vk is
       Pfn_Internal_Free       : Pfn_Vk_Internal_Free_Notification_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Allocation_Callbacks_T);
-   -- pname:pfnAllocation must: be a pointer to a valid user-defined PFN_vkAllocationFunction
-   -- pname:pfnReallocation must: be a pointer to a valid user-defined PFN_vkReallocationFunction
-   -- pname:pfnFree must: be a pointer to a valid user-defined PFN_vkFreeFunction
-   -- If either of pname:pfnInternalAllocation or pname:pfnInternalFree is not `NULL`, both must: be valid callbacks
 
    type Float_Const_Ptr is access constant Interfaces.C.C_float;
 
@@ -1708,11 +1696,8 @@ package Vk is
       Queue_Priorities   : Float_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Device_Queue_Create_Info_T);
-   -- pname:queueFamilyIndex must: be less than pname:pQueueFamilyPropertyCount returned by fname:vkGetPhysicalDeviceQueueFamilyProperties
-   -- pname:queueCount must: be less than or equal to the pname:queueCount member of the sname:VkQueueFamilyProperties structure, as returned by fname:vkGetPhysicalDeviceQueueFamilyProperties in the pname:pQueueFamilyProperties[pname:queueFamilyIndex]
-   -- Each element of pname:pQueuePriorities must: be between `0.0` and `1.0` inclusive
 
-   type Application_Info_Const_Ptr is access constant Application_Info_T;
+   type Application_Info_Const_Ptr is access all Application_Info_T;
 
    type Instance_Create_Info_T is record
       Stype                   : Structure_Type_T;
@@ -1725,9 +1710,6 @@ package Vk is
       Enabled_Extension_Names : Char_Ptr_Array_Conversions.Object_Address;
    end record;
    pragma Convention (C_Pass_By_Copy, Instance_Create_Info_T);
-   -- Any given element of pname:ppEnabledLayerNames must: be the name of a layer present on the system, exactly matching a string returned in the sname:VkLayerProperties structure by fname:vkEnumerateInstanceLayerProperties
-   -- Any given element of pname:ppEnabledExtensionNames must: be the name of an extension present on the system, exactly matching a string returned in the sname:VkExtensionProperties structure by fname:vkEnumerateInstanceExtensionProperties
-   -- If an extension listed in pname:ppEnabledExtensionNames is provided as part of a layer, then both the layer and extension must: be enabled to enable that extension
 
    type Queue_Family_Properties_T is record
       Queue_Flags                    : Queue_Flags_T;
@@ -1744,8 +1726,6 @@ package Vk is
       Memory_Type_Index : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Memory_Allocate_Info_T);
-   -- pname:allocationSize must: be less than or equal to the amount of memory available to the sname:VkMemoryHeap specified by pname:memoryTypeIndex and the calling command's sname:VkDevice
-   -- pname:allocationSize must: be greater than `0`
 
    type Memory_Requirements_T is record
       Size             : Device_Size_T;
@@ -1790,11 +1770,6 @@ package Vk is
       Size   : Device_Size_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Mapped_Memory_Range_T);
-   -- pname:memory must: currently be mapped
-   -- If pname:size is not equal to ename:VK_WHOLE_SIZE, pname:offset and pname:size must: specify a range contained within the currently mapped range of pname:memory
-   -- If pname:size is equal to ename:VK_WHOLE_SIZE, pname:offset must: be within the currently mapped range of pname:memory
-   -- pname:offset must: be a multiple of sname:VkPhysicalDeviceLimits::pname:nonCoherentAtomSize
-   -- If pname:size is not equal to ename:VK_WHOLE_SIZE, pname:size must: be a multiple of sname:VkPhysicalDeviceLimits::pname:nonCoherentAtomSize
 
    type Format_Properties_T is record
       Linear_Tiling_Features  : Format_Feature_Flags_T;
@@ -1818,9 +1793,6 @@ package Vk is
       The_Range : Device_Size_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Buffer_Info_T);
-   -- pname:offset must: be less than the size of pname:buffer
-   -- If pname:range is not equal to ename:VK_WHOLE_SIZE, pname:range must: be greater than `0`
-   -- If pname:range is not equal to ename:VK_WHOLE_SIZE, pname:range must: be less than or equal to the size of pname:buffer minus pname:offset
 
    type Descriptor_Image_Info_T is record
       Sampler      : Sampler_T;
@@ -1848,23 +1820,6 @@ package Vk is
       Texel_Buffer_View : Buffer_View_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Write_Descriptor_Set_T);
-   -- pname:dstBinding must: be a valid binding point within pname:dstSet
-   -- pname:descriptorType must: match the type of pname:dstBinding within pname:dstSet
-   -- The sum of pname:dstArrayElement and pname:descriptorCount must: be less than or equal to the number of array elements in the descriptor set binding specified by pname:dstBinding, and all applicable consecutive bindings, as described by &lt;&lt;descriptorsets-updates-consecutive&gt;&gt;
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_SAMPLER, ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, ename:VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, ename:VK_DESCRIPTOR_TYPE_STORAGE_IMAGE or ename:VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, pname:pImageInfo must: be a pointer to an array of pname:descriptorCount valid sname:VkDescriptorImageInfo structures
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER or ename:VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, pname:pTexelBufferView must: be a pointer to an array of pname:descriptorCount valid sname:VkBufferView handles
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC or ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, pname:pBufferInfo must: be a pointer to an array of pname:descriptorCount valid sname:VkDescriptorBufferInfo structures
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_SAMPLER or ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, and pname:dstSet was not created with a layout that included immutable samplers for pname:dstBinding with pname:descriptorType, the pname:sampler member of any given element of pname:pImageInfo must: be a valid sname:VkSampler object
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, ename:VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, ename:VK_DESCRIPTOR_TYPE_STORAGE_IMAGE or ename:VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, the pname:imageView and pname:imageLayout members of any given element of pname:pImageInfo must: be a valid sname:VkImageView and elink:VkImageLayout, respectively
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, the pname:offset member of any given element of pname:pBufferInfo must: be a multiple of sname:VkPhysicalDeviceLimits::pname:minUniformBufferOffsetAlignment
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER or ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, the pname:offset member of any given element of pname:pBufferInfo must: be a multiple of sname:VkPhysicalDeviceLimits::pname:minStorageBufferOffsetAlignment
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, the pname:buffer member of any given element of pname:pBufferInfo must: have been created with ename:VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT set
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER or ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, the pname:buffer member of any given element of pname:pBufferInfo must: have been created with ename:VK_BUFFER_USAGE_STORAGE_BUFFER_BIT set
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, the pname:range member of any given element of pname:pBufferInfo must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxUniformBufferRange
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER or ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, the pname:range member of any given element of pname:pBufferInfo must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxStorageBufferRange
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, the sname:VkBuffer that any given element of pname:pTexelBufferView was created from must: have been created with ename:VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT set
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, the sname:VkBuffer that any given element of pname:pTexelBufferView was created from must: have been created with ename:VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT set
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_STORAGE_IMAGE or ename:VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, the pname:imageView member of any given element of pname:pImageInfo must: have been created with the identity swizzle
 
    type Copy_Descriptor_Set_T is record
       Stype             : Structure_Type_T;
@@ -1878,11 +1833,6 @@ package Vk is
       Descriptor_Count  : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Copy_Descriptor_Set_T);
-   -- pname:srcBinding must: be a valid binding within pname:srcSet
-   -- The sum of pname:srcArrayElement and pname:descriptorCount must: be less than or equal to the number of array elements in the descriptor set binding specified by pname:srcBinding, and all applicable consecutive bindings, as described by &lt;&lt;descriptorsets-updates-consecutive&gt;&gt;
-   -- pname:dstBinding must: be a valid binding within pname:dstSet
-   -- The sum of pname:dstArrayElement and pname:descriptorCount must: be less than or equal to the number of array elements in the descriptor set binding specified by pname:dstBinding, and all applicable consecutive bindings, as described by &lt;&lt;descriptorsets-updates-consecutive&gt;&gt;
-   -- If pname:srcSet is equal to pname:dstSet, then the source and destination ranges of descriptors mustnot: overlap, where the ranges may: include array elements from consecutive bindings as described by &lt;&lt;descriptorsets-updates-consecutive&gt;&gt;
 
    type Uint_32_Const_Ptr is access constant Interfaces.Unsigned_32;
 
@@ -1897,13 +1847,6 @@ package Vk is
       Queue_Family_Indices     : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Buffer_Create_Info_T);
-   -- pname:size must: be greater than `0`
-   -- If pname:sharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:pQueueFamilyIndices must: be a pointer to an array of pname:queueFamilyIndexCount basetype:uint32_t values
-   -- If pname:sharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:queueFamilyIndexCount must: be greater than `1`
-   -- If the &lt;&lt;features-features-sparseBinding,sparse bindings&gt;&gt; feature is not enabled, pname:flags mustnot: contain ename:VK_BUFFER_CREATE_SPARSE_BINDING_BIT
-   -- If the &lt;&lt;features-features-sparseResidencyBuffer,sparse buffer residency&gt;&gt; feature is not enabled, pname:flags mustnot: contain ename:VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidencyAliased,sparse aliased residency&gt;&gt; feature is not enabled, pname:flags mustnot: contain ename:VK_BUFFER_CREATE_SPARSE_ALIASED_BIT
-   -- If pname:flags contains ename:VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT or ename:VK_BUFFER_CREATE_SPARSE_ALIASED_BIT, it must: also contain ename:VK_BUFFER_CREATE_SPARSE_BINDING_BIT
 
    type Buffer_View_Create_Info_T is record
       Stype     : Structure_Type_T;
@@ -1915,12 +1858,6 @@ package Vk is
       The_Range : Device_Size_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Buffer_View_Create_Info_T);
-   -- pname:offset must: be less than the size of pname:buffer
-   -- pname:offset must: be a multiple of sname:VkPhysicalDeviceLimits::pname:minTexelBufferOffsetAlignment
-   -- If pname:range is not equal to ename:VK_WHOLE_SIZE:
-   -- pname:buffer must: have been created with a pname:usage value containing at least one of ename:VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT or ename:VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT
-   -- If pname:buffer was created with pname:usage containing ename:VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, pname:format must: be supported for uniform texel buffers, as specified by the ename:VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT flag in sname:VkFormatProperties::pname:bufferFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:buffer was created with pname:usage containing ename:VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT, pname:format must: be supported for storage texel buffers, as specified by the ename:VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT flag in sname:VkFormatProperties::pname:bufferFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
 
    type Image_Subresource_T is record
       Aspect_Mask : Image_Aspect_Flags_T;
@@ -1928,8 +1865,6 @@ package Vk is
       Array_Layer : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Subresource_T);
-   -- pname:mipLevel must: be less than the pname:mipLevels specified in slink:VkImageCreateInfo when the image was created
-   -- pname:arrayLayer must: be less than the pname:arrayLayers specified in slink:VkImageCreateInfo when the image was created
 
    type Image_Subresource_Layers_T is record
       Aspect_Mask      : Image_Aspect_Flags_T;
@@ -1938,10 +1873,6 @@ package Vk is
       Layer_Count      : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Subresource_Layers_T);
-   -- If pname:aspectMask contains ename:VK_IMAGE_ASPECT_COLOR_BIT, it mustnot: contain either of ename:VK_IMAGE_ASPECT_DEPTH_BIT or ename:VK_IMAGE_ASPECT_STENCIL_BIT
-   -- pname:aspectMask mustnot: contain ename:VK_IMAGE_ASPECT_METADATA_BIT
-   -- pname:mipLevel must: be less than the pname:mipLevels specified in slink:VkImageCreateInfo when the image was created
-   -- latexmath:[$(baseArrayLayer + layerCount)$] must: be less than or equal to the pname:arrayLayers specified in slink:VkImageCreateInfo when the image was created
 
    type Image_Subresource_Range_T is record
       Aspect_Mask      : Image_Aspect_Flags_T;
@@ -1951,8 +1882,6 @@ package Vk is
       Layer_Count      : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Subresource_Range_T);
-   -- If pname:levelCount is not ename:VK_REMAINING_MIP_LEVELS, latexmath:[$(baseMipLevel + levelCount)$] must: be less than or equal to the pname:mipLevels specified in slink:VkImageCreateInfo when the image was created
-   -- If pname:layerCount is not ename:VK_REMAINING_ARRAY_LAYERS, latexmath:[$(baseArrayLayer + layerCount)$] must: be less than or equal to the pname:arrayLayers specified in slink:VkImageCreateInfo when the image was created
 
    type Memory_Barrier_T is record
       Stype           : Structure_Type_T;
@@ -1974,12 +1903,6 @@ package Vk is
       Size                   : Device_Size_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Buffer_Memory_Barrier_T);
-   -- pname:offset must: be less than the size of pname:buffer
-   -- If pname:size is not equal to ename:VK_WHOLE_SIZE, pname:size must: be greater than `0`
-   -- If pname:size is not equal to ename:VK_WHOLE_SIZE, pname:size must: be less than or equal to than the size of pname:buffer minus pname:offset
-   -- If pname:buffer was created with a sharing mode of ename:VK_SHARING_MODE_CONCURRENT, pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex must: both be ename:VK_QUEUE_FAMILY_IGNORED
-   -- If pname:buffer was created with a sharing mode of ename:VK_SHARING_MODE_EXCLUSIVE, pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex must: either both be ename:VK_QUEUE_FAMILY_IGNORED, or both be a valid queue family (see &lt;&lt;devsandqueues-queueprops&gt;&gt;)
-   -- If pname:buffer was created with a sharing mode of ename:VK_SHARING_MODE_EXCLUSIVE, and pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex are valid queue families, at least one of them must: be the same as the family of the queue that will execute this barrier
 
    type Image_Memory_Barrier_T is record
       Stype                  : Structure_Type_T;
@@ -1994,19 +1917,6 @@ package Vk is
       Subresource_Range      : Image_Subresource_Range_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Memory_Barrier_T);
-   -- pname:oldLayout must: be ename:VK_IMAGE_LAYOUT_UNDEFINED, ename:VK_IMAGE_LAYOUT_PREINITIALIZED or the current layout of the image region affected by the barrier
-   -- pname:newLayout mustnot: be ename:VK_IMAGE_LAYOUT_UNDEFINED or ename:VK_IMAGE_LAYOUT_PREINITIALIZED
-   -- If pname:image was created with a sharing mode of ename:VK_SHARING_MODE_CONCURRENT, pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex must: both be ename:VK_QUEUE_FAMILY_IGNORED
-   -- If pname:image was created with a sharing mode of ename:VK_SHARING_MODE_EXCLUSIVE, pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex must: either both be ename:VK_QUEUE_FAMILY_IGNORED, or both be a valid queue family (see &lt;&lt;devsandqueues-queueprops&gt;&gt;)
-   -- If pname:image was created with a sharing mode of ename:VK_SHARING_MODE_EXCLUSIVE, and pname:srcQueueFamilyIndex and pname:dstQueueFamilyIndex are valid queue families, at least one of them must: be the same as the family of the queue that will execute this barrier
-   -- pname:subresourceRange must: be a valid image subresource range for the image (see &lt;&lt;resources-image-views&gt;&gt;)
-   -- If pname:image has a depth/stencil format with both depth and stencil components, then pname:aspectMask member of pname:subresourceRange must: include both ename:VK_IMAGE_ASPECT_DEPTH_BIT and ename:VK_IMAGE_ASPECT_STENCIL_BIT
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT set
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT set
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT set
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_SAMPLED_BIT or ename:VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT set
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_TRANSFER_SRC_BIT set
-   -- If either pname:oldLayout or pname:newLayout is ename:VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL then pname:image must: have been created with ename:VK_IMAGE_USAGE_TRANSFER_DST_BIT set
 
    type Image_Create_Info_T is record
       Stype                    : Structure_Type_T;
@@ -2026,52 +1936,6 @@ package Vk is
       Initial_Layout           : Image_Layout_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Create_Info_T);
-   -- If pname:sharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:pQueueFamilyIndices must: be a pointer to an array of pname:queueFamilyIndexCount basetype:uint32_t values
-   -- If pname:sharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:queueFamilyIndexCount must: be greater than `1`
-   -- pname:format mustnot: be ename:VK_FORMAT_UNDEFINED
-   -- The pname:width, pname:height, and pname:depth members of pname:extent must: all be greater than `0`
-   -- pname:mipLevels must: be greater than `0`
-   -- pname:arrayLayers must: be greater than `0`
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_1D, pname:extent.width must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxImageDimension1D, or sname:VkImageFormatProperties::pname:maxExtent.width (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure) - whichever is higher
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_2D and pname:flags does not contain ename:VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, pname:extent.width and pname:extent.height must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxImageDimension2D, or sname:VkImageFormatProperties::pname:maxExtent.width/height (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure) - whichever is higher
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_2D and pname:flags contains ename:VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, pname:extent.width and pname:extent.height must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxImageDimensionCube, or sname:VkImageFormatProperties::pname:maxExtent.width/height (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure) - whichever is higher
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_2D and pname:flags contains ename:VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, pname:extent.width and pname:extent.height must: be equal
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_3D, pname:extent.width, pname:extent.height and pname:extent.depth must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxImageDimension3D, or sname:VkImageFormatProperties::pname:maxExtent.width/height/depth (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure) - whichever is higher
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_1D, both pname:extent.height and pname:extent.depth must: be `1`
-   -- If pname:imageType is ename:VK_IMAGE_TYPE_2D, pname:extent.depth must: be `1`
-   -- pname:mipLevels must: be less than or equal to latexmath:[$\lfloor\log_2(\max(\mathit{extent.width}, \mathit{extent.height}, \mathit{extent.depth}))\rfloor + 1$]
-   -- If any of pname:extent.width, pname:extent.height or pname:extent.depth are greater than the equivalently named members of sname:VkPhysicalDeviceLimits::pname:maxImageDimension3D, pname:mipLevels must: be less than or equal to sname:VkImageFormatProperties::pname:maxMipLevels (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure)
-   -- pname:arrayLayers must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxImageArrayLayers, or sname:VkImageFormatProperties::pname:maxArrayLayers (as returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure) - whichever is higher
-   -- pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:sampleCounts returned by flink:vkGetPhysicalDeviceProperties, or sname:VkImageFormatProperties::pname:sampleCounts returned by fname:vkGetPhysicalDeviceImageFormatProperties with pname:format, pname:type, pname:tiling, pname:usage and pname:flags equal to those in this structure
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, ename:VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT or ename:VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, pname:extent.width must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxFramebufferWidth
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, ename:VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT or ename:VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, pname:extent.height must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxFramebufferHeight
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:framebufferColorSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, and pname:format includes a depth aspect, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:framebufferDepthSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, and pname:format includes a stencil aspect, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:framebufferStencilSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_SAMPLED_BIT, and pname:format includes a color aspect, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:sampledImageColorSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_SAMPLED_BIT, and pname:format includes a depth aspect, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:sampledImageDepthSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_SAMPLED_BIT, and pname:format is an integer format, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:sampledImageIntegerSampleCounts
-   -- If pname:usage includes ename:VK_IMAGE_USAGE_STORAGE_BIT, pname:samples must: be a bit value that is set in sname:VkPhysicalDeviceLimits::pname:storageImageSampleCounts
-   -- If the &lt;&lt;features-features-textureCompressionETC2,ETC2 texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK, ename:VK_FORMAT_EAC_R11_UNORM_BLOCK, ename:VK_FORMAT_EAC_R11_SNORM_BLOCK, ename:VK_FORMAT_EAC_R11G11_UNORM_BLOCK, or ename:VK_FORMAT_EAC_R11G11_SNORM_BLOCK
-   -- If the &lt;&lt;features-features-textureCompressionASTC_LDR,ASTC LDR texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_ASTC_4x4_UNORM_BLOCK, ename:VK_FORMAT_ASTC_4x4_SRGB_BLOCK, ename:VK_FORMAT_ASTC_5x4_UNORM_BLOCK, ename:VK_FORMAT_ASTC_5x4_SRGB_BLOCK, ename:VK_FORMAT_ASTC_5x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_5x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_6x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_6x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_6x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_6x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x8_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x8_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x8_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x8_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x10_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x10_SRGB_BLOCK, ename:VK_FORMAT_ASTC_12x10_UNORM_BLOCK, ename:VK_FORMAT_ASTC_12x10_SRGB_BLOCK, ename:VK_FORMAT_ASTC_12x12_UNORM_BLOCK, or ename:VK_FORMAT_ASTC_12x12_SRGB_BLOCK
-   -- If the &lt;&lt;features-features-textureCompressionBC,BC texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_BC1_RGB_UNORM_BLOCK, ename:VK_FORMAT_BC1_RGB_SRGB_BLOCK, ename:VK_FORMAT_BC1_RGBA_UNORM_BLOCK, ename:VK_FORMAT_BC1_RGBA_SRGB_BLOCK, ename:VK_FORMAT_BC2_UNORM_BLOCK, ename:VK_FORMAT_BC2_SRGB_BLOCK, ename:VK_FORMAT_BC3_UNORM_BLOCK, ename:VK_FORMAT_BC3_SRGB_BLOCK, ename:VK_FORMAT_BC4_UNORM_BLOCK, ename:VK_FORMAT_BC4_SNORM_BLOCK, ename:VK_FORMAT_BC5_UNORM_BLOCK, ename:VK_FORMAT_BC5_SNORM_BLOCK, ename:VK_FORMAT_BC6H_UFLOAT_BLOCK, ename:VK_FORMAT_BC6H_SFLOAT_BLOCK, ename:VK_FORMAT_BC7_UNORM_BLOCK, or ename:VK_FORMAT_BC7_SRGB_BLOCK
-   -- If the &lt;&lt;features-features-shaderStorageImageMultisample,multisampled storage images&gt;&gt; feature is not enabled, and pname:usage contains ename:VK_IMAGE_USAGE_STORAGE_BIT, pname:samples must: be ename:VK_SAMPLE_COUNT_1_BIT
-   -- If the &lt;&lt;features-features-sparseBinding,sparse bindings&gt;&gt; feature is not enabled, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_BINDING_BIT
-   -- If the &lt;&lt;features-features-sparseResidencyImage2D,sparse residency for 2D images&gt;&gt; feature is not enabled, and pname:imageType is ename:VK_IMAGE_TYPE_2D, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidencyImage3D,sparse residency for 3D images&gt;&gt; feature is not enabled, and pname:imageType is ename:VK_IMAGE_TYPE_3D, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidency2Samples,sparse residency for images with 2 samples&gt;&gt; feature is not enabled, pname:imageType is ename:VK_IMAGE_TYPE_2D, and pname:samples is ename:VK_SAMPLE_COUNT_2_BIT, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidency4Samples,sparse residency for images with 4 samples&gt;&gt; feature is not enabled, pname:imageType is ename:VK_IMAGE_TYPE_2D, and pname:samples is ename:VK_SAMPLE_COUNT_4_BIT, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidency8Samples,sparse residency for images with 8 samples&gt;&gt; feature is not enabled, pname:imageType is ename:VK_IMAGE_TYPE_2D, and pname:samples is ename:VK_SAMPLE_COUNT_8_BIT, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If the &lt;&lt;features-features-sparseResidency16Samples,sparse residency for images with 16 samples&gt;&gt; feature is not enabled, pname:imageType is ename:VK_IMAGE_TYPE_2D, and pname:samples is ename:VK_SAMPLE_COUNT_16_BIT, pname:flags mustnot: contain ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_LINEAR, and sname:VkFormatProperties::pname:linearTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_SAMPLED_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_LINEAR, and sname:VkFormatProperties::pname:linearTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_STORAGE_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_LINEAR, and sname:VkFormatProperties::pname:linearTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_LINEAR, and sname:VkFormatProperties::pname:linearTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_OPTIMAL, and sname:VkFormatProperties::pname:optimalTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_SAMPLED_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_OPTIMAL, and sname:VkFormatProperties::pname:optimalTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_STORAGE_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_OPTIMAL, and sname:VkFormatProperties::pname:optimalTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-   -- If pname:tiling is ename:VK_IMAGE_TILING_OPTIMAL, and sname:VkFormatProperties::pname:optimalTilingFeatures (as returned by fname:vkGetPhysicalDeviceFormatProperties with the same value of pname:format) does not include ename:VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, pname:usage mustnot: contain ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-   -- If pname:flags contains ename:VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT or ename:VK_IMAGE_CREATE_SPARSE_ALIASED_BIT, it must: also contain ename:VK_IMAGE_CREATE_SPARSE_BINDING_BIT
 
    type Subresource_Layout_T is record
       Offset      : Device_Size_T;
@@ -2093,23 +1957,6 @@ package Vk is
       Subresource_Range : Image_Subresource_Range_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_View_Create_Info_T);
-   -- If pname:image was not created with ename:VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT then pname:viewType mustnot: be ename:VK_IMAGE_VIEW_TYPE_CUBE or ename:VK_IMAGE_VIEW_TYPE_CUBE_ARRAY
-   -- If the &lt;&lt;features-features-imageCubeArray,image cubemap arrays&gt;&gt; feature is not enabled, pname:viewType mustnot: be ename:VK_IMAGE_VIEW_TYPE_CUBE_ARRAY
-   -- If the &lt;&lt;features-features-textureCompressionETC2,ETC2 texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, ename:VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK, ename:VK_FORMAT_EAC_R11_UNORM_BLOCK, ename:VK_FORMAT_EAC_R11_SNORM_BLOCK, ename:VK_FORMAT_EAC_R11G11_UNORM_BLOCK, or ename:VK_FORMAT_EAC_R11G11_SNORM_BLOCK
-   -- If the &lt;&lt;features-features-textureCompressionASTC_LDR,ASTC LDR texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_ASTC_4x4_UNORM_BLOCK, ename:VK_FORMAT_ASTC_4x4_SRGB_BLOCK, ename:VK_FORMAT_ASTC_5x4_UNORM_BLOCK, ename:VK_FORMAT_ASTC_5x4_SRGB_BLOCK, ename:VK_FORMAT_ASTC_5x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_5x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_6x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_6x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_6x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_6x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_8x8_UNORM_BLOCK, ename:VK_FORMAT_ASTC_8x8_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x5_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x5_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x6_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x6_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x8_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x8_SRGB_BLOCK, ename:VK_FORMAT_ASTC_10x10_UNORM_BLOCK, ename:VK_FORMAT_ASTC_10x10_SRGB_BLOCK, ename:VK_FORMAT_ASTC_12x10_UNORM_BLOCK, ename:VK_FORMAT_ASTC_12x10_SRGB_BLOCK, ename:VK_FORMAT_ASTC_12x12_UNORM_BLOCK, or ename:VK_FORMAT_ASTC_12x12_SRGB_BLOCK
-   -- If the &lt;&lt;features-features-textureCompressionBC,BC texture compression&gt;&gt; feature is not enabled, pname:format mustnot: be ename:VK_FORMAT_BC1_RGB_UNORM_BLOCK, ename:VK_FORMAT_BC1_RGB_SRGB_BLOCK, ename:VK_FORMAT_BC1_RGBA_UNORM_BLOCK, ename:VK_FORMAT_BC1_RGBA_SRGB_BLOCK, ename:VK_FORMAT_BC2_UNORM_BLOCK, ename:VK_FORMAT_BC2_SRGB_BLOCK, ename:VK_FORMAT_BC3_UNORM_BLOCK, ename:VK_FORMAT_BC3_SRGB_BLOCK, ename:VK_FORMAT_BC4_UNORM_BLOCK, ename:VK_FORMAT_BC4_SNORM_BLOCK, ename:VK_FORMAT_BC5_UNORM_BLOCK, ename:VK_FORMAT_BC5_SNORM_BLOCK, ename:VK_FORMAT_BC6H_UFLOAT_BLOCK, ename:VK_FORMAT_BC6H_SFLOAT_BLOCK, ename:VK_FORMAT_BC7_UNORM_BLOCK, or ename:VK_FORMAT_BC7_SRGB_BLOCK
-   -- If pname:image was created with ename:VK_IMAGE_TILING_LINEAR and pname:usage containing ename:VK_IMAGE_USAGE_SAMPLED_BIT, pname:format must: be supported for sampled images, as specified by the ename:VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT flag in sname:VkFormatProperties::pname:linearTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_LINEAR and pname:usage containing ename:VK_IMAGE_USAGE_STORAGE_BIT, pname:format must: be supported for storage images, as specified by the ename:VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT flag in sname:VkFormatProperties::pname:linearTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_LINEAR and pname:usage containing ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, pname:format must: be supported for color attachments, as specified by the ename:VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT flag in sname:VkFormatProperties::pname:linearTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_LINEAR and pname:usage containing ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, pname:format must: be supported for depth/stencil attachments, as specified by the ename:VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT flag in sname:VkFormatProperties::pname:linearTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_OPTIMAL and pname:usage containing ename:VK_IMAGE_USAGE_SAMPLED_BIT, pname:format must: be supported for sampled images, as specified by the ename:VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT flag in sname:VkFormatProperties::pname:optimalTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_OPTIMAL and pname:usage containing ename:VK_IMAGE_USAGE_STORAGE_BIT, pname:format must: be supported for storage images, as specified by the ename:VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT flag in sname:VkFormatProperties::pname:optimalTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_OPTIMAL and pname:usage containing ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, pname:format must: be supported for color attachments, as specified by the ename:VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT flag in sname:VkFormatProperties::pname:optimalTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:image was created with ename:VK_IMAGE_TILING_OPTIMAL and pname:usage containing ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, pname:format must: be supported for depth/stencil attachments, as specified by the ename:VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT flag in sname:VkFormatProperties::pname:optimalTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- pname:subresourceRange must: be a valid image subresource range for pname:image (see &lt;&lt;resources-image-views&gt;&gt;)
-   -- If pname:image was created with the ename:VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT flag, pname:format must: be compatible with the pname:format used to create pname:image, as defined in &lt;&lt;features-formats-compatibility-classes,Format Compatibility Classes&gt;&gt;
-   -- If pname:image was not created with the ename:VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT flag, pname:format must: be identical to the pname:format used to create pname:image
-   -- pname:subResourceRange and pname:viewType must: be compatible with the image, as described in the &lt;&lt;resources-image-views-compatibility,table below&gt;&gt;
 
    type Buffer_Copy_T is record
       Src_Offset : Device_Size_T;
@@ -2126,13 +1973,6 @@ package Vk is
       Flags           : Sparse_Memory_Bind_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Memory_Bind_T);
-   -- If pname:memory is not sname:VK_NULL_HANDLE, pname:memory and pname:memoryOffset must: match the memory requirements of the resource, as described in section &lt;&lt;resources-association&gt;&gt;
-   -- If pname:memory is not sname:VK_NULL_HANDLE, pname:memory mustnot: have been created with a memory type that reports ename:VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT bit set
-   -- pname:size must: be greater than `0`
-   -- pname:resourceOffset must: be less than the size of the resource
-   -- pname:size must: be less than or equal to the size of the resource minus pname:resourceOffset
-   -- pname:memoryOffset must: be less than the size of pname:memory
-   -- pname:size must: be less than or equal to the size of pname:memory minus pname:memoryOffset
 
    type Sparse_Image_Memory_Bind_T is record
       Subresource   : Image_Subresource_T;
@@ -2143,15 +1983,6 @@ package Vk is
       Flags         : Sparse_Memory_Bind_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Image_Memory_Bind_T);
-   -- If the &lt;&lt;features-features-sparseResidencyAliased,sparse aliased residency&gt;&gt; feature is not enabled, and if any other resources are bound to ranges of pname:memory, the range of pname:memory being bound mustnot: overlap with those bound ranges
-   -- pname:memory and pname:memoryOffset must: match the memory requirements of the calling command's pname:image, as described in section &lt;&lt;resources-association&gt;&gt;
-   -- pname:subresource must: be a valid image subresource for pname:image (see &lt;&lt;resources-image-views&gt;&gt;)
-   -- pname:offset.x must: be a multiple of the sparse image block width (sname:VkSparseImageFormatProperties::pname:imageGranularity.width) of the image
-   -- pname:extent.width must: either be a multiple of the sparse image block width of the image, or else pname:extent.width + pname:offset.x must: equal the width of the image subresource
-   -- pname:offset.y must: be a multiple of the sparse image block height (sname:VkSparseImageFormatProperties::pname:imageGranularity.height) of the image
-   -- pname:extent.height must: either be a multiple of the sparse image block height of the image, or else pname:extent.height + pname:offset.y must: equal the height of the image subresource
-   -- pname:offset.z must: be a multiple of the sparse image block depth (sname:VkSparseImageFormatProperties::pname:imageGranularity.depth) of the image
-   -- pname:extent.depth must: either be a multiple of the sparse image block depth of the image, or else pname:extent.depth + pname:offset.z must: equal the depth of the image subresource
 
    type Sparse_Memory_Bind_Const_Ptr is access constant Sparse_Memory_Bind_T;
 
@@ -2168,7 +1999,6 @@ package Vk is
       Binds      : Sparse_Memory_Bind_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Sparse_Image_Opaque_Memory_Bind_Info_T);
-   -- For any given element of pname:pBinds, if the pname:flags member of that element contains ename:VK_SPARSE_MEMORY_BIND_METADATA_BIT, the binding range defined must: be within the mip tail region of the metadata aspect of pname:image
 
    type Sparse_Image_Memory_Bind_Const_Ptr is access constant Sparse_Image_Memory_Bind_T;
 
@@ -2211,20 +2041,6 @@ package Vk is
       Extent          : Extent_3D_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Copy_T);
-   -- The pname:aspectMask member of pname:srcSubresource and pname:dstSubresource must: match
-   -- The pname:layerCount member of pname:srcSubresource and pname:dstSubresource must: match
-   -- If either of the calling command's pname:srcImage or pname:dstImage parameters are of elink:VkImageType ename:VK_IMAGE_TYPE_3D, the pname:baseArrayLayer and pname:layerCount members of both pname:srcSubresource and pname:dstSubresource must: be `0` and `1`, respectively
-   -- The pname:aspectMask member of pname:srcSubresource must: specify aspects present in the calling command's pname:srcImage
-   -- The pname:aspectMask member of pname:dstSubresource must: specify aspects present in the calling command's pname:dstImage
-   -- pname:srcOffset.x and (pname:extent.width + pname:srcOffset.x) must: both be greater than or equal to `0` and less than or equal to the source image subresource width
-   -- pname:srcOffset.y and (pname:extent.height + pname:srcOffset.y) must: both be greater than or equal to `0` and less than or equal to the source image subresource height
-   -- pname:srcOffset.z and (pname:extent.depth + pname:srcOffset.z) must: both be greater than or equal to `0` and less than or equal to the source image subresource depth
-   -- pname:dstOffset.x and (pname:extent.width + pname:dstOffset.x) must: both be greater than or equal to `0` and less than or equal to the destination image subresource width
-   -- pname:dstOffset.y and (pname:extent.height + pname:dstOffset.y) must: both be greater than or equal to `0` and less than or equal to the destination image subresource height
-   -- pname:dstOffset.z and (pname:extent.depth + pname:dstOffset.z) must: both be greater than or equal to `0` and less than or equal to the destination image subresource depth
-   -- If the calling command's pname:srcImage is a compressed format image:
-   -- If the calling command's pname:dstImage is a compressed format image:
-   -- pname:srcOffset, pname:dstOffset, and pname:extent must: respect the image transfer granularity requirements of the queue family that it will be submitted against, as described in &lt;&lt;devsandqueues-physical-device-enumeration,Physical Device Enumeration&gt;&gt;
 
    type Src_Offsets_Array_Index_T is range 0 .. 2;
 
@@ -2243,17 +2059,6 @@ package Vk is
       Dst_Offsets     : Dst_Offsets_Array_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Blit_T);
-   -- The pname:aspectMask member of pname:srcSubresource and pname:dstSubresource must: match
-   -- The pname:layerCount member of pname:srcSubresource and pname:dstSubresource must: match
-   -- If either of the calling command's pname:srcImage or pname:dstImage parameters are of elink:VkImageType ename:VK_IMAGE_TYPE_3D, the pname:baseArrayLayer and pname:layerCount members of both pname:srcSubresource and pname:dstSubresource must: be `0` and `1`, respectively
-   -- The pname:aspectMask member of pname:srcSubresource must: specify aspects present in the calling command's pname:srcImage
-   -- The pname:aspectMask member of pname:dstSubresource must: specify aspects present in the calling command's pname:dstImage
-   -- pname:srcOffset[0].x and pname:srcOffset[1].x must: both be greater than or equal to `0` and less than or equal to the source image subresource width
-   -- pname:srcOffset[0].y and pname:srcOffset[1].y must: both be greater than or equal to `0` and less than or equal to the source image subresource height
-   -- pname:srcOffset[0].z and pname:srcOffset[1].z must: both be greater than or equal to `0` and less than or equal to the source image subresource depth
-   -- pname:dstOffset[0].x and pname:dstOffset[1].x must: both be greater than or equal to `0` and less than or equal to the destination image subresource width
-   -- pname:dstOffset[0].y and pname:dstOffset[1].y must: both be greater than or equal to `0` and less than or equal to the destination image subresource height
-   -- pname:dstOffset[0].z and pname:dstOffset[1].z must: both be greater than or equal to `0` and less than or equal to the destination image subresource depth
 
    type Buffer_Image_Copy_T is record
       Buffer_Offset       : Device_Size_T;
@@ -2264,18 +2069,6 @@ package Vk is
       Image_Extent        : Extent_3D_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Buffer_Image_Copy_T);
-   -- pname:bufferOffset must: be a multiple of the calling command's sname:VkImage parameter's texel size
-   -- pname:bufferOffset must: be a multiple of `4`
-   -- pname:bufferRowLength must: be `0`, or greater than or equal to the pname:width member of pname:imageExtent
-   -- pname:bufferImageHeight must: be `0`, or greater than or equal to the pname:height member of pname:imageExtent
-   -- pname:imageOffset.x and (pname:imageExtent.width + pname:imageOffset.x) must: both be greater than or equal to `0` and less than or equal to the image subresource width
-   -- pname:imageOffset.y and (imageExtent.height + pname:imageOffset.y) must: both be greater than or equal to `0` and less than or equal to the image subresource height
-   -- pname:imageOffset.z and (imageExtent.depth + pname:imageOffset.z) must: both be greater than or equal to `0` and less than or equal to the image subresource depth
-   -- If the calling command's sname:VkImage parameter is a compressed format image:
-   -- pname:bufferOffset, pname:bufferRowLength, pname:bufferImageHeight and all members of pname:imageOffset and pname:imageExtent must: respect the image transfer granularity requirements of the queue family that it will be submitted against, as described in &lt;&lt;devsandqueues-physical-device-enumeration,Physical Device Enumeration&gt;&gt;
-   -- The pname:aspectMask member of pname:imageSubresource must: specify aspects present in the calling command's sname:VkImage parameter
-   -- The pname:aspectMask member of pname:imageSubresource must: only have a single bit set
-   -- If the calling command's sname:VkImage parameter is of elink:VkImageType ename:VK_IMAGE_TYPE_3D, the pname:baseArrayLayer and pname:layerCount members of pname:imageSubresource must: be `0` and `1`, respectively
 
    type Image_Resolve_T is record
       Src_Subresource : Image_Subresource_Layers_T;
@@ -2285,9 +2078,6 @@ package Vk is
       Extent          : Extent_3D_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Image_Resolve_T);
-   -- The pname:aspectMask member of pname:srcSubresource and pname:dstSubresource must: only contain ename:VK_IMAGE_ASPECT_COLOR_BIT
-   -- The pname:layerCount member of pname:srcSubresource and pname:dstSubresource must: match
-   -- If either of the calling command's pname:srcImage or pname:dstImage parameters are of elink:VkImageType ename:VK_IMAGE_TYPE_3D, the pname:baseArrayLayer and pname:layerCount members of both pname:srcSubresource and pname:dstSubresource must: be `0` and `1`, respectively
 
    type Shader_Module_Create_Info_T is record
       Stype     : Structure_Type_T;
@@ -2297,13 +2087,6 @@ package Vk is
       Code      : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Shader_Module_Create_Info_T);
-   -- pname:codeSize must: be greater than 0
-   -- pname:codeSize must: be a multiple of 4
-   -- pname:pCode must: point to valid SPIR-V code, formatted and packed as described by https://www.khronos.org/registry/spir-v/specs/1.0/SPIRV.html[the SPIR-V Specification v1.0]
-   -- pname:pCode must: adhere to the validation rules described by the &lt;&lt;spirvenv-module-validation, Validation Rules within a Module&gt;&gt; section of the &lt;&lt;spirvenv-capabilities,SPIR-V Environment&gt;&gt; appendix
-   -- pname:pCode must: declare the code:Shader capability
-   -- pname:pCode mustnot: declare any capability that is not supported by the API, as described by the &lt;&lt;spirvenv-module-validation, Capabilities&gt;&gt; section of the &lt;&lt;spirvenv-capabilities,SPIR-V Environment&gt;&gt; appendix
-   -- If pname:pCode declares any of the capabilities that are listed as not required by the implementation, the relevant feature must: be enabled, as listed in the &lt;&lt;spirvenv-capabilities-table,SPIR-V Environment&gt;&gt; appendix
 
    type Sampler_Const_Ptr is access constant Sampler_T;
 
@@ -2315,8 +2098,6 @@ package Vk is
       Immutable_Samplers : Sampler_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Set_Layout_Binding_T);
-   -- If pname:descriptorType is ename:VK_DESCRIPTOR_TYPE_SAMPLER or ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, and pname:descriptorCount is not `0` and pname:pImmutableSamplers is not `NULL`, pname:pImmutableSamplers must: be a pointer to an array of pname:descriptorCount valid sname:VkSampler handles
-   -- If pname:descriptorCount is not `0`, pname:stageFlags must: be a valid combination of elink:VkShaderStageFlagBits values
 
    type Descriptor_Set_Layout_Binding_Const_Ptr is access constant Descriptor_Set_Layout_Binding_T;
 
@@ -2334,7 +2115,6 @@ package Vk is
       Descriptor_Count : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Pool_Size_T);
-   -- pname:descriptorCount must: be greater than `0`
 
    type Descriptor_Pool_Size_Const_Ptr is access constant Descriptor_Pool_Size_T;
 
@@ -2347,7 +2127,6 @@ package Vk is
       Pool_Sizes      : Descriptor_Pool_Size_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Pool_Create_Info_T);
-   -- pname:maxSets must: be greater than `0`
 
    type Descriptor_Set_Layout_Const_Ptr is access constant Descriptor_Set_Layout_T;
 
@@ -2359,8 +2138,6 @@ package Vk is
       Set_Layouts          : Descriptor_Set_Layout_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Descriptor_Set_Allocate_Info_T);
-   -- pname:descriptorSetCount mustnot: be greater than the number of sets that are currently available for allocation in pname:descriptorPool
-   -- pname:descriptorPool must: have enough free descriptor capacity remaining to allocate the descriptor sets of the specified layouts
 
    type Specialization_Map_Entry_T is record
       Constant_Id : Interfaces.Unsigned_32;
@@ -2378,8 +2155,6 @@ package Vk is
       Data            : Void_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Specialization_Info_T);
-   -- The pname:offset member of any given element of pname:pMapEntries must: be less than pname:dataSize
-   -- For any given element of pname:pMapEntries, pname:size must: be less than or equal to pname:dataSize minus pname:offset
 
    type Specialization_Info_Const_Ptr is access constant Specialization_Info_T;
 
@@ -2393,22 +2168,6 @@ package Vk is
       Specialization_Info : Specialization_Info_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Shader_Stage_Create_Info_T);
-   -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, pname:stage mustnot: be ename:VK_SHADER_STAGE_GEOMETRY_BIT
-   -- If the &lt;&lt;features-features-tessellationShader,tessellation shaders&gt;&gt; feature is not enabled, pname:stage mustnot: be ename:VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT or ename:VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT
-   -- pname:stage mustnot: be ename:VK_SHADER_STAGE_ALL_GRAPHICS, or ename:VK_SHADER_STAGE_ALL
-   -- pname:pName must: be the name of an code:OpEntryPoint in pname:module with an execution model that matches pname:stage
-   -- If the identified entry point includes any variable in its interface that is declared with the code:ClipDistance code:BuiltIn decoration, that variable mustnot: have an array size greater than sname:VkPhysicalDeviceLimits::pname:maxClipDistances
-   -- If the identified entry point includes any variable in its interface that is declared with the code:CullDistance code:BuiltIn decoration, that variable mustnot: have an array size greater than sname:VkPhysicalDeviceLimits::pname:maxCullDistances
-   -- If the identified entry point includes any variables in its interface that are declared with the code:ClipDistance or code:CullDistance code:BuiltIn decoration, those variables mustnot: have array sizes which sum to more than sname:VkPhysicalDeviceLimits::pname:maxCombinedClipAndCullDistances
-   -- If the identified entry point includes any variable in its interface that is declared with the code:SampleMask code:BuiltIn decoration, that variable mustnot: have an array size greater than sname:VkPhysicalDeviceLimits::pname:maxSampleMaskWords
-   -- If pname:stage is ename:VK_SHADER_STAGE_VERTEX_BIT, the identified entry point mustnot: include any input variable in its interface that is decorated with code:CullDistance
-   -- If pname:stage is ename:VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT or ename:VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, and the identified entry point has an code:OpExecutionMode instruction that specifies a patch size with code:OutputVertices, the patch size must: be greater than `0` and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxTessellationPatchSize
-   -- If pname:stage is ename:VK_SHADER_STAGE_GEOMETRY_BIT, the identified entry point must: have an code:OpExecutionMode instruction that specifies a maximum output vertex count that is greater than `0` and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxGeometryOutputVertices
-   -- If pname:stage is ename:VK_SHADER_STAGE_GEOMETRY_BIT, the identified entry point must: have an code:OpExecutionMode instruction that specifies an invocation count that is greater than `0` and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxGeometryShaderInvocations
-   -- If pname:stage is ename:VK_SHADER_STAGE_GEOMETRY_BIT, and the identified entry point writes to code:Layer for any primitive, it must: write the same value to code:Layer for all vertices of a given primitive
-   -- If pname:stage is ename:VK_SHADER_STAGE_GEOMETRY_BIT, and the identified entry point writes to code:ViewportIndex for any primitive, it must: write the same value to code:ViewportIndex for all vertices of a given primitive
-   -- If pname:stage is ename:VK_SHADER_STAGE_FRAGMENT_BIT, the identified entry point mustnot: include any output variables in its interface decorated with code:CullDistance
-   -- If pname:stage is ename:VK_SHADER_STAGE_FRAGMENT_BIT, and the identified entry point writes to code:FragDepth in any execution path, it must: write to code:FragDepth in all execution paths
 
    type Compute_Pipeline_Create_Info_T is record
       Stype                : Structure_Type_T;
@@ -2420,14 +2179,6 @@ package Vk is
       Base_Pipeline_Index  : Interfaces.Integer_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Compute_Pipeline_Create_Info_T);
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineIndex is not `-1`, pname:basePipelineHandle must: be sname:VK_NULL_HANDLE
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineIndex is not `-1`, it must: be a valid index into the calling command's pname:pCreateInfos parameter
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, pname:basePipelineIndex must: be `-1`
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, pname:basePipelineHandle must: be a valid sname:VkPipeline handle
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, it must: be a valid handle to a compute sname:VkPipeline
-   -- The pname:stage member of pname:stage must: be ename:VK_SHADER_STAGE_COMPUTE_BIT
-   -- The shader code for the entry point identified by pname:stage and the rest of the state identified by this structure must: adhere to the pipeline linking rules described in the &lt;&lt;interfaces,Shader Interfaces&gt;&gt; chapter
-   -- pname:layout must: be &lt;&lt;descriptorsets-pipelinelayout-consistency,consistent&gt;&gt; with all shaders specified in pname:pStages
 
    type Vertex_Input_Binding_Description_T is record
       Binding    : Interfaces.Unsigned_32;
@@ -2435,8 +2186,6 @@ package Vk is
       Input_Rate : Vertex_Input_Rate_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Vertex_Input_Binding_Description_T);
-   -- pname:binding must: be less than sname:VkPhysicalDeviceLimits::pname:maxVertexInputBindings
-   -- pname:stride must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxVertexInputBindingStride
 
    type Vertex_Input_Attribute_Description_T is record
       Location : Interfaces.Unsigned_32;
@@ -2445,10 +2194,6 @@ package Vk is
       Offset   : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Vertex_Input_Attribute_Description_T);
-   -- pname:location must: be less than sname:VkPhysicalDeviceLimits::pname:maxVertexInputAttributes
-   -- pname:binding must: be less than sname:VkPhysicalDeviceLimits::pname:maxVertexInputBindings
-   -- pname:offset must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxVertexInputAttributeOffset
-   -- pname:format must: be allowed as a vertex buffer format, as specified by the ename:VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT flag in sname:VkFormatProperties::pname:bufferFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
 
    type Vertex_Input_Binding_Description_Const_Ptr is access constant Vertex_Input_Binding_Description_T;
 
@@ -2464,11 +2209,6 @@ package Vk is
       Vertex_Attribute_Descriptions      : Vertex_Input_Attribute_Description_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Vertex_Input_State_Create_Info_T);
-   -- pname:vertexBindingDescriptionCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxVertexInputBindings
-   -- pname:vertexAttributeDescriptionCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxVertexInputAttributes
-   -- For every pname:binding specified by any given element of pname:pVertexAttributeDescriptions, a sname:VkVertexInputBindingDescription must: exist in pname:pVertexBindingDescriptions with the same value of pname:binding
-   -- All elements of pname:pVertexBindingDescriptions must: describe distinct binding numbers
-   -- All elements of pname:pVertexAttributeDescriptions must: describe distinct attribute locations
 
    type Pipeline_Input_Assembly_State_Create_Info_T is record
       Stype                    : Structure_Type_T;
@@ -2478,9 +2218,6 @@ package Vk is
       Primitive_Restart_Enable : Bool_32_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Input_Assembly_State_Create_Info_T);
-   -- If pname:topology is ename:VK_PRIMITIVE_TOPOLOGY_POINT_LIST, ename:VK_PRIMITIVE_TOPOLOGY_LINE_LIST, ename:VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, ename:VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY, ename:VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY or ename:VK_PRIMITIVE_TOPOLOGY_PATCH_LIST, pname:primitiveRestartEnable must: be ename:VK_FALSE
-   -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, pname:topology mustnot: be any of ename:VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY, ename:VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY, ename:VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY or ename:VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY
-   -- If the &lt;&lt;features-features-tessellationShader,tessellation shaders&gt;&gt; feature is not enabled, pname:topology mustnot: be ename:VK_PRIMITIVE_TOPOLOGY_PATCH_LIST
 
    type Pipeline_Tessellation_State_Create_Info_T is record
       Stype                : Structure_Type_T;
@@ -2489,7 +2226,6 @@ package Vk is
       Patch_Control_Points : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Tessellation_State_Create_Info_T);
-   -- pname:patchControlPoints must: be greater than zero and less than or equal to sname:VkPhysicalDeviceLimits::pname:maxTessellationPatchSize
 
    type Viewport_Const_Ptr is access constant Viewport_T;
 
@@ -2505,11 +2241,6 @@ package Vk is
       Scissors       : Rect_2D_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Viewport_State_Create_Info_T);
-   -- If the &lt;&lt;features-features-multiViewport,multiple viewports&gt;&gt; feature is not enabled, pname:viewportCount must: be `1`
-   -- If the &lt;&lt;features-features-multiViewport,multiple viewports&gt;&gt; feature is not enabled, pname:scissorCount must: be `1`
-   -- pname:viewportCount must: be between `1` and sname:VkPhysicalDeviceLimits::pname:maxViewports, inclusive
-   -- pname:scissorCount must: be between `1` and sname:VkPhysicalDeviceLimits::pname:maxViewports, inclusive
-   -- pname:scissorCount and pname:viewportCount must: be identical
 
    type Pipeline_Rasterization_State_Create_Info_T is record
       Stype                      : Structure_Type_T;
@@ -2527,8 +2258,6 @@ package Vk is
       Line_Width                 : Interfaces.C.C_float;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Rasterization_State_Create_Info_T);
-   -- If the &lt;&lt;features-features-depthClamp,depth clamping&gt;&gt; feature is not enabled, pname:depthClampEnable must: be ename:VK_FALSE
-   -- If the &lt;&lt;features-features-fillModeNonSolid,non-solid fill modes&gt;&gt; feature is not enabled, pname:polygonMode must: be ename:VK_POLYGON_MODE_FILL
 
    type Sample_Mask_Const_Ptr is access constant Sample_Mask_T;
 
@@ -2544,9 +2273,6 @@ package Vk is
       Alpha_To_One_Enable      : Bool_32_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Multisample_State_Create_Info_T);
-   -- If the &lt;&lt;features-features-sampleRateShading,sample rate shading&gt;&gt; feature is not enabled, pname:sampleShadingEnable must: be ename:VK_FALSE
-   -- If the &lt;&lt;features-features-alphaToOne,alpha to one&gt;&gt; feature is not enabled, pname:alphaToOneEnable must: be ename:VK_FALSE
-   -- pname:minSampleShading must: be in the range latexmath:[$[0,1\]$]
 
    type Pipeline_Color_Blend_Attachment_State_T is record
       Blend_Enable           : Bool_32_T;
@@ -2559,10 +2285,6 @@ package Vk is
       Color_Write_Mask       : Color_Component_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Color_Blend_Attachment_State_T);
-   -- If the &lt;&lt;features-features-dualSrcBlend,dual source blending&gt;&gt; feature is not enabled, pname:srcColorBlendFactor mustnot: be ename:VK_BLEND_FACTOR_SRC1_COLOR, ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR, ename:VK_BLEND_FACTOR_SRC1_ALPHA, or ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA
-   -- If the &lt;&lt;features-features-dualSrcBlend,dual source blending&gt;&gt; feature is not enabled, pname:dstColorBlendFactor mustnot: be ename:VK_BLEND_FACTOR_SRC1_COLOR, ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR, ename:VK_BLEND_FACTOR_SRC1_ALPHA, or ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA
-   -- If the &lt;&lt;features-features-dualSrcBlend,dual source blending&gt;&gt; feature is not enabled, pname:srcAlphaBlendFactor mustnot: be ename:VK_BLEND_FACTOR_SRC1_COLOR, ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR, ename:VK_BLEND_FACTOR_SRC1_ALPHA, or ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA
-   -- If the &lt;&lt;features-features-dualSrcBlend,dual source blending&gt;&gt; feature is not enabled, pname:dstAlphaBlendFactor mustnot: be ename:VK_BLEND_FACTOR_SRC1_COLOR, ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR, ename:VK_BLEND_FACTOR_SRC1_ALPHA, or ename:VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA
 
    type Pipeline_Color_Blend_Attachment_State_Const_Ptr is access constant Pipeline_Color_Blend_Attachment_State_T;
 
@@ -2582,9 +2304,6 @@ package Vk is
       Blend_Constants  : Blend_Constants_Array_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Color_Blend_State_Create_Info_T);
-   -- If the &lt;&lt;features-features-independentBlend,independent blending&gt;&gt; feature is not enabled, all elements of pname:pAttachments must: be identical
-   -- If the &lt;&lt;features-features-logicOp,logic operations&gt;&gt; feature is not enabled, pname:logicOpEnable must: be ename:VK_FALSE
-   -- If pname:logicOpEnable is ename:VK_TRUE, pname:logicOp must: be a valid elink:VkLogicOp value
 
    type Dynamic_State_Const_Ptr is access constant Dynamic_State_T;
 
@@ -2623,7 +2342,6 @@ package Vk is
       Max_Depth_Bounds         : Interfaces.C.C_float;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Depth_Stencil_State_Create_Info_T);
-   -- If the &lt;&lt;features-features-depthBounds,depth bounds testing&gt;&gt; feature is not enabled, pname:depthBoundsTestEnable must: be ename:VK_FALSE
 
    type Pipeline_Shader_Stage_Create_Info_Const_Ptr is access constant Pipeline_Shader_Stage_Create_Info_T;
 
@@ -2670,44 +2388,6 @@ package Vk is
       Base_Pipeline_Index  : Interfaces.Integer_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Graphics_Pipeline_Create_Info_T);
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineIndex is not `-1`, pname:basePipelineHandle must: be sname:VK_NULL_HANDLE
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineIndex is not `-1`, it must: be a valid index into the calling command's pname:pCreateInfos parameter
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, pname:basePipelineIndex must: be `-1`
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, pname:basePipelineHandle must: be a valid sname:VkPipeline handle
-   -- If pname:flags contains the ename:VK_PIPELINE_CREATE_DERIVATIVE_BIT flag, and pname:basePipelineHandle is not sname:VK_NULL_HANDLE, it must: be a valid handle to a graphics sname:VkPipeline
-   -- The pname:stage member of each element of pname:pStages must: be unique
-   -- The pname:stage member of one element of pname:pStages must: be ename:VK_SHADER_STAGE_VERTEX_BIT
-   -- The pname:stage member of any given element of pname:pStages mustnot: be ename:VK_SHADER_STAGE_COMPUTE_BIT
-   -- If pname:pStages includes a tessellation control shader stage, it must: include a tessellation evaluation shader stage
-   -- If pname:pStages includes a tessellation evaluation shader stage, it must: include a tessellation control shader stage
-   -- If pname:pStages includes a tessellation control shader stage and a tessellation evaluation shader stage, pname:pTessellationState mustnot: be `NULL`
-   -- If pname:pStages includes both a tessellation control shader stage and a tessellation evaluation shader stage, the shader code of at least one must: contain an code:OpExecutionMode instruction that specifies the type of subdivision in the pipeline
-   -- If pname:pStages includes both a tessellation control shader stage and a tessellation evaluation shader stage, and the shader code of both contain an code:OpExecutionMode instruction that specifies the type of subdivision in the pipeline, they must: both specify the same subdivision mode
-   -- If pname:pStages includes both a tessellation control shader stage and a tessellation evaluation shader stage, the shader code of at least one must: contain an code:OpExecutionMode instruction that specifies the output patch size in the pipeline
-   -- If pname:pStages includes both a tessellation control shader stage and a tessellation evaluation shader stage, and the shader code of both contain an code:OpExecutionMode instruction that specifies the out patch size in the pipeline, they must: both specify the same patch size
-   -- If pname:pStages includes tessellation shader stages, the pname:topology member of pname:pInputAssembly must: be ename:VK_PRIMITIVE_TOPOLOGY_PATCH_LIST
-   -- If pname:pStages includes a geometry shader stage, and doesn't include any tessellation shader stages, its shader code must: contain an code:OpExecutionMode instruction that specifies an input primitive type that is &lt;&lt;shaders-geometry-execution, compatible&gt;&gt; with the primitive topology specified in pname:pInputAssembly
-   -- If pname:pStages includes a geometry shader stage, and also includes tessellation shader stages, its shader code must: contain an code:OpExecutionMode instruction that specifies an input primitive type that is &lt;&lt;shaders-geometry-execution, compatible&gt;&gt; with the primitive topology that is output by the tessellation stages
-   -- If pname:pStages includes a fragment shader stage and a geometry shader stage, and the fragment shader code reads from an input variable that is decorated with code:PrimitiveID, then the geometry shader code must: write to a matching output variable, decorated with code:PrimitiveID, in all execution paths
-   -- If pname:pStages includes a fragment shader stage, its shader code mustnot: read from any input attachment that is defined as ename:VK_ATTACHMENT_UNUSED in pname:subpass
-   -- The shader code for the entry points identified by pname:pStages, and the rest of the state identified by this structure must: adhere to the pipeline linking rules described in the &lt;&lt;interfaces,Shader Interfaces&gt;&gt; chapter
-   -- If pname:subpass uses a depth/stencil attachment in pname:renderpass that has a layout of ename:VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL in the sname:VkAttachmentReference defined by pname:subpass, and pname:pDepthStencilState is not `NULL`, the pname:depthWriteEnable member of pname:pDepthStencilState must: be ename:VK_FALSE
-   -- If pname:subpass uses a depth/stencil attachment in pname:renderpass that has a layout of ename:VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL in the sname:VkAttachmentReference defined by pname:subpass, and pname:pDepthStencilState is not `NULL`, the pname:failOp, pname:passOp and pname:depthFailOp members of each of the pname:front and pname:back members of pname:pDepthStencilState must: be ename:VK_STENCIL_OP_KEEP
-   -- If pname:pColorBlendState is not `NULL`, the pname:blendEnable member of each element of the pname:pAttachment member of pname:pColorBlendState must: be ename:VK_FALSE if the pname:format of the attachment referred to in pname:subpass of pname:renderPass does not support color blend operations, as specified by the ename:VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT flag in sname:VkFormatProperties::pname:linearTilingFeatures or sname:VkFormatProperties::pname:optimalTilingFeatures returned by fname:vkGetPhysicalDeviceFormatProperties
-   -- If pname:pColorBlendState is not `NULL`, The pname:attachmentCount member of pname:pColorBlendState must: be equal to the pname:colorAttachmentCount used to create pname:subpass
-   -- If no element of the pname:pDynamicStates member of pname:pDynamicState is ename:VK_DYNAMIC_STATE_VIEWPORT, the pname:pViewports member of pname:pViewportState must: be a pointer to an array of pname:pViewportState->viewportCount sname:VkViewport structures
-   -- If no element of the pname:pDynamicStates member of pname:pDynamicState is ename:VK_DYNAMIC_STATE_SCISSOR, the pname:pScissors member of pname:pViewportState must: be a pointer to an array of pname:pViewportState->scissorCount sname:VkRect2D structures
-   -- If the wide lines feature is not enabled, and no element of the pname:pDynamicStates member of pname:pDynamicState is ename:VK_DYNAMIC_STATE_LINE_WIDTH, the pname:lineWidth member of pname:pRasterizationState must: be `1.0`
-   -- If the pname:rasterizerDiscardEnable member of pname:pRasterizationState is ename:VK_FALSE, pname:pViewportState must: be a pointer to a valid sname:VkPipelineViewportStateCreateInfo structure
-   -- If the pname:rasterizerDiscardEnable member of pname:pRasterizationState is ename:VK_FALSE, pname:pMultisampleState must: be a pointer to a valid sname:VkPipelineMultisampleStateCreateInfo structure
-   -- If the pname:rasterizerDiscardEnable member of pname:pRasterizationState is ename:VK_FALSE, and pname:subpass uses a depth/stencil attachment, pname:pDepthStencilState must: be a pointer to a valid sname:VkPipelineDepthStencilStateCreateInfo structure
-   -- If the pname:rasterizerDiscardEnable member of pname:pRasterizationState is ename:VK_FALSE, and pname:subpass uses color attachments, pname:pColorBlendState must: be a pointer to a valid sname:VkPipelineColorBlendStateCreateInfo structure
-   -- If the depth bias clamping feature is not enabled, no element of the pname:pDynamicStates member of pname:pDynamicState is ename:VK_DYNAMIC_STATE_DEPTH_BIAS, and the pname:depthBiasEnable member of pname:pDepthStencil is ename:VK_TRUE, the pname:depthBiasClamp member of pname:pDepthStencil must: be `0.0`
-   -- If no element of the pname:pDynamicStates member of pname:pDynamicState is ename:VK_DYNAMIC_STATE_DEPTH_BOUNDS, and the pname:depthBoundsTestEnable member of pname:pDepthStencil is ename:VK_TRUE, the pname:minDepthBounds and pname:maxDepthBounds members of pname:pDepthStencil must: be between `0.0` and `1.0`, inclusive
-   -- pname:layout must: be &lt;&lt;descriptorsets-pipelinelayout-consistency,consistent&gt;&gt; with all shaders specified in pname:pStages
-   -- If pname:subpass uses color and/or depth/stencil attachments, then the pname:rasterizationSamples member of pname:pMultisampleState must: be the same as the sample count for those subpass attachments
-   -- If pname:subpass does not use any color and/or depth/stencil attachments, then the pname:rasterizationSamples member of pname:pMultisampleState must: follow the rules for a &lt;&lt;renderpass-noattachments, zero-attachment subpass&gt;&gt;
-   -- pname:subpass must: be a valid subpass within pname:renderpass
 
    type Pipeline_Cache_Create_Info_T is record
       Stype             : Structure_Type_T;
@@ -2717,8 +2397,6 @@ package Vk is
       Initial_Data      : Void_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Cache_Create_Info_T);
-   -- If pname:initialDataSize is not `0`, it must: be equal to the size of pname:pInitialData, as returned by fname:vkGetPipelineCacheData when pname:pInitialData was originally retrieved
-   -- If pname:initialDataSize is not `0`, pname:pInitialData must: have been retrieved from a previous call to fname:vkGetPipelineCacheData
 
    type Push_Constant_Range_T is record
       Stage_Flags : Shader_Stage_Flags_T;
@@ -2726,10 +2404,6 @@ package Vk is
       Size        : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Push_Constant_Range_T);
--- pname:offset must: be less than sname:VkPhysicalDeviceLimits::pname:maxPushConstantsSize
--- pname:size must: be greater than `0`
--- pname:size must: be a multiple of `4`
--- pname:size must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPushConstantsSize minus pname:offset
 
    type Push_Constant_Range_Const_Ptr is access constant Push_Constant_Range_T;
 
@@ -2743,12 +2417,6 @@ package Vk is
       Push_Constant_Ranges      : Push_Constant_Range_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Pipeline_Layout_Create_Info_T);
-   -- pname:setLayoutCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxBoundDescriptorSets
-   -- The total number of descriptors of the type ename:VK_DESCRIPTOR_TYPE_SAMPLER and ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER accessible to any given shader stage across all elements of pname:pSetLayouts must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPerStageDescriptorSamplers
-   -- The total number of descriptors of the type ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER and ename:VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC accessible to any given shader stage across all elements of pname:pSetLayouts must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPerStageDescriptorUniformBuffers
-   -- The total number of descriptors of the type ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER and ename:VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC accessible to any given shader stage across all elements of pname:pSetLayouts must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPerStageDescriptorStorageBuffers
-   -- The total number of descriptors of the type ename:VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, ename:VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, and ename:VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER accessible to any given shader stage across all elements of pname:pSetLayouts must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPerStageDescriptorSampledImages
-   -- The total number of descriptors of the type ename:VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, and ename:VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER accessible to any given shader stage across all elements of pname:pSetLayouts must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxPerStageDescriptorStorageImages
 
    type Sampler_Create_Info_T is record
       Stype                    : Structure_Type_T;
@@ -2771,18 +2439,6 @@ package Vk is
       Unnormalized_Coordinates : Bool_32_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Sampler_Create_Info_T);
-   -- The absolute value of pname:mipLodBias must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxSamplerLodBias
-   -- If the &lt;&lt;features-features-samplerAnisotropy,anisotropic sampling&gt;&gt; feature is not enabled, pname:anisotropyEnable must: be ename:VK_FALSE
-   -- If pname:anisotropyEnable is ename:VK_TRUE, pname:maxAnisotropy must: be between `1.0` and sname:VkPhysicalDeviceLimits::pname:maxSamplerAnisotropy, inclusive
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:minFilter and pname:magFilter must: be equal
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:mipmapMode must: be ename:VK_SAMPLER_MIPMAP_MODE_NEAREST
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:minLod and pname:maxLod must: be zero
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:addressModeU and pname:addressModeV must: each be either ename:VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE or ename:VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:anisotropyEnable must: be ename:VK_FALSE
-   -- If pname:unnormalizedCoordinates is ename:VK_TRUE, pname:compareEnable must: be ename:VK_FALSE
-   -- If any of pname:addressModeU, pname:addressModeV or pname:addressModeW are ename:VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, pname:borderColor must: be a valid elink:VkBorderColor value
-   -- If the VK_KHR_mirror_clamp_to_edge extension is not enabled, pname:addressModeU, pname:addressModeV and pname:addressModeW mustnot: be ename:VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE
-   -- If pname:compareEnable is ename:VK_TRUE, pname:compareOp must: be a valid elink:VkCompareOp value
 
    type Command_Pool_Create_Info_T is record
       Stype              : Structure_Type_T;
@@ -2791,7 +2447,6 @@ package Vk is
       Queue_Family_Index : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Command_Pool_Create_Info_T);
--- pname:queueFamilyIndex must: be the index of a queue family available in the calling command's pname:device parameter
 
    type Command_Buffer_Allocate_Info_T is record
       Stype                : Structure_Type_T;
@@ -2801,7 +2456,6 @@ package Vk is
       Command_Buffer_Count : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Command_Buffer_Allocate_Info_T);
-   -- pname:commandBufferCount must: be greater than `0`
 
    type Command_Buffer_Inheritance_Info_T is record
       Stype                  : Structure_Type_T;
@@ -2814,9 +2468,6 @@ package Vk is
       Pipeline_Statistics    : Query_Pipeline_Statistic_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Command_Buffer_Inheritance_Info_T);
-   -- If the &lt;&lt;features-features-inheritedQueries,inherited queries&gt;&gt; feature is not enabled, pname:occlusionQueryEnable must: be ename:VK_FALSE
-   -- If the &lt;&lt;features-features-inheritedQueries,inherited queries&gt;&gt; feature is enabled, pname:queryFlags must: be a valid combination of elink:VkQueryControlFlagBits values
-   -- If the &lt;&lt;features-features-pipelineStatisticsQuery,pipeline statistics queries&gt;&gt; feature is not enabled, pname:pipelineStatistics must: be code:0
 
    type Command_Buffer_Inheritance_Info_Const_Ptr is access constant Command_Buffer_Inheritance_Info_T;
 
@@ -2827,9 +2478,6 @@ package Vk is
       Inheritance_Info : Command_Buffer_Inheritance_Info_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Command_Buffer_Begin_Info_T);
-   -- If pname:flags contains ename:VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, the pname:renderPass member of pname:pInheritanceInfo must: be a valid sname:VkRenderPass
-   -- If pname:flags contains ename:VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, the pname:subpass member of pname:pInheritanceInfo must: be a valid subpass index within the pname:renderPass member of pname:pInheritanceInfo
-   -- If pname:flags contains ename:VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, the pname:framebuffer member of pname:pInheritanceInfo must: be either sname:VK_NULL_HANDLE, or a valid sname:VkFramebuffer that is compatible with the pname:renderPass member of pname:pInheritanceInfo
 
    type Float_32_Array_Index_T is range 0 .. 4;
 
@@ -2887,8 +2535,6 @@ package Vk is
       Clear_Value      : Clear_Value_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Clear_Attachment_T);
-   -- If pname:aspectMask includes ename:VK_IMAGE_ASPECT_COLOR_BIT, it mustnot: include ename:VK_IMAGE_ASPECT_DEPTH_BIT or ename:VK_IMAGE_ASPECT_STENCIL_BIT
-   -- pname:aspectMask mustnot: include ename:VK_IMAGE_ASPECT_METADATA_BIT
 
    type Attachment_Description_T is record
       Flags            : Attachment_Description_Flags_T;
@@ -2924,18 +2570,6 @@ package Vk is
       Preserve_Attachments      : Uint_32_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Subpass_Description_T);
-   -- pname:pipelineBindPoint must: be ename:VK_PIPELINE_BIND_POINT_GRAPHICS
-   -- pname:colorCount must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxColorAttachments
-   -- If the first use of an attachment in this render pass is as an input attachment, and the attachment is not also used as a color or depth/stencil attachment in the same subpass, then pname:loadOp mustnot: be ename:VK_ATTACHMENT_LOAD_OP_CLEAR
-   -- If pname:pResolveAttachments is not `NULL`, for each resolve attachment that does not have the value ename:VK_ATTACHMENT_UNUSED, the corresponding color attachment mustnot: have the value ename:VK_ATTACHMENT_UNUSED
-   -- If pname:pResolveAttachments is not `NULL`, the sample count of each element of pname:pColorAttachments must: be anything other than ename:VK_SAMPLE_COUNT_1_BIT
-   -- Any given element of pname:pResolveAttachments must: have a sample count of ename:VK_SAMPLE_COUNT_1_BIT
-   -- Any given element of pname:pResolveAttachments must: have the same elink:VkFormat as its corresponding color attachment
-   -- All attachments in pname:pColorAttachments and pname:pDepthStencilAttachment that are not ename:VK_ATTACHMENT_UNUSED must: have the same sample count
-   -- If any input attachments are ename:VK_ATTACHMENT_UNUSED, then any pipelines bound during the subpass mustnot: accesss those input attachments from the fragment shader
-   -- The pname:attachment member of any element of pname:pPreserveAttachments mustnot: be ename:VK_ATTACHMENT_UNUSED
-   -- Any given element of pname:pPreserveAttachments mustnot: also be an element of any other member of the subpass description
-   -- If any attachment is used as both an input attachment and a color or depth/stencil attachment, then each use must: use the same pname:layout
 
    type Subpass_Dependency_T is record
       Src_Subpass      : Interfaces.Unsigned_32;
@@ -2947,12 +2581,6 @@ package Vk is
       Dependency_Flags : Dependency_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Subpass_Dependency_T);
-   -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, pname:srcStageMask mustnot: contain ename:VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT
-   -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, pname:dstStageMask mustnot: contain ename:VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT
-   -- If the &lt;&lt;features-features-tessellationShader,tessellation shaders&gt;&gt; feature is not enabled, pname:srcStageMask mustnot: contain ename:VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT or ename:VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT
-   -- If the &lt;&lt;features-features-tessellationShader,tessellation shaders&gt;&gt; feature is not enabled, pname:dstStageMask mustnot: contain ename:VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT or ename:VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT
-   -- pname:srcSubpass must: be less than or equal to pname:dstSubpass, unless one of them is ename:VK_SUBPASS_EXTERNAL, to avoid cyclic dependencies and ensure a valid execution order
-   -- pname:srcSubpass and pname:dstSubpass mustnot: both be equal to ename:VK_SUBPASS_EXTERNAL
 
    type Attachment_Description_Const_Ptr is access constant Attachment_Description_T;
 
@@ -2972,10 +2600,6 @@ package Vk is
       Dependencies     : Subpass_Dependency_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Render_Pass_Create_Info_T);
-   -- If any two subpasses operate on attachments with overlapping ranges of the same sname:VkDeviceMemory object, and at least one subpass writes to that area of sname:VkDeviceMemory, a subpass dependency must: be included (either directly or via some intermediate subpasses) between them
-   -- If the pname:attachment member of any element of pname:pInputAttachments, pname:pColorAttachments, pname:pResolveAttachments or pname:pDepthStencilAttachment, or the attachment indexed by any element of pname:pPreserveAttachments in any given element of pname:pSubpasses is bound to a range of a sname:VkDeviceMemory object that overlaps with any other attachment in any subpass (including the same subpass), the sname:VkAttachmentDescription structures describing them must: include ename:VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT in pname:flags
-   -- If the pname:attachment member of any element of pname:pInputAttachments, pname:pColorAttachments, pname:pResolveAttachments or pname:pDepthStencilAttachment, or any element of pname:pPreserveAttachments in any given element of pname:pSubpasses is not ename:VK_ATTACHMENT_UNUSED, it must: be less than pname:attachmentCount
-   -- The value of any element of the pname:pPreserveAttachments member in any given element of pname:pSubpasses mustnot: be ename:VK_ATTACHMENT_UNUSED
 
    type Event_Create_Info_T is record
       Stype : Structure_Type_T;
@@ -3049,7 +2673,6 @@ package Vk is
       Inherited_Queries                            : Bool_32_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Physical_Device_Features_T);
-   -- If any member of this structure is ename:VK_FALSE, as returned by flink:vkGetPhysicalDeviceFeatures, then it must: be ename:VK_FALSE when passed as part of the sname:VkDeviceCreateInfo struct when creating a device
 
    type Physical_Device_Sparse_Properties_T is record
       Residency_Standard_2_Dblock_Shape             : Bool_32_T;
@@ -3218,8 +2841,6 @@ package Vk is
       Pipeline_Statistics : Query_Pipeline_Statistic_Flags_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Query_Pool_Create_Info_T);
-   -- If the &lt;&lt;features-features-pipelineStatisticsQuery,pipeline statistics queries&gt;&gt; feature is not enabled, pname:queryType mustnot: be ename:VK_QUERY_TYPE_PIPELINE_STATISTICS
-   -- If pname:queryType is ename:VK_QUERY_TYPE_PIPELINE_STATISTICS, pname:pipelineStatistics must: be a valid combination of elink:VkQueryPipelineStatisticFlagBits values
 
    type Image_View_Const_Ptr is access constant Image_View_T;
 
@@ -3235,18 +2856,6 @@ package Vk is
       Layers           : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Framebuffer_Create_Info_T);
-   -- pname:attachmentCount must: be equal to the attachment count specified in pname:renderPass
-   -- Any given element of pname:pAttachments that is used as a color attachment or resolve attachment by pname:renderPass must: have been created with a pname:usage value including ename:VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-   -- Any given element of pname:pAttachments that is used as a depth/stencil attachment by pname:renderPass must: have been created with a pname:usage value including ename:VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-   -- Any given element of pname:pAttachments that is used as an input attachment by pname:renderPass must: have been created with a pname:usage value including ename:VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT
-   -- Any given element of pname:pAttachments must: have been created with an elink:VkFormat value that matches the elink:VkFormat specified by the corresponding sname:VkAttachmentDescription in pname:renderPass
-   -- Any given element of pname:pAttachments must: have been created with a pname:samples value that matches the pname:samples value specified by the corresponding sname:VkAttachmentDescription in pname:renderPass
-   -- Any given element of pname:pAttachments must: have dimensions at least as large as the corresponding framebuffer dimension
-   -- Any given element of pname:pAttachments must: only specify a single mip-level
-   -- Any given element of pname:pAttachments must: have been created with the identity swizzle
-   -- pname:width must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxFramebufferWidth
-   -- pname:height must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxFramebufferHeight
-   -- pname:layers must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxFramebufferLayers
 
    type Draw_Indirect_Command_T is record
       Vertex_Count   : Interfaces.Unsigned_32;
@@ -3255,8 +2864,6 @@ package Vk is
       First_Instance : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Draw_Indirect_Command_T);
-   -- For a given vertex buffer binding, any attribute data fetched must: be entirely contained within the corresponding vertex buffer binding, as described in &lt;&lt;fxvertex-input&gt;&gt;
-   -- If the &lt;&lt;features-features-drawIndirectFirstInstance,drawIndirectFirstInstance&gt;&gt; feature is not enabled, pname:firstInstance must: be code:0
 
    type Draw_Indexed_Indirect_Command_T is record
       Index_Count    : Interfaces.Unsigned_32;
@@ -3266,9 +2873,6 @@ package Vk is
       First_Instance : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Draw_Indexed_Indirect_Command_T);
-   -- For a given vertex buffer binding, any attribute data fetched must: be entirely contained within the corresponding vertex buffer binding, as described in &lt;&lt;fxvertex-input&gt;&gt;
-   -- (pname:indexSize * (pname:firstIndex + pname:indexCount) + pname:offset) must: be less than or equal to the size of the currently bound index buffer, with pname:indexSize being based on the type specified by pname:indexType, where the index buffer, pname:indexType, and pname:offset are specified via fname:vkCmdBindIndexBuffer
-   -- If the &lt;&lt;features-features-drawIndirectFirstInstance,drawIndirectFirstInstance&gt;&gt; feature is not enabled, pname:firstInstance must: be code:0
 
    type Dispatch_Indirect_Command_T is record
       X : Interfaces.Unsigned_32;
@@ -3276,9 +2880,6 @@ package Vk is
       Z : Interfaces.Unsigned_32;
    end record;
    pragma Convention (C_Pass_By_Copy, Dispatch_Indirect_Command_T);
-   -- pname:x must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxComputeWorkGroupCount[0]
-   -- pname:y must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxComputeWorkGroupCount[1]
-   -- pname:z must: be less than or equal to sname:VkPhysicalDeviceLimits::pname:maxComputeWorkGroupCount[2]
 
    type Pipeline_Stage_Flags_Const_Ptr is access constant Pipeline_Stage_Flags_T;
 
@@ -3296,18 +2897,6 @@ package Vk is
       Signal_Semaphores      : Semaphore_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Submit_Info_T);
-   -- Any given element of pname:pSignalSemaphores must: currently be unsignaled
-   -- Any given element of pname:pCommandBuffers must: either have been recorded with the ename:VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, or not currently be executing on the device
-   -- Any given element of pname:pCommandBuffers must: be in the executable state
-   -- If any given element of pname:pCommandBuffers contains commands that execute secondary command buffers, those secondary command buffers must: have been recorded with the ename:VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, or not currently be executing on the device
-   -- If any given element of pname:pCommandBuffers was created with ename:VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, it mustnot: have been previously submitted without re-recording that command buffer
-   -- If any given element of pname:pCommandBuffers contains commands that execute secondary command buffers created with ename:VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, each such secondary command buffer mustnot: have been previously submitted without re-recording that command buffer
-   -- Any given element of pname:pCommandBuffers mustnot: contain commands that execute a secondary command buffer, if that secondary command buffer has been recorded in another primary command buffer after it was recorded into this sname:VkCommandBuffer
-   -- Any given element of pname:pCommandBuffers must: have been created on a sname:VkCommandPool that was created for the same queue family that the calling command's pname:queue belongs to
-   -- Any given element of pname:pCommandBuffers mustnot: have been created with ename:VK_COMMAND_BUFFER_LEVEL_SECONDARY
-   -- Any given element of sname:VkSemaphore in pname:pWaitSemaphores must: refer to a prior signal of that sname:VkSemaphore that won't be consumed by any other wait on that semaphore
-   -- If the &lt;&lt;features-features-geometryShader,geometry shaders&gt;&gt; feature is not enabled, any given element of pname:pWaitDstStageMask mustnot: contain ename:VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT
-   -- If the &lt;&lt;features-features-tessellationShader,tessellation shaders&gt;&gt; feature is not enabled, any given element of pname:pWaitDstStageMask mustnot: contain ename:VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT or ename:VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT
 
    type Display_Properties_Khr_T is record
       Display                : Display_Khr_T;
@@ -3345,8 +2934,6 @@ package Vk is
       Parameters : Display_Mode_Parameters_Khr_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Display_Mode_Create_Info_Khr_T);
-   -- The pname:width and pname:height members of the pname:visibleRegion member of pname:parameters must: be greater than `0`
-   -- The pname:refreshRate member of pname:parameters must: be greater than `0`
 
    type Display_Plane_Capabilities_Khr_T is record
       Supported_Alpha  : Display_Plane_Alpha_Flags_Khr_T;
@@ -3374,11 +2961,6 @@ package Vk is
       Image_Extent      : Extent_2D_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Display_Surface_Create_Info_Khr_T);
-   -- pname:planeIndex must: be less than the number of display planes supported by the device as determined by calling fname:vkGetPhysicalDeviceDisplayPlanePropertiesKHR
-   -- If the pname:planeReorderPossible member of the sname:VkDisplayPropertiesKHR structure returned by fname:vkGetPhysicalDeviceDisplayPropertiesKHR for the display corresponding to pname:displayMode is ename:VK_TRUE then pname:planeStackIndex must: be less than the number of display planes supported by the device as determined by calling fname:vkGetPhysicalDeviceDisplayPlanePropertiesKHR; otherwise pname:planeStackIndex must: equal the pname:currentStackIndex member of sname:VkDisplayPlanePropertiesKHR returned by fname:vkGetPhysicalDeviceDisplayPlanePropertiesKHR for the display plane corresponding to pname:displayMode
-   -- If pname:alphaMode is ename:VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR then pname:globalAlpha must: be between `0` and `1`, inclusive
-   -- pname:alphaMode must: be `0` or one of the bits present in the pname:supportedAlpha member of sname:VkDisplayPlaneCapabilitiesKHR returned by fname:vkGetDisplayPlaneCapabilitiesKHR for the display plane corresponding to pname:displayMode
-   -- The pname:width and pname:height members of pname:imageExtent must: be less than the pname:maxImageDimensions2D member of sname:VkPhysicalDeviceLimits
 
    type Display_Present_Info_Khr_T is record
       Stype      : Structure_Type_T;
@@ -3388,9 +2970,6 @@ package Vk is
       Persistent : Bool_32_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Display_Present_Info_Khr_T);
-   -- pname:srcRect must: specify a rectangular region that is a subset of the image being presented
-   -- pname:dstRect must: specify a rectangular region that is a subset of the pname:visibleRegion parameter of the display mode the swapchain being presented uses
-   -- If the pname:persistentContent member of the sname:VkDisplayPropertiesKHR structure returned by fname:vkGetPhysicalDeviceDisplayPropertiesKHR for the display the present operation targets then pname:persistent must: be ename:VK_FALSE
 
    type Surface_Capabilities_Khr_T is record
       Min_Image_Count           : Interfaces.Unsigned_32;
@@ -3433,19 +3012,6 @@ package Vk is
       Old_Swapchain            : Swapchain_Khr_T;
    end record;
    pragma Convention (C_Pass_By_Copy, Swapchain_Create_Info_Khr_T);
-   -- pname:surface must: be a surface that is supported by the device as determined using fname:vkGetPhysicalDeviceSurfaceSupportKHR
-   -- The native window referred to by pname:surface mustnot: already be associated with a swapchain other than pname:oldSwapchain, or with a non-Vulkan graphics API surface
-   -- pname:minImageCount must: be greater than or equal to the value returned in the pname:minImageCount member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- pname:minImageCount must: be less than or equal to the value returned in the pname:maxImageCount member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface if the returned pname:maxImageCount is not zero
-   -- pname:imageFormat and pname:imageColorspace must: match the pname:format and pname:colorSpace members, respectively, of one of the sname:VkSurfaceFormatKHR structures returned by fname:vkGetPhysicalDeviceSurfaceFormatsKHR for the surface
-   -- pname:imageExtent must: be between pname:minImageExtent and pname:maxImageExtent, inclusive, where pname:minImageExtent and pname:maxImageExtent are members of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- pname:imageArrayLayers must: be greater than `0` and less than or equal to the pname:maxImageArrayLayers member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- pname:imageUsage must: be a subset of the supported usage flags present in the pname:supportedUsageFlags member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- If pname:imageSharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:pQueueFamilyIndices must: be a pointer to an array of pname:queueFamilyIndexCount basetype:uint32_t values
-   -- If pname:imageSharingMode is ename:VK_SHARING_MODE_CONCURRENT, pname:queueFamilyIndexCount must: be greater than `1`
-   -- pname:preTransform must: be one of the bits present in the pname:supportedTransforms member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- pname:compositeAlpha must: be one of the bits present in the pname:supportedCompositeAlpha member of the sname:VkSurfaceCapabilitiesKHR structure returned by fname:vkGetPhysicalDeviceSurfaceCapabilitiesKHR for the surface
-   -- pname:presentMode must: be one of the ename:VkPresentModeKHR values returned by fname:vkGetPhysicalDeviceSurfacePresentModesKHR for the surface
 
    type Swapchain_Khr_Const_Ptr is access constant Swapchain_Khr_T;
 
@@ -3462,8 +3028,6 @@ package Vk is
       Results              : Result_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Present_Info_Khr_T);
-   -- Any given element of pname:pImageIndices must: be the index of a presentable image acquired from the swapchain specified by the corresponding element of the pname:pSwapchains array
-   -- Any given element of sname:VkSemaphore in pname:pWaitSemaphores must: refer to a prior signal of that sname:VkSemaphore that won't be consumed by any other wait on that semaphore
 
    type Debug_Report_Callback_Create_Info_Ext_T is record
       Stype        : Structure_Type_T;
@@ -3554,10 +3118,6 @@ package Vk is
       Enabled_Features        : Physical_Device_Features_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Device_Create_Info_T);
-   -- pname:ppEnabledLayerNames must: either be sname:NULL or contain the same sequence of layer names that was enabled when creating the parent instance
-   -- Any given element of pname:ppEnabledExtensionNames must: be the name of an extension present on the system, exactly matching a string returned in the sname:VkExtensionProperties structure by fname:vkEnumerateDeviceExtensionProperties
-   -- If an extension listed in pname:ppEnabledExtensionNames is provided as part of a layer, then both the layer and extension must: be enabled to enable that extension
-   -- The pname:queueFamilyIndex member of any given element of pname:pQueueCreateInfos must: be unique within pname:pQueueCreateInfos
 
    type Memory_Types_Array_Index_T is range 0 .. MAX_MEMORY_TYPES;
 
@@ -3589,24 +3149,19 @@ package Vk is
       Clear_Values      : Clear_Value_Const_Ptr;
    end record;
    pragma Convention (C_Pass_By_Copy, Render_Pass_Begin_Info_T);
-   -- pname:clearValueCount must: be greater than or equal to the number of attachments in pname:renderPass that specify a pname:loadOp of ename:VK_ATTACHMENT_LOAD_OP_CLEAR
-
-   type Instance_Create_Info_Const_Ptr is access constant Instance_Create_Info_T;
-
-   type Allocation_Callbacks_Const_Ptr is access constant Allocation_Callbacks_T;
-
-   type Instance_Ptr is access all Instance_T;
 
    function Create_Instance
-     (Create_Info : Instance_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Instance    : Instance_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Instance, "vkCreateInstance");
+     (Create_Info : access constant Instance_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Instance    : access Instance_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateInstance";
 
-   procedure Destroy_Instance (Instance : Instance_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Instance, "vkDestroyInstance");
-
-   type Uint_32_Ptr is access all Interfaces.Unsigned_32;
+   procedure Destroy_Instance (Instance : Instance_T; Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyInstance";
 
    MAX_PHYSICAL_DEVICES_INDEX : constant := 100;
 
@@ -3618,26 +3173,32 @@ package Vk is
 
    function Enumerate_Physical_Devices
      (Instance              : Instance_T;
-      Physical_Device_Count : Uint_32_Ptr;
-      Physical_Devices      : Physical_Devices_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Enumerate_Physical_Devices, "vkEnumeratePhysicalDevices");
+      Physical_Device_Count : access Interfaces.Unsigned_32;
+      Physical_Devices      : Physical_Devices_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEnumeratePhysicalDevices";
 
    function Get_Device_Proc_Addr
      (Device : Device_T;
-      Name   : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
-   pragma Import (Stdcall, Get_Device_Proc_Addr, "vkGetDeviceProcAddr");
+      Name   : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDeviceProcAddr";
 
    function Get_Instance_Proc_Addr
      (Instance : Instance_T;
-      Name     : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T;
-   pragma Import (Stdcall, Get_Instance_Proc_Addr, "vkGetInstanceProcAddr");
-
-   type Physical_Device_Properties_Ptr is access all Physical_Device_Properties_T;
+      Name     : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetInstanceProcAddr";
 
    procedure Get_Physical_Device_Properties
      (Physical_Device : Physical_Device_T;
-      Properties      : Physical_Device_Properties_Ptr);
-   pragma Import (Stdcall, Get_Physical_Device_Properties, "vkGetPhysicalDeviceProperties");
+      Properties      : access Physical_Device_Properties_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceProperties";
 
    MAX_QUEUE_FAMILY_PROPERTIES_INDEX : constant := 100;
 
@@ -3650,33 +3211,33 @@ package Vk is
 
    procedure Get_Physical_Device_Queue_Family_Properties
      (Physical_Device             : Physical_Device_T;
-      Queue_Family_Property_Count : Uint_32_Ptr;
-      Queue_Family_Properties     : Queue_Family_Properties_Array_Conversions.Object_Address);
-   pragma Import (Stdcall, Get_Physical_Device_Queue_Family_Properties, "vkGetPhysicalDeviceQueueFamilyProperties");
-
-   type Physical_Device_Memory_Properties_Ptr is access all Physical_Device_Memory_Properties_T;
+      Queue_Family_Property_Count : access Interfaces.Unsigned_32;
+      Queue_Family_Properties     : Queue_Family_Properties_Array_Conversions.Object_Address) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceQueueFamilyProperties";
 
    procedure Get_Physical_Device_Memory_Properties
      (Physical_Device   : Physical_Device_T;
-      Memory_Properties : Physical_Device_Memory_Properties_Ptr);
-   pragma Import (Stdcall, Get_Physical_Device_Memory_Properties, "vkGetPhysicalDeviceMemoryProperties");
-
-   type Physical_Device_Features_Ptr is access all Physical_Device_Features_T;
+      Memory_Properties : access Physical_Device_Memory_Properties_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceMemoryProperties";
 
    procedure Get_Physical_Device_Features
      (Physical_Device : Physical_Device_T;
-      Features        : Physical_Device_Features_Ptr);
-   pragma Import (Stdcall, Get_Physical_Device_Features, "vkGetPhysicalDeviceFeatures");
-
-   type Format_Properties_Ptr is access all Format_Properties_T;
+      Features        : access Physical_Device_Features_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceFeatures";
 
    procedure Get_Physical_Device_Format_Properties
      (Physical_Device   : Physical_Device_T;
       Format            : Format_T;
-      Format_Properties : Format_Properties_Ptr);
-   pragma Import (Stdcall, Get_Physical_Device_Format_Properties, "vkGetPhysicalDeviceFormatProperties");
-
-   type Image_Format_Properties_Ptr is access all Image_Format_Properties_T;
+      Format_Properties : access Format_Properties_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceFormatProperties";
 
    function Get_Physical_Device_Image_Format_Properties
      (Physical_Device         : Physical_Device_T;
@@ -3685,22 +3246,24 @@ package Vk is
       Tiling                  : Image_Tiling_T;
       Usage                   : Image_Usage_Flags_T;
       Flags                   : Image_Create_Flags_T;
-      Image_Format_Properties : Image_Format_Properties_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Image_Format_Properties, "vkGetPhysicalDeviceImageFormatProperties");
-
-   type Device_Create_Info_Const_Ptr is access constant Device_Create_Info_T;
-
-   type Device_Ptr is access all Device_T;
+      Image_Format_Properties : access Image_Format_Properties_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceImageFormatProperties";
 
    function Create_Device
      (Physical_Device : Physical_Device_T;
-      Create_Info     : Device_Create_Info_Const_Ptr;
-      Allocator       : Allocation_Callbacks_Const_Ptr;
-      Device          : Device_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Device, "vkCreateDevice");
+      Create_Info     : access constant Device_Create_Info_T;
+      Allocator       : access constant Allocation_Callbacks_T;
+      Device          : access Device_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDevice";
 
-   procedure Destroy_Device (Device : Device_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Device, "vkDestroyDevice");
+   procedure Destroy_Device (Device : Device_T; Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyDevice";
 
    MAX_LAYER_PROPERTIES_INDEX : constant := 100;
 
@@ -3711,9 +3274,11 @@ package Vk is
    package Layer_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions (Layer_Properties_Array_T);
 
    function Enumerate_Instance_Layer_Properties
-     (Property_Count : Uint_32_Ptr;
-      Properties     : Layer_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Enumerate_Instance_Layer_Properties, "vkEnumerateInstanceLayerProperties");
+     (Property_Count : access Interfaces.Unsigned_32;
+      Properties     : Layer_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEnumerateInstanceLayerProperties";
 
    MAX_EXTENSION_PROPERTIES_INDEX : constant := 100;
 
@@ -3726,60 +3291,73 @@ package Vk is
 
    function Enumerate_Instance_Extension_Properties
      (Layer_Name     : Interfaces.C.Strings.chars_ptr;
-      Property_Count : Uint_32_Ptr;
-      Properties     : Extension_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Enumerate_Instance_Extension_Properties, "vkEnumerateInstanceExtensionProperties");
+      Property_Count : access Interfaces.Unsigned_32;
+      Properties     : Extension_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEnumerateInstanceExtensionProperties";
 
    function Enumerate_Device_Layer_Properties
      (Physical_Device : Physical_Device_T;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Layer_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Enumerate_Device_Layer_Properties, "vkEnumerateDeviceLayerProperties");
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Layer_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEnumerateDeviceLayerProperties";
 
    function Enumerate_Device_Extension_Properties
      (Physical_Device : Physical_Device_T;
       Layer_Name      : Interfaces.C.Strings.chars_ptr;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Extension_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Enumerate_Device_Extension_Properties, "vkEnumerateDeviceExtensionProperties");
-
-   type Queue_Ptr is access all Queue_T;
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Extension_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEnumerateDeviceExtensionProperties";
 
    procedure Get_Device_Queue
      (Device             : Device_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
       Queue_Index        : Interfaces.Unsigned_32;
-      Queue              : Queue_Ptr);
-   pragma Import (Stdcall, Get_Device_Queue, "vkGetDeviceQueue");
-
-   type Submit_Info_Const_Ptr is access constant Submit_Info_T;
+      Queue              : access Queue_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDeviceQueue";
 
    function Queue_Submit
      (Queue        : Queue_T;
       Submit_Count : Interfaces.Unsigned_32;
-      Submits      : Submit_Info_Const_Ptr;
-      Fence        : Fence_T) return Result_T;
-   pragma Import (Stdcall, Queue_Submit, "vkQueueSubmit");
+      Submits      : access constant Submit_Info_T;
+      Fence        : Fence_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkQueueSubmit";
 
-   function Queue_Wait_Idle (Queue : Queue_T) return Result_T;
-   pragma Import (Stdcall, Queue_Wait_Idle, "vkQueueWaitIdle");
+   function Queue_Wait_Idle (Queue : Queue_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkQueueWaitIdle";
 
-   function Device_Wait_Idle (Device : Device_T) return Result_T;
-   pragma Import (Stdcall, Device_Wait_Idle, "vkDeviceWaitIdle");
-
-   type Memory_Allocate_Info_Const_Ptr is access constant Memory_Allocate_Info_T;
-
-   type Device_Memory_Ptr is access all Device_Memory_T;
+   function Device_Wait_Idle (Device : Device_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDeviceWaitIdle";
 
    function Allocate_Memory
      (Device        : Device_T;
-      Allocate_Info : Memory_Allocate_Info_Const_Ptr;
-      Allocator     : Allocation_Callbacks_Const_Ptr;
-      Memory        : Device_Memory_Ptr) return Result_T;
-   pragma Import (Stdcall, Allocate_Memory, "vkAllocateMemory");
+      Allocate_Info : access constant Memory_Allocate_Info_T;
+      Allocator     : access constant Allocation_Callbacks_T;
+      Memory        : access Device_Memory_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkAllocateMemory";
 
-   procedure Free_Memory (Device : Device_T; Memory : Device_Memory_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Free_Memory, "vkFreeMemory");
+   procedure Free_Memory
+     (Device    : Device_T;
+      Memory    : Device_Memory_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkFreeMemory";
 
    function Map_Memory
      (Device : Device_T;
@@ -3787,61 +3365,73 @@ package Vk is
       Offset : Device_Size_T;
       Size   : Device_Size_T;
       Flags  : Memory_Map_Flags_T;
-      Data   : Void_Ptr) return Result_T;
-   pragma Import (Stdcall, Map_Memory, "vkMapMemory");
+      Data   : Void_Ptr) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkMapMemory";
 
-   procedure Unmap_Memory (Device : Device_T; Memory : Device_Memory_T);
-   pragma Import (Stdcall, Unmap_Memory, "vkUnmapMemory");
-
-   type Mapped_Memory_Range_Const_Ptr is access constant Mapped_Memory_Range_T;
+   procedure Unmap_Memory (Device : Device_T; Memory : Device_Memory_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkUnmapMemory";
 
    function Flush_Mapped_Memory_Ranges
      (Device             : Device_T;
       Memory_Range_Count : Interfaces.Unsigned_32;
-      Memory_Ranges      : Mapped_Memory_Range_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Flush_Mapped_Memory_Ranges, "vkFlushMappedMemoryRanges");
+      Memory_Ranges      : access constant Mapped_Memory_Range_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkFlushMappedMemoryRanges";
 
    function Invalidate_Mapped_Memory_Ranges
      (Device             : Device_T;
       Memory_Range_Count : Interfaces.Unsigned_32;
-      Memory_Ranges      : Mapped_Memory_Range_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Invalidate_Mapped_Memory_Ranges, "vkInvalidateMappedMemoryRanges");
-
-   type Device_Size_Ptr is access all Device_Size_T;
+      Memory_Ranges      : access constant Mapped_Memory_Range_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkInvalidateMappedMemoryRanges";
 
    procedure Get_Device_Memory_Commitment
      (Device                    : Device_T;
       Memory                    : Device_Memory_T;
-      Committed_Memory_In_Bytes : Device_Size_Ptr);
-   pragma Import (Stdcall, Get_Device_Memory_Commitment, "vkGetDeviceMemoryCommitment");
-
-   type Memory_Requirements_Ptr is access all Memory_Requirements_T;
+      Committed_Memory_In_Bytes : access Device_Size_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDeviceMemoryCommitment";
 
    procedure Get_Buffer_Memory_Requirements
      (Device              : Device_T;
       Buffer              : Buffer_T;
-      Memory_Requirements : Memory_Requirements_Ptr);
-   pragma Import (Stdcall, Get_Buffer_Memory_Requirements, "vkGetBufferMemoryRequirements");
+      Memory_Requirements : access Memory_Requirements_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetBufferMemoryRequirements";
 
    function Bind_Buffer_Memory
      (Device        : Device_T;
       Buffer        : Buffer_T;
       Memory        : Device_Memory_T;
-      Memory_Offset : Device_Size_T) return Result_T;
-   pragma Import (Stdcall, Bind_Buffer_Memory, "vkBindBufferMemory");
+      Memory_Offset : Device_Size_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkBindBufferMemory";
 
    procedure Get_Image_Memory_Requirements
      (Device              : Device_T;
       Image               : Image_T;
-      Memory_Requirements : Memory_Requirements_Ptr);
-   pragma Import (Stdcall, Get_Image_Memory_Requirements, "vkGetImageMemoryRequirements");
+      Memory_Requirements : access Memory_Requirements_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetImageMemoryRequirements";
 
    function Bind_Image_Memory
      (Device        : Device_T;
       Image         : Image_T;
       Memory        : Device_Memory_T;
-      Memory_Offset : Device_Size_T) return Result_T;
-   pragma Import (Stdcall, Bind_Image_Memory, "vkBindImageMemory");
+      Memory_Offset : Device_Size_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkBindImageMemory";
 
    MAX_SPARSE_MEMORY_REQUIREMENTS_INDEX : constant := 100;
 
@@ -3855,9 +3445,11 @@ package Vk is
    procedure Get_Image_Sparse_Memory_Requirements
      (Device                          : Device_T;
       Image                           : Image_T;
-      Sparse_Memory_Requirement_Count : Uint_32_Ptr;
-      Sparse_Memory_Requirements      : Sparse_Memory_Requirements_Array_Conversions.Object_Address);
-   pragma Import (Stdcall, Get_Image_Sparse_Memory_Requirements, "vkGetImageSparseMemoryRequirements");
+      Sparse_Memory_Requirement_Count : access Interfaces.Unsigned_32;
+      Sparse_Memory_Requirements      : Sparse_Memory_Requirements_Array_Conversions.Object_Address) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetImageSparseMemoryRequirements";
 
    MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX : constant := 100;
 
@@ -3876,108 +3468,120 @@ package Vk is
       Samples         : Sample_Count_Flag_Bits_T;
       Usage           : Image_Usage_Flags_T;
       Tiling          : Image_Tiling_T;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Sparse_Image_Format_Properties_Array_Conversions.Object_Address);
-   pragma Import
-     (Stdcall,
-      Get_Physical_Device_Sparse_Image_Format_Properties,
-      "vkGetPhysicalDeviceSparseImageFormatProperties");
-
-   type Bind_Sparse_Info_Const_Ptr is access constant Bind_Sparse_Info_T;
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Sparse_Image_Format_Properties_Array_Conversions.Object_Address) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceSparseImageFormatProperties";
 
    function Queue_Bind_Sparse
      (Queue           : Queue_T;
       Bind_Info_Count : Interfaces.Unsigned_32;
-      Bind_Info       : Bind_Sparse_Info_Const_Ptr;
-      Fence           : Fence_T) return Result_T;
-   pragma Import (Stdcall, Queue_Bind_Sparse, "vkQueueBindSparse");
-
-   type Fence_Create_Info_Const_Ptr is access constant Fence_Create_Info_T;
-
-   type Fence_Ptr is access all Fence_T;
+      Bind_Info       : access constant Bind_Sparse_Info_T;
+      Fence           : Fence_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkQueueBindSparse";
 
    function Create_Fence
      (Device      : Device_T;
-      Create_Info : Fence_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Fence       : Fence_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Fence, "vkCreateFence");
+      Create_Info : access constant Fence_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Fence       : access Fence_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateFence";
 
-   procedure Destroy_Fence (Device : Device_T; Fence : Fence_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Fence, "vkDestroyFence");
-
-   type Fence_Const_Ptr is access constant Fence_T;
+   procedure Destroy_Fence (Device : Device_T; Fence : Fence_T; Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyFence";
 
    function Reset_Fences
      (Device      : Device_T;
       Fence_Count : Interfaces.Unsigned_32;
-      Fences      : Fence_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Reset_Fences, "vkResetFences");
+      Fences      : access constant Fence_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkResetFences";
 
-   function Get_Fence_Status (Device : Device_T; Fence : Fence_T) return Result_T;
-   pragma Import (Stdcall, Get_Fence_Status, "vkGetFenceStatus");
+   function Get_Fence_Status (Device : Device_T; Fence : Fence_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetFenceStatus";
 
    function Wait_For_Fences
      (Device      : Device_T;
       Fence_Count : Interfaces.Unsigned_32;
-      Fences      : Fence_Const_Ptr;
+      Fences      : access constant Fence_T;
       Wait_All    : Bool_32_T;
-      Timeout     : Interfaces.Unsigned_64) return Result_T;
-   pragma Import (Stdcall, Wait_For_Fences, "vkWaitForFences");
-
-   type Semaphore_Create_Info_Const_Ptr is access constant Semaphore_Create_Info_T;
-
-   type Semaphore_Ptr is access all Semaphore_T;
+      Timeout     : Interfaces.Unsigned_64) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkWaitForFences";
 
    function Create_Semaphore
      (Device      : Device_T;
-      Create_Info : Semaphore_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Semaphore   : Semaphore_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Semaphore, "vkCreateSemaphore");
+      Create_Info : access constant Semaphore_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Semaphore   : access Semaphore_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateSemaphore";
 
-   procedure Destroy_Semaphore (Device : Device_T; Semaphore : Semaphore_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Semaphore, "vkDestroySemaphore");
-
-   type Event_Create_Info_Const_Ptr is access constant Event_Create_Info_T;
-
-   type Event_Ptr is access all Event_T;
+   procedure Destroy_Semaphore
+     (Device    : Device_T;
+      Semaphore : Semaphore_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroySemaphore";
 
    function Create_Event
      (Device      : Device_T;
-      Create_Info : Event_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Event       : Event_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Event, "vkCreateEvent");
+      Create_Info : access constant Event_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Event       : access Event_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateEvent";
 
-   procedure Destroy_Event (Device : Device_T; Event : Event_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Event, "vkDestroyEvent");
+   procedure Destroy_Event (Device : Device_T; Event : Event_T; Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyEvent";
 
-   function Get_Event_Status (Device : Device_T; Event : Event_T) return Result_T;
-   pragma Import (Stdcall, Get_Event_Status, "vkGetEventStatus");
+   function Get_Event_Status (Device : Device_T; Event : Event_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetEventStatus";
 
-   function Set_Event (Device : Device_T; Event : Event_T) return Result_T;
-   pragma Import (Stdcall, Set_Event, "vkSetEvent");
+   function Set_Event (Device : Device_T; Event : Event_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkSetEvent";
 
-   function Reset_Event (Device : Device_T; Event : Event_T) return Result_T;
-   pragma Import (Stdcall, Reset_Event, "vkResetEvent");
-
-   type Query_Pool_Create_Info_Const_Ptr is access constant Query_Pool_Create_Info_T;
-
-   type Query_Pool_Ptr is access all Query_Pool_T;
+   function Reset_Event (Device : Device_T; Event : Event_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkResetEvent";
 
    function Create_Query_Pool
      (Device      : Device_T;
-      Create_Info : Query_Pool_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Query_Pool  : Query_Pool_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Query_Pool, "vkCreateQueryPool");
+      Create_Info : access constant Query_Pool_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Query_Pool  : access Query_Pool_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateQueryPool";
 
    procedure Destroy_Query_Pool
      (Device     : Device_T;
       Query_Pool : Query_Pool_T;
-      Allocator  : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Query_Pool, "vkDestroyQueryPool");
+      Allocator  : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyQueryPool";
 
    function Get_Query_Pool_Results
      (Device      : Device_T;
@@ -3987,135 +3591,136 @@ package Vk is
       Data_Size   : Interfaces.C.size_t;
       Data        : Void_Ptr;
       Stride      : Device_Size_T;
-      Flags       : Query_Result_Flags_T) return Result_T;
-   pragma Import (Stdcall, Get_Query_Pool_Results, "vkGetQueryPoolResults");
-
-   type Buffer_Create_Info_Const_Ptr is access constant Buffer_Create_Info_T;
-
-   type Buffer_Ptr is access all Buffer_T;
+      Flags       : Query_Result_Flags_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetQueryPoolResults";
 
    function Create_Buffer
      (Device      : Device_T;
-      Create_Info : Buffer_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Buffer      : Buffer_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Buffer, "vkCreateBuffer");
+      Create_Info : access constant Buffer_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Buffer      : access Buffer_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateBuffer";
 
-   procedure Destroy_Buffer (Device : Device_T; Buffer : Buffer_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Buffer, "vkDestroyBuffer");
-
-   type Buffer_View_Create_Info_Const_Ptr is access constant Buffer_View_Create_Info_T;
-
-   type Buffer_View_Ptr is access all Buffer_View_T;
+   procedure Destroy_Buffer
+     (Device    : Device_T;
+      Buffer    : Buffer_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyBuffer";
 
    function Create_Buffer_View
      (Device      : Device_T;
-      Create_Info : Buffer_View_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      View        : Buffer_View_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Buffer_View, "vkCreateBufferView");
+      Create_Info : access constant Buffer_View_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      View        : access Buffer_View_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateBufferView";
 
    procedure Destroy_Buffer_View
      (Device      : Device_T;
       Buffer_View : Buffer_View_T;
-      Allocator   : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Buffer_View, "vkDestroyBufferView");
-
-   type Image_Create_Info_Const_Ptr is access constant Image_Create_Info_T;
-
-   type Image_Ptr is access all Image_T;
+      Allocator   : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyBufferView";
 
    function Create_Image
      (Device      : Device_T;
-      Create_Info : Image_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Image       : Image_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Image, "vkCreateImage");
+      Create_Info : access constant Image_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Image       : access Image_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateImage";
 
-   procedure Destroy_Image (Device : Device_T; Image : Image_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Image, "vkDestroyImage");
-
-   type Image_Subresource_Const_Ptr is access constant Image_Subresource_T;
-
-   type Subresource_Layout_Ptr is access all Subresource_Layout_T;
+   procedure Destroy_Image (Device : Device_T; Image : Image_T; Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyImage";
 
    procedure Get_Image_Subresource_Layout
      (Device      : Device_T;
       Image       : Image_T;
-      Subresource : Image_Subresource_Const_Ptr;
-      Layout      : Subresource_Layout_Ptr);
-   pragma Import (Stdcall, Get_Image_Subresource_Layout, "vkGetImageSubresourceLayout");
-
-   type Image_View_Create_Info_Const_Ptr is access constant Image_View_Create_Info_T;
-
-   type Image_View_Ptr is access all Image_View_T;
+      Subresource : access constant Image_Subresource_T;
+      Layout      : access Subresource_Layout_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetImageSubresourceLayout";
 
    function Create_Image_View
      (Device      : Device_T;
-      Create_Info : Image_View_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      View        : Image_View_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Image_View, "vkCreateImageView");
+      Create_Info : access constant Image_View_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      View        : access Image_View_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateImageView";
 
    procedure Destroy_Image_View
      (Device     : Device_T;
       Image_View : Image_View_T;
-      Allocator  : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Image_View, "vkDestroyImageView");
-
-   type Shader_Module_Create_Info_Const_Ptr is access constant Shader_Module_Create_Info_T;
-
-   type Shader_Module_Ptr is access all Shader_Module_T;
+      Allocator  : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyImageView";
 
    function Create_Shader_Module
      (Device        : Device_T;
-      Create_Info   : Shader_Module_Create_Info_Const_Ptr;
-      Allocator     : Allocation_Callbacks_Const_Ptr;
-      Shader_Module : Shader_Module_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Shader_Module, "vkCreateShaderModule");
+      Create_Info   : access constant Shader_Module_Create_Info_T;
+      Allocator     : access constant Allocation_Callbacks_T;
+      Shader_Module : access Shader_Module_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateShaderModule";
 
    procedure Destroy_Shader_Module
      (Device        : Device_T;
       Shader_Module : Shader_Module_T;
-      Allocator     : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Shader_Module, "vkDestroyShaderModule");
-
-   type Pipeline_Cache_Create_Info_Const_Ptr is access constant Pipeline_Cache_Create_Info_T;
-
-   type Pipeline_Cache_Ptr is access all Pipeline_Cache_T;
+      Allocator     : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyShaderModule";
 
    function Create_Pipeline_Cache
      (Device         : Device_T;
-      Create_Info    : Pipeline_Cache_Create_Info_Const_Ptr;
-      Allocator      : Allocation_Callbacks_Const_Ptr;
-      Pipeline_Cache : Pipeline_Cache_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Pipeline_Cache, "vkCreatePipelineCache");
+      Create_Info    : access constant Pipeline_Cache_Create_Info_T;
+      Allocator      : access constant Allocation_Callbacks_T;
+      Pipeline_Cache : access Pipeline_Cache_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreatePipelineCache";
 
    procedure Destroy_Pipeline_Cache
      (Device         : Device_T;
       Pipeline_Cache : Pipeline_Cache_T;
-      Allocator      : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Pipeline_Cache, "vkDestroyPipelineCache");
-
-   type Size_Ptr is access all Interfaces.C.size_t;
+      Allocator      : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyPipelineCache";
 
    function Get_Pipeline_Cache_Data
      (Device         : Device_T;
       Pipeline_Cache : Pipeline_Cache_T;
-      Data_Size      : Size_Ptr;
-      Data           : Void_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Pipeline_Cache_Data, "vkGetPipelineCacheData");
-
-   type Pipeline_Cache_Const_Ptr is access constant Pipeline_Cache_T;
+      Data_Size      : access Interfaces.C.size_t;
+      Data           : Void_Ptr) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPipelineCacheData";
 
    function Merge_Pipeline_Caches
      (Device          : Device_T;
       Dst_Cache       : Pipeline_Cache_T;
       Src_Cache_Count : Interfaces.Unsigned_32;
-      Src_Caches      : Pipeline_Cache_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Merge_Pipeline_Caches, "vkMergePipelineCaches");
-
-   type Graphics_Pipeline_Create_Info_Const_Ptr is access constant Graphics_Pipeline_Create_Info_T;
+      Src_Caches      : access constant Pipeline_Cache_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkMergePipelineCaches";
 
    MAX_PIPELINES_INDEX : constant := 100;
 
@@ -4128,277 +3733,314 @@ package Vk is
      (Device            : Device_T;
       Pipeline_Cache    : Pipeline_Cache_T;
       Create_Info_Count : Interfaces.Unsigned_32;
-      Create_Infos      : Graphics_Pipeline_Create_Info_Const_Ptr;
-      Allocator         : Allocation_Callbacks_Const_Ptr;
-      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Create_Graphics_Pipelines, "vkCreateGraphicsPipelines");
-
-   type Compute_Pipeline_Create_Info_Const_Ptr is access constant Compute_Pipeline_Create_Info_T;
+      Create_Infos      : access constant Graphics_Pipeline_Create_Info_T;
+      Allocator         : access constant Allocation_Callbacks_T;
+      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateGraphicsPipelines";
 
    function Create_Compute_Pipelines
      (Device            : Device_T;
       Pipeline_Cache    : Pipeline_Cache_T;
       Create_Info_Count : Interfaces.Unsigned_32;
-      Create_Infos      : Compute_Pipeline_Create_Info_Const_Ptr;
-      Allocator         : Allocation_Callbacks_Const_Ptr;
-      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Create_Compute_Pipelines, "vkCreateComputePipelines");
+      Create_Infos      : access constant Compute_Pipeline_Create_Info_T;
+      Allocator         : access constant Allocation_Callbacks_T;
+      Pipelines         : Pipelines_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateComputePipelines";
 
-   procedure Destroy_Pipeline (Device : Device_T; Pipeline : Pipeline_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Pipeline, "vkDestroyPipeline");
-
-   type Pipeline_Layout_Create_Info_Const_Ptr is access constant Pipeline_Layout_Create_Info_T;
-
-   type Pipeline_Layout_Ptr is access all Pipeline_Layout_T;
+   procedure Destroy_Pipeline
+     (Device    : Device_T;
+      Pipeline  : Pipeline_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyPipeline";
 
    function Create_Pipeline_Layout
      (Device          : Device_T;
-      Create_Info     : Pipeline_Layout_Create_Info_Const_Ptr;
-      Allocator       : Allocation_Callbacks_Const_Ptr;
-      Pipeline_Layout : Pipeline_Layout_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Pipeline_Layout, "vkCreatePipelineLayout");
+      Create_Info     : access constant Pipeline_Layout_Create_Info_T;
+      Allocator       : access constant Allocation_Callbacks_T;
+      Pipeline_Layout : access Pipeline_Layout_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreatePipelineLayout";
 
    procedure Destroy_Pipeline_Layout
      (Device          : Device_T;
       Pipeline_Layout : Pipeline_Layout_T;
-      Allocator       : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Pipeline_Layout, "vkDestroyPipelineLayout");
-
-   type Sampler_Create_Info_Const_Ptr is access constant Sampler_Create_Info_T;
-
-   type Sampler_Ptr is access all Sampler_T;
+      Allocator       : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyPipelineLayout";
 
    function Create_Sampler
      (Device      : Device_T;
-      Create_Info : Sampler_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Sampler     : Sampler_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Sampler, "vkCreateSampler");
+      Create_Info : access constant Sampler_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Sampler     : access Sampler_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateSampler";
 
-   procedure Destroy_Sampler (Device : Device_T; Sampler : Sampler_T; Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Sampler, "vkDestroySampler");
-
-   type Descriptor_Set_Layout_Create_Info_Const_Ptr is access constant Descriptor_Set_Layout_Create_Info_T;
-
-   type Descriptor_Set_Layout_Ptr is access all Descriptor_Set_Layout_T;
+   procedure Destroy_Sampler
+     (Device    : Device_T;
+      Sampler   : Sampler_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroySampler";
 
    function Create_Descriptor_Set_Layout
      (Device      : Device_T;
-      Create_Info : Descriptor_Set_Layout_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Set_Layout  : Descriptor_Set_Layout_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Descriptor_Set_Layout, "vkCreateDescriptorSetLayout");
+      Create_Info : access constant Descriptor_Set_Layout_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Set_Layout  : access Descriptor_Set_Layout_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDescriptorSetLayout";
 
    procedure Destroy_Descriptor_Set_Layout
      (Device                : Device_T;
       Descriptor_Set_Layout : Descriptor_Set_Layout_T;
-      Allocator             : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Descriptor_Set_Layout, "vkDestroyDescriptorSetLayout");
-
-   type Descriptor_Pool_Create_Info_Const_Ptr is access constant Descriptor_Pool_Create_Info_T;
-
-   type Descriptor_Pool_Ptr is access all Descriptor_Pool_T;
+      Allocator             : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyDescriptorSetLayout";
 
    function Create_Descriptor_Pool
      (Device          : Device_T;
-      Create_Info     : Descriptor_Pool_Create_Info_Const_Ptr;
-      Allocator       : Allocation_Callbacks_Const_Ptr;
-      Descriptor_Pool : Descriptor_Pool_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Descriptor_Pool, "vkCreateDescriptorPool");
+      Create_Info     : access constant Descriptor_Pool_Create_Info_T;
+      Allocator       : access constant Allocation_Callbacks_T;
+      Descriptor_Pool : access Descriptor_Pool_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDescriptorPool";
 
    procedure Destroy_Descriptor_Pool
      (Device          : Device_T;
       Descriptor_Pool : Descriptor_Pool_T;
-      Allocator       : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Descriptor_Pool, "vkDestroyDescriptorPool");
+      Allocator       : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyDescriptorPool";
 
    function Reset_Descriptor_Pool
      (Device          : Device_T;
       Descriptor_Pool : Descriptor_Pool_T;
-      Flags           : Descriptor_Pool_Reset_Flags_T) return Result_T;
-   pragma Import (Stdcall, Reset_Descriptor_Pool, "vkResetDescriptorPool");
-
-   type Descriptor_Set_Allocate_Info_Const_Ptr is access constant Descriptor_Set_Allocate_Info_T;
-
-   type Descriptor_Set_Ptr is access all Descriptor_Set_T;
+      Flags           : Descriptor_Pool_Reset_Flags_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkResetDescriptorPool";
 
    function Allocate_Descriptor_Sets
      (Device          : Device_T;
-      Allocate_Info   : Descriptor_Set_Allocate_Info_Const_Ptr;
-      Descriptor_Sets : Descriptor_Set_Ptr) return Result_T;
-   pragma Import (Stdcall, Allocate_Descriptor_Sets, "vkAllocateDescriptorSets");
-
-   type Descriptor_Set_Const_Ptr is access constant Descriptor_Set_T;
+      Allocate_Info   : access constant Descriptor_Set_Allocate_Info_T;
+      Descriptor_Sets : access Descriptor_Set_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkAllocateDescriptorSets";
 
    function Free_Descriptor_Sets
      (Device               : Device_T;
       Descriptor_Pool      : Descriptor_Pool_T;
       Descriptor_Set_Count : Interfaces.Unsigned_32;
-      Descriptor_Sets      : Descriptor_Set_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Free_Descriptor_Sets, "vkFreeDescriptorSets");
-
-   type Write_Descriptor_Set_Const_Ptr is access constant Write_Descriptor_Set_T;
-
-   type Copy_Descriptor_Set_Const_Ptr is access constant Copy_Descriptor_Set_T;
+      Descriptor_Sets      : access constant Descriptor_Set_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkFreeDescriptorSets";
 
    procedure Update_Descriptor_Sets
      (Device                 : Device_T;
       Descriptor_Write_Count : Interfaces.Unsigned_32;
-      Descriptor_Writes      : Write_Descriptor_Set_Const_Ptr;
+      Descriptor_Writes      : access constant Write_Descriptor_Set_T;
       Descriptor_Copy_Count  : Interfaces.Unsigned_32;
-      Descriptor_Copies      : Copy_Descriptor_Set_Const_Ptr);
-   pragma Import (Stdcall, Update_Descriptor_Sets, "vkUpdateDescriptorSets");
-
-   type Framebuffer_Create_Info_Const_Ptr is access constant Framebuffer_Create_Info_T;
-
-   type Framebuffer_Ptr is access all Framebuffer_T;
+      Descriptor_Copies      : access constant Copy_Descriptor_Set_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkUpdateDescriptorSets";
 
    function Create_Framebuffer
      (Device      : Device_T;
-      Create_Info : Framebuffer_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Framebuffer : Framebuffer_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Framebuffer, "vkCreateFramebuffer");
+      Create_Info : access constant Framebuffer_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Framebuffer : access Framebuffer_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateFramebuffer";
 
    procedure Destroy_Framebuffer
      (Device      : Device_T;
       Framebuffer : Framebuffer_T;
-      Allocator   : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Framebuffer, "vkDestroyFramebuffer");
-
-   type Render_Pass_Create_Info_Const_Ptr is access constant Render_Pass_Create_Info_T;
-
-   type Render_Pass_Ptr is access all Render_Pass_T;
+      Allocator   : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyFramebuffer";
 
    function Create_Render_Pass
      (Device      : Device_T;
-      Create_Info : Render_Pass_Create_Info_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Render_Pass : Render_Pass_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Render_Pass, "vkCreateRenderPass");
+      Create_Info : access constant Render_Pass_Create_Info_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Render_Pass : access Render_Pass_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateRenderPass";
 
    procedure Destroy_Render_Pass
      (Device      : Device_T;
       Render_Pass : Render_Pass_T;
-      Allocator   : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Render_Pass, "vkDestroyRenderPass");
+      Allocator   : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyRenderPass";
 
-   type Extent_2D_Ptr is access all Extent_2D_T;
-
-   procedure Get_Render_Area_Granularity (Device : Device_T; Render_Pass : Render_Pass_T; Granularity : Extent_2D_Ptr);
-   pragma Import (Stdcall, Get_Render_Area_Granularity, "vkGetRenderAreaGranularity");
-
-   type Command_Pool_Create_Info_Const_Ptr is access constant Command_Pool_Create_Info_T;
-
-   type Command_Pool_Ptr is access all Command_Pool_T;
+   procedure Get_Render_Area_Granularity
+     (Device      : Device_T;
+      Render_Pass : Render_Pass_T;
+      Granularity : access Extent_2D_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetRenderAreaGranularity";
 
    function Create_Command_Pool
      (Device       : Device_T;
-      Create_Info  : Command_Pool_Create_Info_Const_Ptr;
-      Allocator    : Allocation_Callbacks_Const_Ptr;
-      Command_Pool : Command_Pool_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Command_Pool, "vkCreateCommandPool");
+      Create_Info  : access constant Command_Pool_Create_Info_T;
+      Allocator    : access constant Allocation_Callbacks_T;
+      Command_Pool : access Command_Pool_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateCommandPool";
 
    procedure Destroy_Command_Pool
      (Device       : Device_T;
       Command_Pool : Command_Pool_T;
-      Allocator    : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Command_Pool, "vkDestroyCommandPool");
+      Allocator    : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyCommandPool";
 
    function Reset_Command_Pool
      (Device       : Device_T;
       Command_Pool : Command_Pool_T;
-      Flags        : Command_Pool_Reset_Flags_T) return Result_T;
-   pragma Import (Stdcall, Reset_Command_Pool, "vkResetCommandPool");
-
-   type Command_Buffer_Allocate_Info_Const_Ptr is access constant Command_Buffer_Allocate_Info_T;
-
-   type Command_Buffer_Ptr is access all Command_Buffer_T;
+      Flags        : Command_Pool_Reset_Flags_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkResetCommandPool";
 
    function Allocate_Command_Buffers
      (Device          : Device_T;
-      Allocate_Info   : Command_Buffer_Allocate_Info_Const_Ptr;
-      Command_Buffers : Command_Buffer_Ptr) return Result_T;
-   pragma Import (Stdcall, Allocate_Command_Buffers, "vkAllocateCommandBuffers");
+      Allocate_Info   : access constant Command_Buffer_Allocate_Info_T;
+      Command_Buffers : access Command_Buffer_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkAllocateCommandBuffers";
 
    procedure Free_Command_Buffers
      (Device               : Device_T;
       Command_Pool         : Command_Pool_T;
       Command_Buffer_Count : Interfaces.Unsigned_32;
-      Command_Buffers      : Command_Buffer_Const_Ptr);
-   pragma Import (Stdcall, Free_Command_Buffers, "vkFreeCommandBuffers");
-
-   type Command_Buffer_Begin_Info_Const_Ptr is access constant Command_Buffer_Begin_Info_T;
+      Command_Buffers      : Command_Buffer_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkFreeCommandBuffers";
 
    function Begin_Command_Buffer
      (Command_Buffer : Command_Buffer_T;
-      Begin_Info     : Command_Buffer_Begin_Info_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Begin_Command_Buffer, "vkBeginCommandBuffer");
+      Begin_Info     : access constant Command_Buffer_Begin_Info_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkBeginCommandBuffer";
 
-   function End_Command_Buffer (Command_Buffer : Command_Buffer_T) return Result_T;
-   pragma Import (Stdcall, End_Command_Buffer, "vkEndCommandBuffer");
+   function End_Command_Buffer (Command_Buffer : Command_Buffer_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkEndCommandBuffer";
 
    function Reset_Command_Buffer
      (Command_Buffer : Command_Buffer_T;
-      Flags          : Command_Buffer_Reset_Flags_T) return Result_T;
-   pragma Import (Stdcall, Reset_Command_Buffer, "vkResetCommandBuffer");
+      Flags          : Command_Buffer_Reset_Flags_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkResetCommandBuffer";
 
    procedure Cmd_Bind_Pipeline
      (Command_Buffer      : Command_Buffer_T;
       Pipeline_Bind_Point : Pipeline_Bind_Point_T;
-      Pipeline            : Pipeline_T);
-   pragma Import (Stdcall, Cmd_Bind_Pipeline, "vkCmdBindPipeline");
+      Pipeline            : Pipeline_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBindPipeline";
 
    procedure Cmd_Set_Viewport
      (Command_Buffer : Command_Buffer_T;
       First_Viewport : Interfaces.Unsigned_32;
       Viewport_Count : Interfaces.Unsigned_32;
-      Viewports      : Viewport_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Set_Viewport, "vkCmdSetViewport");
+      Viewports      : Viewport_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetViewport";
 
    procedure Cmd_Set_Scissor
      (Command_Buffer : Command_Buffer_T;
       First_Scissor  : Interfaces.Unsigned_32;
       Scissor_Count  : Interfaces.Unsigned_32;
-      Scissors       : Rect_2D_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Set_Scissor, "vkCmdSetScissor");
+      Scissors       : Rect_2D_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetScissor";
 
-   procedure Cmd_Set_Line_Width (Command_Buffer : Command_Buffer_T; Line_Width : Interfaces.C.C_float);
-   pragma Import (Stdcall, Cmd_Set_Line_Width, "vkCmdSetLineWidth");
+   procedure Cmd_Set_Line_Width (Command_Buffer : Command_Buffer_T; Line_Width : Interfaces.C.C_float) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetLineWidth";
 
    procedure Cmd_Set_Depth_Bias
      (Command_Buffer             : Command_Buffer_T;
       Depth_Bias_Constant_Factor : Interfaces.C.C_float;
       Depth_Bias_Clamp           : Interfaces.C.C_float;
-      Depth_Bias_Slope_Factor    : Interfaces.C.C_float);
-   pragma Import (Stdcall, Cmd_Set_Depth_Bias, "vkCmdSetDepthBias");
+      Depth_Bias_Slope_Factor    : Interfaces.C.C_float) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetDepthBias";
 
-   procedure Cmd_Set_Blend_Constants (Command_Buffer : Command_Buffer_T; Blend_Constants : Blend_Constants_Array_T);
-   pragma Import (Stdcall, Cmd_Set_Blend_Constants, "vkCmdSetBlendConstants");
+   procedure Cmd_Set_Blend_Constants (Command_Buffer : Command_Buffer_T; Blend_Constants : Blend_Constants_Array_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetBlendConstants";
 
    procedure Cmd_Set_Depth_Bounds
      (Command_Buffer   : Command_Buffer_T;
       Min_Depth_Bounds : Interfaces.C.C_float;
-      Max_Depth_Bounds : Interfaces.C.C_float);
-   pragma Import (Stdcall, Cmd_Set_Depth_Bounds, "vkCmdSetDepthBounds");
+      Max_Depth_Bounds : Interfaces.C.C_float) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetDepthBounds";
 
    procedure Cmd_Set_Stencil_Compare_Mask
      (Command_Buffer : Command_Buffer_T;
       Face_Mask      : Stencil_Face_Flags_T;
-      Compare_Mask   : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Set_Stencil_Compare_Mask, "vkCmdSetStencilCompareMask");
+      Compare_Mask   : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetStencilCompareMask";
 
    procedure Cmd_Set_Stencil_Write_Mask
      (Command_Buffer : Command_Buffer_T;
       Face_Mask      : Stencil_Face_Flags_T;
-      Write_Mask     : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Set_Stencil_Write_Mask, "vkCmdSetStencilWriteMask");
+      Write_Mask     : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetStencilWriteMask";
 
    procedure Cmd_Set_Stencil_Reference
      (Command_Buffer : Command_Buffer_T;
       Face_Mask      : Stencil_Face_Flags_T;
-      Reference      : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Set_Stencil_Reference, "vkCmdSetStencilReference");
+      Reference      : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetStencilReference";
 
    procedure Cmd_Bind_Descriptor_Sets
      (Command_Buffer       : Command_Buffer_T;
@@ -4406,37 +4048,41 @@ package Vk is
       Layout               : Pipeline_Layout_T;
       First_Set            : Interfaces.Unsigned_32;
       Descriptor_Set_Count : Interfaces.Unsigned_32;
-      Descriptor_Sets      : Descriptor_Set_Const_Ptr;
+      Descriptor_Sets      : access constant Descriptor_Set_T;
       Dynamic_Offset_Count : Interfaces.Unsigned_32;
-      Dynamic_Offsets      : Uint_32_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Bind_Descriptor_Sets, "vkCmdBindDescriptorSets");
+      Dynamic_Offsets      : Uint_32_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBindDescriptorSets";
 
    procedure Cmd_Bind_Index_Buffer
      (Command_Buffer : Command_Buffer_T;
       Buffer         : Buffer_T;
       Offset         : Device_Size_T;
-      Index_Type     : Index_Type_T);
-   pragma Import (Stdcall, Cmd_Bind_Index_Buffer, "vkCmdBindIndexBuffer");
-
-   type Buffer_Const_Ptr is access constant Buffer_T;
-
-   type Device_Size_Const_Ptr is access constant Device_Size_T;
+      Index_Type     : Index_Type_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBindIndexBuffer";
 
    procedure Cmd_Bind_Vertex_Buffers
      (Command_Buffer : Command_Buffer_T;
       First_Binding  : Interfaces.Unsigned_32;
       Binding_Count  : Interfaces.Unsigned_32;
-      Buffers        : Buffer_Const_Ptr;
-      Offsets        : Device_Size_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Bind_Vertex_Buffers, "vkCmdBindVertexBuffers");
+      Buffers        : access constant Buffer_T;
+      Offsets        : access constant Device_Size_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBindVertexBuffers";
 
    procedure Cmd_Draw
      (Command_Buffer : Command_Buffer_T;
       Vertex_Count   : Interfaces.Unsigned_32;
       Instance_Count : Interfaces.Unsigned_32;
       First_Vertex   : Interfaces.Unsigned_32;
-      First_Instance : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Draw, "vkCmdDraw");
+      First_Instance : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDraw";
 
    procedure Cmd_Draw_Indexed
      (Command_Buffer : Command_Buffer_T;
@@ -4444,46 +4090,54 @@ package Vk is
       Instance_Count : Interfaces.Unsigned_32;
       First_Index    : Interfaces.Unsigned_32;
       Vertex_Offset  : Interfaces.Integer_32;
-      First_Instance : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Draw_Indexed, "vkCmdDrawIndexed");
+      First_Instance : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDrawIndexed";
 
    procedure Cmd_Draw_Indirect
      (Command_Buffer : Command_Buffer_T;
       Buffer         : Buffer_T;
       Offset         : Device_Size_T;
       Draw_Count     : Interfaces.Unsigned_32;
-      Stride         : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Draw_Indirect, "vkCmdDrawIndirect");
+      Stride         : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDrawIndirect";
 
    procedure Cmd_Draw_Indexed_Indirect
      (Command_Buffer : Command_Buffer_T;
       Buffer         : Buffer_T;
       Offset         : Device_Size_T;
       Draw_Count     : Interfaces.Unsigned_32;
-      Stride         : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Draw_Indexed_Indirect, "vkCmdDrawIndexedIndirect");
+      Stride         : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDrawIndexedIndirect";
 
    procedure Cmd_Dispatch
      (Command_Buffer : Command_Buffer_T;
       X              : Interfaces.Unsigned_32;
       Y              : Interfaces.Unsigned_32;
-      Z              : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Dispatch, "vkCmdDispatch");
+      Z              : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDispatch";
 
-   procedure Cmd_Dispatch_Indirect (Command_Buffer : Command_Buffer_T; Buffer : Buffer_T; Offset : Device_Size_T);
-   pragma Import (Stdcall, Cmd_Dispatch_Indirect, "vkCmdDispatchIndirect");
-
-   type Buffer_Copy_Const_Ptr is access constant Buffer_Copy_T;
+   procedure Cmd_Dispatch_Indirect (Command_Buffer : Command_Buffer_T; Buffer : Buffer_T; Offset : Device_Size_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDispatchIndirect";
 
    procedure Cmd_Copy_Buffer
      (Command_Buffer : Command_Buffer_T;
       Src_Buffer     : Buffer_T;
       Dst_Buffer     : Buffer_T;
       Region_Count   : Interfaces.Unsigned_32;
-      Regions        : Buffer_Copy_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Copy_Buffer, "vkCmdCopyBuffer");
-
-   type Image_Copy_Const_Ptr is access constant Image_Copy_T;
+      Regions        : access constant Buffer_Copy_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdCopyBuffer";
 
    procedure Cmd_Copy_Image
      (Command_Buffer   : Command_Buffer_T;
@@ -4492,10 +4146,10 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Regions          : Image_Copy_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Copy_Image, "vkCmdCopyImage");
-
-   type Image_Blit_Const_Ptr is access constant Image_Blit_T;
+      Regions          : access constant Image_Copy_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdCopyImage";
 
    procedure Cmd_Blit_Image
      (Command_Buffer   : Command_Buffer_T;
@@ -4504,11 +4158,11 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Regions          : Image_Blit_Const_Ptr;
-      Filter           : Filter_T);
-   pragma Import (Stdcall, Cmd_Blit_Image, "vkCmdBlitImage");
-
-   type Buffer_Image_Copy_Const_Ptr is access constant Buffer_Image_Copy_T;
+      Regions          : access constant Image_Blit_T;
+      Filter           : Filter_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBlitImage";
 
    procedure Cmd_Copy_Buffer_To_Image
      (Command_Buffer   : Command_Buffer_T;
@@ -4516,8 +4170,10 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Regions          : Buffer_Image_Copy_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Copy_Buffer_To_Image, "vkCmdCopyBufferToImage");
+      Regions          : access constant Buffer_Image_Copy_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdCopyBufferToImage";
 
    procedure Cmd_Copy_Image_To_Buffer
      (Command_Buffer   : Command_Buffer_T;
@@ -4525,62 +4181,62 @@ package Vk is
       Src_Image_Layout : Image_Layout_T;
       Dst_Buffer       : Buffer_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Regions          : Buffer_Image_Copy_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Copy_Image_To_Buffer, "vkCmdCopyImageToBuffer");
+      Regions          : access constant Buffer_Image_Copy_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdCopyImageToBuffer";
 
    procedure Cmd_Update_Buffer
      (Command_Buffer : Command_Buffer_T;
       Dst_Buffer     : Buffer_T;
       Dst_Offset     : Device_Size_T;
       Data_Size      : Device_Size_T;
-      Data           : Uint_32_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Update_Buffer, "vkCmdUpdateBuffer");
+      Data           : Uint_32_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdUpdateBuffer";
 
    procedure Cmd_Fill_Buffer
      (Command_Buffer : Command_Buffer_T;
       Dst_Buffer     : Buffer_T;
       Dst_Offset     : Device_Size_T;
       Size           : Device_Size_T;
-      Data           : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Fill_Buffer, "vkCmdFillBuffer");
-
-   type Clear_Color_Value_Const_Ptr is access constant Clear_Color_Value_T;
-
-   type Image_Subresource_Range_Const_Ptr is access constant Image_Subresource_Range_T;
+      Data           : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdFillBuffer";
 
    procedure Cmd_Clear_Color_Image
      (Command_Buffer : Command_Buffer_T;
       Image          : Image_T;
       Image_Layout   : Image_Layout_T;
-      Color          : Clear_Color_Value_Const_Ptr;
+      Color          : access constant Clear_Color_Value_T;
       Range_Count    : Interfaces.Unsigned_32;
-      Ranges         : Image_Subresource_Range_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Clear_Color_Image, "vkCmdClearColorImage");
-
-   type Clear_Depth_Stencil_Value_Const_Ptr is access constant Clear_Depth_Stencil_Value_T;
+      Ranges         : access constant Image_Subresource_Range_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdClearColorImage";
 
    procedure Cmd_Clear_Depth_Stencil_Image
      (Command_Buffer : Command_Buffer_T;
       Image          : Image_T;
       Image_Layout   : Image_Layout_T;
-      Depth_Stencil  : Clear_Depth_Stencil_Value_Const_Ptr;
+      Depth_Stencil  : access constant Clear_Depth_Stencil_Value_T;
       Range_Count    : Interfaces.Unsigned_32;
-      Ranges         : Image_Subresource_Range_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Clear_Depth_Stencil_Image, "vkCmdClearDepthStencilImage");
-
-   type Clear_Attachment_Const_Ptr is access constant Clear_Attachment_T;
-
-   type Clear_Rect_Const_Ptr is access constant Clear_Rect_T;
+      Ranges         : access constant Image_Subresource_Range_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdClearDepthStencilImage";
 
    procedure Cmd_Clear_Attachments
      (Command_Buffer   : Command_Buffer_T;
       Attachment_Count : Interfaces.Unsigned_32;
-      Attachments      : Clear_Attachment_Const_Ptr;
+      Attachments      : access constant Clear_Attachment_T;
       Rect_Count       : Interfaces.Unsigned_32;
-      Rects            : Clear_Rect_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Clear_Attachments, "vkCmdClearAttachments");
-
-   type Image_Resolve_Const_Ptr is access constant Image_Resolve_T;
+      Rects            : access constant Clear_Rect_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdClearAttachments";
 
    procedure Cmd_Resolve_Image
      (Command_Buffer   : Command_Buffer_T;
@@ -4589,36 +4245,42 @@ package Vk is
       Dst_Image        : Image_T;
       Dst_Image_Layout : Image_Layout_T;
       Region_Count     : Interfaces.Unsigned_32;
-      Regions          : Image_Resolve_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Resolve_Image, "vkCmdResolveImage");
+      Regions          : access constant Image_Resolve_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdResolveImage";
 
-   procedure Cmd_Set_Event (Command_Buffer : Command_Buffer_T; Event : Event_T; Stage_Mask : Pipeline_Stage_Flags_T);
-   pragma Import (Stdcall, Cmd_Set_Event, "vkCmdSetEvent");
+   procedure Cmd_Set_Event
+     (Command_Buffer : Command_Buffer_T;
+      Event          : Event_T;
+      Stage_Mask     : Pipeline_Stage_Flags_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdSetEvent";
 
-   procedure Cmd_Reset_Event (Command_Buffer : Command_Buffer_T; Event : Event_T; Stage_Mask : Pipeline_Stage_Flags_T);
-   pragma Import (Stdcall, Cmd_Reset_Event, "vkCmdResetEvent");
-
-   type Event_Const_Ptr is access constant Event_T;
-
-   type Memory_Barrier_Const_Ptr is access constant Memory_Barrier_T;
-
-   type Buffer_Memory_Barrier_Const_Ptr is access constant Buffer_Memory_Barrier_T;
-
-   type Image_Memory_Barrier_Const_Ptr is access constant Image_Memory_Barrier_T;
+   procedure Cmd_Reset_Event
+     (Command_Buffer : Command_Buffer_T;
+      Event          : Event_T;
+      Stage_Mask     : Pipeline_Stage_Flags_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdResetEvent";
 
    procedure Cmd_Wait_Events
      (Command_Buffer              : Command_Buffer_T;
       Event_Count                 : Interfaces.Unsigned_32;
-      Events                      : Event_Const_Ptr;
+      Events                      : access constant Event_T;
       Src_Stage_Mask              : Pipeline_Stage_Flags_T;
       Dst_Stage_Mask              : Pipeline_Stage_Flags_T;
       Memory_Barrier_Count        : Interfaces.Unsigned_32;
-      Memory_Barriers             : Memory_Barrier_Const_Ptr;
+      Memory_Barriers             : access constant Memory_Barrier_T;
       Buffer_Memory_Barrier_Count : Interfaces.Unsigned_32;
-      Buffer_Memory_Barriers      : Buffer_Memory_Barrier_Const_Ptr;
+      Buffer_Memory_Barriers      : access constant Buffer_Memory_Barrier_T;
       Image_Memory_Barrier_Count  : Interfaces.Unsigned_32;
-      Image_Memory_Barriers       : Image_Memory_Barrier_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Wait_Events, "vkCmdWaitEvents");
+      Image_Memory_Barriers       : access constant Image_Memory_Barrier_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdWaitEvents";
 
    procedure Cmd_Pipeline_Barrier
      (Command_Buffer              : Command_Buffer_T;
@@ -4626,39 +4288,49 @@ package Vk is
       Dst_Stage_Mask              : Pipeline_Stage_Flags_T;
       Dependency_Flags            : Dependency_Flags_T;
       Memory_Barrier_Count        : Interfaces.Unsigned_32;
-      Memory_Barriers             : Memory_Barrier_Const_Ptr;
+      Memory_Barriers             : access constant Memory_Barrier_T;
       Buffer_Memory_Barrier_Count : Interfaces.Unsigned_32;
-      Buffer_Memory_Barriers      : Buffer_Memory_Barrier_Const_Ptr;
+      Buffer_Memory_Barriers      : access constant Buffer_Memory_Barrier_T;
       Image_Memory_Barrier_Count  : Interfaces.Unsigned_32;
-      Image_Memory_Barriers       : Image_Memory_Barrier_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Pipeline_Barrier, "vkCmdPipelineBarrier");
+      Image_Memory_Barriers       : access constant Image_Memory_Barrier_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdPipelineBarrier";
 
    procedure Cmd_Begin_Query
      (Command_Buffer : Command_Buffer_T;
       Query_Pool     : Query_Pool_T;
       Query          : Interfaces.Unsigned_32;
-      Flags          : Query_Control_Flags_T);
-   pragma Import (Stdcall, Cmd_Begin_Query, "vkCmdBeginQuery");
+      Flags          : Query_Control_Flags_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBeginQuery";
 
    procedure Cmd_End_Query
      (Command_Buffer : Command_Buffer_T;
       Query_Pool     : Query_Pool_T;
-      Query          : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_End_Query, "vkCmdEndQuery");
+      Query          : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdEndQuery";
 
    procedure Cmd_Reset_Query_Pool
      (Command_Buffer : Command_Buffer_T;
       Query_Pool     : Query_Pool_T;
       First_Query    : Interfaces.Unsigned_32;
-      Query_Count    : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Reset_Query_Pool, "vkCmdResetQueryPool");
+      Query_Count    : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdResetQueryPool";
 
    procedure Cmd_Write_Timestamp
      (Command_Buffer : Command_Buffer_T;
       Pipeline_Stage : Pipeline_Stage_Flag_Bits_T;
       Query_Pool     : Query_Pool_T;
-      Query          : Interfaces.Unsigned_32);
-   pragma Import (Stdcall, Cmd_Write_Timestamp, "vkCmdWriteTimestamp");
+      Query          : Interfaces.Unsigned_32) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdWriteTimestamp";
 
    procedure Cmd_Copy_Query_Pool_Results
      (Command_Buffer : Command_Buffer_T;
@@ -4668,8 +4340,10 @@ package Vk is
       Dst_Buffer     : Buffer_T;
       Dst_Offset     : Device_Size_T;
       Stride         : Device_Size_T;
-      Flags          : Query_Result_Flags_T);
-   pragma Import (Stdcall, Cmd_Copy_Query_Pool_Results, "vkCmdCopyQueryPoolResults");
+      Flags          : Query_Result_Flags_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdCopyQueryPoolResults";
 
    procedure Cmd_Push_Constants
      (Command_Buffer : Command_Buffer_T;
@@ -4677,36 +4351,36 @@ package Vk is
       Stage_Flags    : Shader_Stage_Flags_T;
       Offset         : Interfaces.Unsigned_32;
       Size           : Interfaces.Unsigned_32;
-      Values         : Void_Ptr);
-   pragma Import (Stdcall, Cmd_Push_Constants, "vkCmdPushConstants");
-
-   type Render_Pass_Begin_Info_Const_Ptr is access constant Render_Pass_Begin_Info_T;
+      Values         : Void_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdPushConstants";
 
    procedure Cmd_Begin_Render_Pass
      (Command_Buffer    : Command_Buffer_T;
-      Render_Pass_Begin : Render_Pass_Begin_Info_Const_Ptr;
-      Contents          : Subpass_Contents_T);
-   pragma Import (Stdcall, Cmd_Begin_Render_Pass, "vkCmdBeginRenderPass");
+      Render_Pass_Begin : access constant Render_Pass_Begin_Info_T;
+      Contents          : Subpass_Contents_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdBeginRenderPass";
 
-   procedure Cmd_Next_Subpass (Command_Buffer : Command_Buffer_T; Contents : Subpass_Contents_T);
-   pragma Import (Stdcall, Cmd_Next_Subpass, "vkCmdNextSubpass");
+   procedure Cmd_Next_Subpass (Command_Buffer : Command_Buffer_T; Contents : Subpass_Contents_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdNextSubpass";
 
-   procedure Cmd_End_Render_Pass (Command_Buffer : Command_Buffer_T);
-   pragma Import (Stdcall, Cmd_End_Render_Pass, "vkCmdEndRenderPass");
+   procedure Cmd_End_Render_Pass (Command_Buffer : Command_Buffer_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdEndRenderPass";
 
    procedure Cmd_Execute_Commands
      (Command_Buffer       : Command_Buffer_T;
       Command_Buffer_Count : Interfaces.Unsigned_32;
-      Command_Buffers      : Command_Buffer_Const_Ptr);
-   pragma Import (Stdcall, Cmd_Execute_Commands, "vkCmdExecuteCommands");
-
-   type Surface_Khr_Ptr is access all Surface_Khr_T;
-
-   function Create_Android_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Android_Surface_Khr, "vkCreateAndroidSurfaceKHR");
+      Command_Buffers      : Command_Buffer_Const_Ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdExecuteCommands";
 
    MAX_DISPLAY_PROPERTIES_INDEX : constant := 100;
 
@@ -4719,9 +4393,11 @@ package Vk is
 
    function Get_Physical_Device_Display_Properties_Khr
      (Physical_Device : Physical_Device_T;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Display_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Display_Properties_Khr, "vkGetPhysicalDeviceDisplayPropertiesKHR");
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Display_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceDisplayPropertiesKHR";
 
    MAX_DISPLAY_PLANE_PROPERTIES_INDEX : constant := 100;
 
@@ -4734,12 +4410,11 @@ package Vk is
 
    function Get_Physical_Device_Display_Plane_Properties_Khr
      (Physical_Device : Physical_Device_T;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Display_Plane_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import
-     (Stdcall,
-      Get_Physical_Device_Display_Plane_Properties_Khr,
-      "vkGetPhysicalDeviceDisplayPlanePropertiesKHR");
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Display_Plane_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceDisplayPlanePropertiesKHR";
 
    MAX_DISPLAYS_INDEX : constant := 100;
 
@@ -4751,9 +4426,11 @@ package Vk is
    function Get_Display_Plane_Supported_Displays_Khr
      (Physical_Device : Physical_Device_T;
       Plane_Index     : Interfaces.Unsigned_32;
-      Display_Count   : Uint_32_Ptr;
-      Displays        : Displays_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Get_Display_Plane_Supported_Displays_Khr, "vkGetDisplayPlaneSupportedDisplaysKHR");
+      Display_Count   : access Interfaces.Unsigned_32;
+      Displays        : Displays_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDisplayPlaneSupportedDisplaysKHR";
 
    MAX_DISPLAY_MODE_PROPERTIES_INDEX : constant := 100;
 
@@ -4767,41 +4444,39 @@ package Vk is
    function Get_Display_Mode_Properties_Khr
      (Physical_Device : Physical_Device_T;
       Display         : Display_Khr_T;
-      Property_Count  : Uint_32_Ptr;
-      Properties      : Display_Mode_Properties_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Get_Display_Mode_Properties_Khr, "vkGetDisplayModePropertiesKHR");
-
-   type Display_Mode_Create_Info_Khr_Const_Ptr is access constant Display_Mode_Create_Info_Khr_T;
-
-   type Display_Mode_Khr_Ptr is access all Display_Mode_Khr_T;
+      Property_Count  : access Interfaces.Unsigned_32;
+      Properties      : Display_Mode_Properties_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDisplayModePropertiesKHR";
 
    function Create_Display_Mode_Khr
      (Physical_Device : Physical_Device_T;
       Display         : Display_Khr_T;
-      Create_Info     : Display_Mode_Create_Info_Khr_Const_Ptr;
-      Allocator       : Allocation_Callbacks_Const_Ptr;
-      Mode            : Display_Mode_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Display_Mode_Khr, "vkCreateDisplayModeKHR");
-
-   type Display_Plane_Capabilities_Khr_Ptr is access all Display_Plane_Capabilities_Khr_T;
+      Create_Info     : access constant Display_Mode_Create_Info_Khr_T;
+      Allocator       : access constant Allocation_Callbacks_T;
+      Mode            : access Display_Mode_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDisplayModeKHR";
 
    function Get_Display_Plane_Capabilities_Khr
      (Physical_Device : Physical_Device_T;
       Mode            : Display_Mode_Khr_T;
       Plane_Index     : Interfaces.Unsigned_32;
-      Capabilities    : Display_Plane_Capabilities_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Display_Plane_Capabilities_Khr, "vkGetDisplayPlaneCapabilitiesKHR");
-
-   type Display_Surface_Create_Info_Khr_Const_Ptr is access constant Display_Surface_Create_Info_Khr_T;
+      Capabilities    : access Display_Plane_Capabilities_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetDisplayPlaneCapabilitiesKHR";
 
    function Create_Display_Plane_Surface_Khr
      (Instance    : Instance_T;
-      Create_Info : Display_Surface_Create_Info_Khr_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Surface     : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Display_Plane_Surface_Khr, "vkCreateDisplayPlaneSurfaceKHR");
-
-   type Swapchain_Create_Info_Khr_Const_Ptr is access constant Swapchain_Create_Info_Khr_T;
+      Create_Info : access constant Display_Surface_Create_Info_Khr_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Surface     : access Surface_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDisplayPlaneSurfaceKHR";
 
    MAX_SWAPCHAINS_INDEX : constant := 100;
 
@@ -4813,39 +4488,37 @@ package Vk is
    function Create_Shared_Swapchains_Khr
      (Device          : Device_T;
       Swapchain_Count : Interfaces.Unsigned_32;
-      Create_Infos    : Swapchain_Create_Info_Khr_Const_Ptr;
-      Allocator       : Allocation_Callbacks_Const_Ptr;
-      Swapchains      : Swapchains_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Create_Shared_Swapchains_Khr, "vkCreateSharedSwapchainsKHR");
-
-   function Create_Mir_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Mir_Surface_Khr, "vkCreateMirSurfaceKHR");
+      Create_Infos    : access constant Swapchain_Create_Info_Khr_T;
+      Allocator       : access constant Allocation_Callbacks_T;
+      Swapchains      : Swapchains_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateSharedSwapchainsKHR";
 
    procedure Destroy_Surface_Khr
      (Instance  : Instance_T;
       Surface   : Surface_Khr_T;
-      Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Surface_Khr, "vkDestroySurfaceKHR");
-
-   type Bool_32_Ptr is access all Bool_32_T;
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroySurfaceKHR";
 
    function Get_Physical_Device_Surface_Support_Khr
      (Physical_Device    : Physical_Device_T;
       Queue_Family_Index : Interfaces.Unsigned_32;
       Surface            : Surface_Khr_T;
-      Supported          : Bool_32_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Surface_Support_Khr, "vkGetPhysicalDeviceSurfaceSupportKHR");
-
-   type Surface_Capabilities_Khr_Ptr is access all Surface_Capabilities_Khr_T;
+      Supported          : access Bool_32_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceSurfaceSupportKHR";
 
    function Get_Physical_Device_Surface_Capabilities_Khr
      (Physical_Device      : Physical_Device_T;
       Surface              : Surface_Khr_T;
-      Surface_Capabilities : Surface_Capabilities_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Surface_Capabilities_Khr, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+      Surface_Capabilities : access Surface_Capabilities_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceSurfaceCapabilitiesKHR";
 
    MAX_SURFACE_FORMATS_INDEX : constant := 100;
 
@@ -4858,9 +4531,11 @@ package Vk is
    function Get_Physical_Device_Surface_Formats_Khr
      (Physical_Device      : Physical_Device_T;
       Surface              : Surface_Khr_T;
-      Surface_Format_Count : Uint_32_Ptr;
-      Surface_Formats      : Surface_Formats_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Surface_Formats_Khr, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+      Surface_Format_Count : access Interfaces.Unsigned_32;
+      Surface_Formats      : Surface_Formats_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceSurfaceFormatsKHR";
 
    MAX_PRESENT_MODES_INDEX : constant := 100;
 
@@ -4872,29 +4547,37 @@ package Vk is
    function Get_Physical_Device_Surface_Present_Modes_Khr
      (Physical_Device    : Physical_Device_T;
       Surface            : Surface_Khr_T;
-      Present_Mode_Count : Uint_32_Ptr;
-      Present_Modes      : Present_Modes_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Get_Physical_Device_Surface_Present_Modes_Khr, "vkGetPhysicalDeviceSurfacePresentModesKHR");
+      Present_Mode_Count : access Interfaces.Unsigned_32;
+      Present_Modes      : Present_Modes_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceSurfacePresentModesKHR";
 
    function Create_Swapchain_Khr
      (Device      : Device_T;
-      Create_Info : Swapchain_Create_Info_Khr_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Swapchain   : Swapchains_Array_Conversions.Object_Address) return Result_T;
-   pragma Import (Stdcall, Create_Swapchain_Khr, "vkCreateSwapchainKHR");
+      Create_Info : access constant Swapchain_Create_Info_Khr_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Swapchain   : Swapchains_Array_Conversions.Object_Address) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateSwapchainKHR";
 
    procedure Destroy_Swapchain_Khr
      (Device    : Device_T;
       Swapchain : Swapchain_Khr_T;
-      Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Swapchain_Khr, "vkDestroySwapchainKHR");
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroySwapchainKHR";
 
    function Get_Swapchain_Images_Khr
      (Device                : Device_T;
       Swapchain             : Swapchain_Khr_T;
-      Swapchain_Image_Count : Uint_32_Ptr;
-      Swapchain_Images      : Image_Ptr) return Result_T;
-   pragma Import (Stdcall, Get_Swapchain_Images_Khr, "vkGetSwapchainImagesKHR");
+      Swapchain_Image_Count : access Interfaces.Unsigned_32;
+      Swapchain_Images      : access Image_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetSwapchainImagesKHR";
 
    function Acquire_Next_Image_Khr
      (Device      : Device_T;
@@ -4902,62 +4585,47 @@ package Vk is
       Timeout     : Interfaces.Unsigned_64;
       Semaphore   : Semaphore_T;
       Fence       : Fence_T;
-      Image_Index : Uint_32_Ptr) return Result_T;
-   pragma Import (Stdcall, Acquire_Next_Image_Khr, "vkAcquireNextImageKHR");
+      Image_Index : access Interfaces.Unsigned_32) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkAcquireNextImageKHR";
 
-   type Present_Info_Khr_Const_Ptr is access constant Present_Info_Khr_T;
-
-   function Queue_Present_Khr (Queue : Queue_T; Present_Info : Present_Info_Khr_Const_Ptr) return Result_T;
-   pragma Import (Stdcall, Queue_Present_Khr, "vkQueuePresentKHR");
-
-   function Create_Wayland_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Wayland_Surface_Khr, "vkCreateWaylandSurfaceKHR");
+   function Queue_Present_Khr (Queue : Queue_T; Present_Info : access constant Present_Info_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkQueuePresentKHR";
 
    function Create_Win_32_Surface_Khr
      (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Win_32_Surface_Khr, "vkCreateWin32SurfaceKHR");
+      Allocator : access constant Allocation_Callbacks_T;
+      Surface   : access Surface_Khr_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateWin32SurfaceKHR";
 
    function Get_Physical_Device_Win_32_Presentation_Support_Khr
      (Physical_Device    : Physical_Device_T;
-      Queue_Family_Index : Interfaces.Unsigned_32) return Bool_32_T;
-   pragma Import
-     (Stdcall,
-      Get_Physical_Device_Win_32_Presentation_Support_Khr,
-      "vkGetPhysicalDeviceWin32PresentationSupportKHR");
-
-   function Create_Xlib_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Xlib_Surface_Khr, "vkCreateXlibSurfaceKHR");
-
-   function Create_Xcb_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : Allocation_Callbacks_Const_Ptr;
-      Surface   : Surface_Khr_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Xcb_Surface_Khr, "vkCreateXcbSurfaceKHR");
-
-   type Debug_Report_Callback_Create_Info_Ext_Const_Ptr is access constant Debug_Report_Callback_Create_Info_Ext_T;
-
-   type Debug_Report_Callback_Ext_Ptr is access all Debug_Report_Callback_Ext_T;
+      Queue_Family_Index : Interfaces.Unsigned_32) return Bool_32_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkGetPhysicalDeviceWin32PresentationSupportKHR";
 
    function Create_Debug_Report_Callback_Ext
      (Instance    : Instance_T;
-      Create_Info : Debug_Report_Callback_Create_Info_Ext_Const_Ptr;
-      Allocator   : Allocation_Callbacks_Const_Ptr;
-      Callback    : Debug_Report_Callback_Ext_Ptr) return Result_T;
-   pragma Import (Stdcall, Create_Debug_Report_Callback_Ext, "vkCreateDebugReportCallbackEXT");
+      Create_Info : access constant Debug_Report_Callback_Create_Info_Ext_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Callback    : access Debug_Report_Callback_Ext_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCreateDebugReportCallbackEXT";
 
    procedure Destroy_Debug_Report_Callback_Ext
      (Instance  : Instance_T;
       Callback  : Debug_Report_Callback_Ext_T;
-      Allocator : Allocation_Callbacks_Const_Ptr);
-   pragma Import (Stdcall, Destroy_Debug_Report_Callback_Ext, "vkDestroyDebugReportCallbackEXT");
+      Allocator : access constant Allocation_Callbacks_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDestroyDebugReportCallbackEXT";
 
    procedure Debug_Report_Message_Ext
      (Instance     : Instance_T;
@@ -4967,37 +4635,43 @@ package Vk is
       Location     : Interfaces.C.size_t;
       Message_Code : Interfaces.Integer_32;
       Layer_Prefix : Interfaces.C.Strings.chars_ptr;
-      Message      : Interfaces.C.Strings.chars_ptr);
-   pragma Import (Stdcall, Debug_Report_Message_Ext, "vkDebugReportMessageEXT");
-
-   type Debug_Marker_Object_Name_Info_Ext_Ptr is access all Debug_Marker_Object_Name_Info_Ext_T;
+      Message      : Interfaces.C.Strings.chars_ptr) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDebugReportMessageEXT";
 
    function Debug_Marker_Set_Object_Name_Ext
      (Device    : Device_T;
-      Name_Info : Debug_Marker_Object_Name_Info_Ext_Ptr) return Result_T;
-   pragma Import (Stdcall, Debug_Marker_Set_Object_Name_Ext, "vkDebugMarkerSetObjectNameEXT");
-
-   type Debug_Marker_Object_Tag_Info_Ext_Ptr is access all Debug_Marker_Object_Tag_Info_Ext_T;
+      Name_Info : access Debug_Marker_Object_Name_Info_Ext_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDebugMarkerSetObjectNameEXT";
 
    function Debug_Marker_Set_Object_Tag_Ext
      (Device   : Device_T;
-      Tag_Info : Debug_Marker_Object_Tag_Info_Ext_Ptr) return Result_T;
-   pragma Import (Stdcall, Debug_Marker_Set_Object_Tag_Ext, "vkDebugMarkerSetObjectTagEXT");
-
-   type Debug_Marker_Marker_Info_Ext_Ptr is access all Debug_Marker_Marker_Info_Ext_T;
+      Tag_Info : access Debug_Marker_Object_Tag_Info_Ext_T) return Result_T with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkDebugMarkerSetObjectTagEXT";
 
    procedure Cmd_Debug_Marker_Begin_Ext
      (Command_Buffer : Command_Buffer_T;
-      Marker_Info    : Debug_Marker_Marker_Info_Ext_Ptr);
-   pragma Import (Stdcall, Cmd_Debug_Marker_Begin_Ext, "vkCmdDebugMarkerBeginEXT");
+      Marker_Info    : access Debug_Marker_Marker_Info_Ext_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDebugMarkerBeginEXT";
 
-   procedure Cmd_Debug_Marker_End_Ext (Command_Buffer : Command_Buffer_T);
-   pragma Import (Stdcall, Cmd_Debug_Marker_End_Ext, "vkCmdDebugMarkerEndEXT");
+   procedure Cmd_Debug_Marker_End_Ext (Command_Buffer : Command_Buffer_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDebugMarkerEndEXT";
 
    procedure Cmd_Debug_Marker_Insert_Ext
      (Command_Buffer : Command_Buffer_T;
-      Marker_Info    : Debug_Marker_Marker_Info_Ext_Ptr);
-   pragma Import (Stdcall, Cmd_Debug_Marker_Insert_Ext, "vkCmdDebugMarkerInsertEXT");
+      Marker_Info    : access Debug_Marker_Marker_Info_Ext_T) with
+      Import        => True,
+      Convention    => Stdcall,
+      External_Name => "vkCmdDebugMarkerInsertEXT";
 
 private
 

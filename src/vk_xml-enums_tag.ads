@@ -9,11 +9,11 @@ package Vk_XML.Enums_Tag is
                             Child_Unused
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Enums_Enum) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
       case Kind_Id is
-         when Child_Enums_Enum            => Enums_Enum            : Enums_Enum_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
-         when Child_Unused                => Unused                : Unused_Tag.Ptr;
+         when Child_Enums_Enum            => Enums_Enum            : not null Enums_Enum_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
+         when Child_Unused                => Unused                : not null Unused_Tag.Ptr;
       end case;
    end record;
 

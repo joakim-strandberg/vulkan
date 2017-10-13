@@ -3,12 +3,14 @@ with Vk_XML.Usage_Tag;
 package Vk_XML.Validity_Tag is
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Usage
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Usage) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_Usage => Usage : Usage_Tag.Ptr;
+         when Child_Dummy => Dummy : not null String_Ptr := Empty_String'Access;
+         when Child_Usage => Usage : not null Usage_Tag.Ptr;
       end case;
    end record;
 

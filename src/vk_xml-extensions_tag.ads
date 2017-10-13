@@ -7,10 +7,10 @@ package Vk_XML.Extensions_Tag is
                             Child_Out_Commented_Message
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Extension) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
       case Kind_Id is
-         when Child_Extension             => Extension             : Extension_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
+         when Child_Extension             => Extension             : not null Extension_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
       end case;
    end record;
 

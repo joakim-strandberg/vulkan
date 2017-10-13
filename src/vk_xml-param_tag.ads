@@ -9,11 +9,11 @@ package Vk_XML.Param_Tag is
                             Child_Name
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
       case Kind_Id is
-         when Child_Nested_Type => Nested_Type : Nested_Type_Tag.Ptr;
-         when Child_XML_Text    => XML_Text    : String_Ptr;
-         when Child_Name        => Name        : Name_Tag.Ptr;
+         when Child_Nested_Type => Nested_Type : not null Nested_Type_Tag.Ptr;
+         when Child_XML_Text    => XML_Text    : not null String_Ptr := Empty_String'Access;
+         when Child_Name        => Name        : not null Name_Tag.Ptr;
       end case;
    end record;
 

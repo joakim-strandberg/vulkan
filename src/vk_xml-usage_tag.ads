@@ -6,7 +6,7 @@ package Vk_XML.Usage_Tag is
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
       case Kind_Id is
-         when Child_XML_Text => XML_Text : String_Ptr;
+         when Child_XML_Text => XML_Text : not null String_Ptr := Empty_String'Access;
       end case;
    end record;
 

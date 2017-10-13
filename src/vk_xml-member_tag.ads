@@ -11,12 +11,12 @@ package Vk_XML.Member_Tag is
                             Child_XML_Text
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Name) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
       case Kind_Id is
-         when Child_Name        => Name        : Name_Tag.Ptr;
-         when Child_Nested_Type => Nested_Type : Nested_Type_Tag.Ptr;
-         when Child_Enum        => Enum        : Enum_Tag.Ptr;
-         when Child_XML_Text    => XML_Text    : String_Ptr;
+         when Child_Name        => Name        : not null Name_Tag.Ptr;
+         when Child_Nested_Type => Nested_Type : not null Nested_Type_Tag.Ptr;
+         when Child_Enum        => Enum        : not null Enum_Tag.Ptr;
+         when Child_XML_Text    => XML_Text    : not null String_Ptr := Empty_String'Access;
       end case;
    end record;
 

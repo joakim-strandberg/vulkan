@@ -3710,6 +3710,93 @@ package body Vk_Package_Creator is
          Add ("const char* const*", "Char_Ptr_Array_Conversions.Object_Address");
       end Initialize_Global_Variables;
 
+      procedure Go_Through_Extensions is
+
+         procedure Handle_Extension (E : Vk_XML.Extension_Tag.T) is
+
+            function Count_Require_Tags return Aida.Nat32_T is
+               N : Aida.Nat32_T := 0;
+            begin
+               for C of E.Children loop
+                  case C.Kind_Id is
+                     when Child_Require =>
+                        N := N + 1;
+                        if N > 10 then
+                           exit;
+                        end if;
+                     when others => null;
+                  end case;
+               end loop;
+
+               return N;
+            end Count_Require_Tags;
+
+            N : Aida.Nat32_T := Count_Require_Tags;
+         begin
+            if Count_Require_Tags = 1 then
+               null;
+            else
+               Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+            end if;
+         end Handle_Extension;
+
+         procedure Handle_Extensions_Child (Child : Vk_XML.Extensions_Tag.Child_T) is
+
+
+         begin
+            case Child.Kind_Id is
+               when Child_Extension             => Handle_Extension (Child.Extension.all);
+               when Child_Out_Commented_Message => null;
+            end case;
+         end Handle_Extensions_Child;
+
+         function Count_Extensions_Tags return Aida.Nat32_T is
+            N : Aida.Nat32_T := 0;
+         begin
+            for R_Child of R.Children loop
+               case R_Child.Kind_Id is
+                  when Child_Extensions =>
+                     N := N + 1;
+                     if N > 10 then
+                        exit;
+                     end if;
+                  when others => null;
+               end case;
+            end loop;
+
+            return N;
+         end Count_Extensions_Tags;
+
+      begin
+         if Count_Extensions_Tags = 1 then
+            for R_Child of R.Children loop
+               case R_Child.Kind_Id is
+                  when Child_Extensions =>
+                     for E of R_Child.Extensions.Children loop
+                        Handle_Extensions_Child (E);
+                     end loop;
+                     exit;
+                  when others => null;
+               end case;
+            end loop;
+
+            Generate_Code_For_The_Public_Part;
+
+            Put_Line ("");
+            Put_Line ("private");
+            Put_Line ("");
+
+            Generate_Code_For_The_Private_Part;
+
+            Put_Line ("");
+            Put_Line ("end Vk;");
+
+            Ada.Text_IO.Close (File);
+         else
+            Aida.Text_IO.Put_Line ("More than one <extensions> tag in vk.xml!");
+         end if;
+      end Go_Through_Extensions;
+
    begin
       Initialize_Global_Variables;
 
@@ -3722,18 +3809,7 @@ package body Vk_Package_Creator is
       Put_Line ("");
       Put_Line ("package Vk is");
 
-      Generate_Code_For_The_Public_Part;
-
-      Put_Line ("");
-      Put_Line ("private");
-      Put_Line ("");
-
-      Generate_Code_For_The_Private_Part;
-
-      Put_Line ("");
-      Put_Line ("end Vk;");
-
-      Ada.Text_IO.Close (File);
+      Go_Through_Extensions;
    end Create_Vk_Package;
 
 end Vk_Package_Creator;

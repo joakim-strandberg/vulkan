@@ -10,12 +10,14 @@ package Vk_XML.Extension_Tag is
                        );
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Require
                            );
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
       case Kind_Id is
-         when Child_Require => Require : Require_Tag.Ptr;
+         when Child_Dummy   => Dummy   : not null String_Ptr := Empty_String'Access;
+         when Child_Require => Require : not null Require_Tag.Ptr;
       end case;
    end record;
 

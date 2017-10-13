@@ -82,6 +82,7 @@ package body Vk_XML.Command_Tag is
             case Child.Kind_Id is
                when Child_Nested_Type => Handle_Nested_Type (Child.Nested_Type);
                when Child_Name        => Handle_Name (Child.Name);
+               when Child_Dummy       => null;
             end case;
          end loop;
       end Handle_Proto;
@@ -90,6 +91,7 @@ package body Vk_XML.Command_Tag is
       Append (R, "<command >");
       for Child of This.Children loop
          case Child.Kind_Id is
+            when Child_Dummy => null;
             when Child_Proto => Handle_Proto (Child.Proto);
             when Child_Param => null;
             when Child_Validity => null;

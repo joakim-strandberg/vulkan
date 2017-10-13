@@ -4,14 +4,16 @@ with Vk_XML.Name_Tag;
 package Vk_XML.Proto_Tag is
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Nested_Type,
                             Child_Name
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Nested_Type) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_Nested_Type => Nested_Type : Nested_Type_Tag.Ptr;
-         when Child_Name        => Name        : Name_Tag.Ptr;
+         when Child_Dummy       => Dummy       : not null String_Ptr := Empty_String'Access;
+         when Child_Nested_Type => Nested_Type : not null Nested_Type_Tag.Ptr;
+         when Child_Name        => Name        : not null Name_Tag.Ptr;
       end case;
    end record;
 

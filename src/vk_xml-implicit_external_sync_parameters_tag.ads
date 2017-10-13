@@ -3,12 +3,14 @@ with Vk_XML.External_Sync_Parameter_Tag;
 package Vk_XML.Implicit_External_Sync_Parameters_Tag is
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_External_Sync_Parameter
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_External_Sync_Parameter) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_External_Sync_Parameter => External_Sync_Parameter : External_Sync_Parameter_Tag.Ptr;
+         when Child_Dummy                   => Dummy                   : not null String_Ptr := Empty_String'Access;
+         when Child_External_Sync_Parameter => External_Sync_Parameter : not null External_Sync_Parameter_Tag.Ptr;
       end case;
    end record;
 

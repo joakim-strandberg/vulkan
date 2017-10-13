@@ -22,18 +22,18 @@ package Vk_XML.Registry_Tag is
                             Child_Extensions
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Comment) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
       case Kind_Id is
-         when Child_XML_Text              => XML_Text              : String_Ptr;
-         when Child_Comment               => Comment               : Comment_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
-         when Child_Vendor_Ids            => Vendor_Ids            : Vendor_Ids_Tag.Ptr;
-         when Child_Tags                  => Tags                  : Tags_Tag.Ptr;
-         when Child_Types                 => Types                 : Types_Tag.Ptr;
-         when Child_Enums                 => Enums                 : Enums_Tag.Ptr;
-         when Child_Commands              => Commands              : Commands_Tag.Ptr;
-         when Child_Feature               => Feature               : Feature_Tag.Ptr;
-         when Child_Extensions            => Extensions            : Extensions_Tag.Ptr;
+         when Child_XML_Text              => XML_Text              : not null String_Ptr := Empty_String'Access;
+         when Child_Comment               => Comment               : not null Comment_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr;
+         when Child_Vendor_Ids            => Vendor_Ids            : not null Vendor_Ids_Tag.Ptr;
+         when Child_Tags                  => Tags                  : not null Tags_Tag.Ptr;
+         when Child_Types                 => Types                 : not null Types_Tag.Ptr;
+         when Child_Enums                 => Enums                 : not null Enums_Tag.Ptr;
+         when Child_Commands              => Commands              : not null Commands_Tag.Ptr;
+         when Child_Feature               => Feature               : not null Feature_Tag.Ptr;
+         when Child_Extensions            => Extensions            : not null Extensions_Tag.Ptr;
       end case;
    end record;
 

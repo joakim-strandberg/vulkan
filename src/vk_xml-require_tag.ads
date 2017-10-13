@@ -13,13 +13,13 @@ package Vk_XML.Require_Tag is
                             Child_Usage
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Type) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
       case Kind_Id is
-         when Child_Type                  => Type_V                : Type_Tag.Ptr;
-         when Child_Enum                  => Enum                  : Require_Enum_Tag.Ptr;
-         when Child_Command               => Command               : Require_Command_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
-         when Child_Usage                 => Usage                 : Usage_Tag.Ptr;
+         when Child_Type                  => Type_V                : not null Type_Tag.Ptr;
+         when Child_Enum                  => Enum                  : not null Require_Enum_Tag.Ptr;
+         when Child_Command               => Command               : not null Require_Command_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
+         when Child_Usage                 => Usage                 : not null Usage_Tag.Ptr;
       end case;
    end record;
 

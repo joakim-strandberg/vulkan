@@ -15,14 +15,14 @@ package Vk_XML.Type_Tag is
                             Child_Out_Commented_Message
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Name) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
       case Kind_Id is
-         when Child_XML_Text              => XML_Text              : String_Ptr;
-         when Child_Name                  => Name                  : Name_Tag.Ptr;
-         when Child_Nested_Type           => Nested_Type           : Nested_Type_Tag.Ptr;
-         when Child_Member                => Member                : Member_Tag.Ptr;
-         when Child_Validity              => Validity              : Validity_Tag.Ptr;
-         when Child_Out_Commented_Message => Out_Commented_Message : String_Ptr;
+         when Child_XML_Text              => XML_Text              : not null String_Ptr := Empty_String'Access;
+         when Child_Name                  => Name                  : not null Name_Tag.Ptr;
+         when Child_Nested_Type           => Nested_Type           : not null Nested_Type_Tag.Ptr;
+         when Child_Member                => Member                : not null Member_Tag.Ptr;
+         when Child_Validity              => Validity              : not null Validity_Tag.Ptr;
+         when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr;
       end case;
    end record;
 

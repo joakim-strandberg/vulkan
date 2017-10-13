@@ -3,12 +3,14 @@ with Vk_XML.Vendor_Id_Tag;
 package Vk_XML.Vendor_Ids_Tag is
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Vendor_Id
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Vendor_Id) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_Vendor_Id => Vendor_Id : Vendor_Id_Tag.Ptr;
+         when Child_Dummy     => Dummy     : not null String_Ptr := Empty_String'Access;
+         when Child_Vendor_Id => Vendor_Id : not null Vendor_Id_Tag.Ptr;
       end case;
    end record;
 

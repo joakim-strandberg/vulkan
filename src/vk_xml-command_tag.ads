@@ -22,18 +22,20 @@ package Vk_XML.Command_Tag is
      Implicit_Dereference => E;
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Proto,
                             Child_Param,
                             Child_Validity,
                             Child_Implicit_External_Sync_Parameters
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Proto) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_Proto                             => Proto      : Proto_Tag.Ptr;
-         when Child_Param                             => Param      : Param_Tag.Ptr;
-         when Child_Validity                          => Validity   : Validity_Tag.Ptr;
-         when Child_Implicit_External_Sync_Parameters => Parameters : Implicit_External_Sync_Parameters_Tag.Ptr;
+         when Child_Dummy                             => Dummy      : not null String_Ptr := Empty_String'Access;
+         when Child_Proto                             => Proto      : not null Proto_Tag.Ptr;
+         when Child_Param                             => Param      : not null Param_Tag.Ptr;
+         when Child_Validity                          => Validity   : not null Validity_Tag.Ptr;
+         when Child_Implicit_External_Sync_Parameters => Parameters : not null Implicit_External_Sync_Parameters_Tag.Ptr;
       end case;
    end record;
 

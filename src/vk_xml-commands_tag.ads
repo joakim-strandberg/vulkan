@@ -3,12 +3,14 @@ with Vk_XML.Command_Tag;
 package Vk_XML.Commands_Tag is
 
    type Child_Kind_Id_T is (
+                            Child_Dummy,
                             Child_Command
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Command) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
-         when Child_Command => Command : Command_Tag.Ptr;
+         when Child_Dummy   => Dummy   : not null String_Ptr := Empty_String'Access;
+         when Child_Command => Command : not null Command_Tag.Ptr;
       end case;
    end record;
 

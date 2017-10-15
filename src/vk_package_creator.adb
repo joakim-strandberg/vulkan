@@ -73,33 +73,11 @@ package body Vk_Package_Creator is
    use all type Vk_XML.Extension_Tag.Child_Kind_Id_T;
    use all type Vk_XML.Extension_Tag.Supported_T;
    use all type Vk_XML.Extensions_Tag.Child_Kind_Id_T;
---     use all type Vk_XML.Vendor_Id_Tag.Name_T;
---     use all type Vk_XML.Vendor_Id_Tag.Id_T;
---     use all type Vk_XML.Vendor_Id_Tag.Comment_T;
---     use all type Vk_XML.Tag_Tag.Name_T;
---     use all type Vk_XML.Tag_Tag.Author_T;
---     use all type Vk_XML.Tag_Tag.Contact_T;
---     use all type Vk_XML.Type_Tag.Category_T;
---     use all type Vk_XML.Type_Tag.Returned_Only_T;
---     use all type Vk_XML.Member_Tag.No_Auto_Validity_T;
---     use all type Vk_XML.Member_Tag.Optional_T;
---     use all type Vk_XML.Command_Tag.Success_Code_T;
---     use all type Vk_XML.Command_Tag.Error_Code_T;
---     use all type Vk_XML.Param_Tag.Optional_T;
---     use all type Vk_XML.Comment.Value_T;
---     use all type Vk_XML.Name_T;
---     use all type Vk_XML.Nested_Type.Nullable_Value_T;
---     use all type Vk_XML.Enum.Value_T;
 
    use all type Vk_XML.Type_Tag.T;
    use all type Vk_XML.Command_Tag.T;
 
    use type Vk_XML.Param_Tag.Ptr;
-
---     use all type Member_Vectors.Vector;
---     use all type Struct_Type_Vectors.Vector;
---     use all type Param_Vectors.Vector;
---     use all type C_Type_Name_To_Ada_Name_Map_Owner.Map;
 
    type Generating_Code_For_OS_T is (
                                      Windows
@@ -465,13 +443,13 @@ package body Vk_Package_Creator is
                                                          Parent_Type_Name : Ada.Strings.Unbounded.Unbounded_String) is
          Shall_Continue_Search : Boolean := True;
 
-         procedure Search_Enum_Tags_And_Generate_Code_If_Found (Enums_V : Vk_XML.Enums_Tag.Ptr) is
+         procedure Search_Enum_Tags_And_Generate_Code_If_Found (Enums_V : Vk_XML.Enums_Tag.T) is
 
             procedure Auto_Generate_Code_For_Found_Enum is
 
                Adafied_Name : Ada.Strings.Unbounded.Unbounded_String;
 
-               procedure Handle_Enum_Bitmask (Enum_V : Vk_XML.Enums_Enum_Tag.Ptr) is
+               procedure Handle_Enum_Bitmask (Enum_V : Vk_XML.Enums_Enum_Tag.T) is
                begin
                   if Enum_V.Exists_Name then
                      if Enum_V.Exists_Bit_Position then
@@ -570,7 +548,7 @@ package body Vk_Package_Creator is
 
                for Enum_V of Enums_V.Children loop
                   case Enum_V.Kind_Id is
-                     when Child_Enums_Enum => Handle_Enum_Bitmask (Enum_V.Enums_Enum);
+                     when Child_Enums_Enum => Handle_Enum_Bitmask (Enum_V.Enums_Enum.all);
                      when others           => null;
                   end case;
                end loop;
@@ -597,7 +575,7 @@ package body Vk_Package_Creator is
          for Registry_Child of R.Children loop
             case Registry_Child.Kind_Id is
                when Child_Enums =>
-                  Search_Enum_Tags_And_Generate_Code_If_Found (Registry_Child.Enums);
+                  Search_Enum_Tags_And_Generate_Code_If_Found (Registry_Child.Enums.all);
                when others =>
                   null;
             end case;
@@ -1236,7 +1214,7 @@ package body Vk_Package_Creator is
       --        Aida.Text_IO.Put_Line (Vk_XML.XML_Out_Commented_Message.Ptro_String (Out_Commented_Message_V));
    end Handle_Out_Commented_Message;
 
-   procedure Handle_API_Constants_Enum (Enum_V : Vk_XML.Enums_Enum_Tag.Ptr) is
+   procedure Handle_API_Constants_Enum (Enum_V : Vk_XML.Enums_Enum_Tag.T) is
    begin
       if Enum_V.Exists_Name then
          if Enum_V.Exists_Value then
@@ -1270,7 +1248,7 @@ package body Vk_Package_Creator is
       end if;
    end Handle_API_Constants_Enum;
 
-   procedure Handle_Child_Enums_Enum (Enum_V       : Vk_XML.Enums_Enum_Tag.Ptr;
+   procedure Handle_Child_Enums_Enum (Enum_V       : Vk_XML.Enums_Enum_Tag.T;
                                       Is_Last_Enum : in Boolean) is
    begin
       if Enum_V.Exists_Name then
@@ -1312,7 +1290,7 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Child_Enums_Enum;
 
-   procedure Handle_Child_Enums_Enum_Representation_Clause (Enum_V        : Vk_XML.Enums_Enum_Tag.Ptr;
+   procedure Handle_Child_Enums_Enum_Representation_Clause (Enum_V        : Vk_XML.Enums_Enum_Tag.T;
                                                             Is_First_Enum : in out Boolean) is
    begin
       if Enum_V.Exists_Name then
@@ -1356,7 +1334,7 @@ package body Vk_Package_Creator is
                                                        Element_Type => Vk_XML.Enums_Enum_Tag.Ptr,
                                                        "="          => Vk_XML.Enums_Enum_Tag."=");
 
-   procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums_Tag.Ptr) is
+   procedure Handle_Registry_Child_Enums (Enums_V : Vk_XML.Enums_Tag.T) is
 
       procedure Handle_Type_Attribute_Exists is
          Name_To_Adafy : Aida.String_T := Enums_V.Name;
@@ -1372,12 +1350,7 @@ package body Vk_Package_Creator is
             begin
                for Enums_Child of Enums_V.Children loop
                   case Enums_Child.Kind_Id is
-                     when Child_Enums_Enum            =>
-                        declare
-                           Test : Vk_XML.Enums_Enum_Tag.Ptr := Enums_Child.Enums_Enum;
-                        begin
-                           Enum_Vector.Append (Test);
-                        end;
+                     when Child_Enums_Enum            => Enum_Vector.Append (Enums_Child.Enums_Enum);
                      when Child_Out_Commented_Message => null;
                      when Child_Unused                => null;
                   end case;
@@ -1444,7 +1417,7 @@ package body Vk_Package_Creator is
 
                for I in Permutation_Array'Range loop
                   Is_Last_Enum := (I = Permutation_Array'Last);
-                  Handle_Child_Enums_Enum (Permutation_Array (I), Is_Last_Enum);
+                  Handle_Child_Enums_Enum (Permutation_Array (I).all, Is_Last_Enum);
                end loop;
 
                Put_Tabs (1);
@@ -1456,7 +1429,7 @@ package body Vk_Package_Creator is
 
                Is_First_Enum := True;
                for I in Permutation_Array'Range loop
-                  Handle_Child_Enums_Enum_Representation_Clause (Permutation_Array (I), Is_First_Enum);
+                  Handle_Child_Enums_Enum_Representation_Clause (Permutation_Array (I).all, Is_First_Enum);
                end loop;
                Put_Line ("");
                Put_Tabs (1);
@@ -1493,7 +1466,7 @@ package body Vk_Package_Creator is
          if Enums_V.Name = "API Constants" then
             for Enums_Child of Enums_V.Children loop
                case Enums_Child.Kind_Id is
-                  when Child_Enums_Enum            => Handle_API_Constants_Enum (Enums_Child.Enums_Enum);
+                  when Child_Enums_Enum            => Handle_API_Constants_Enum (Enums_Child.Enums_Enum.all);
                   when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message);
                   when Child_Unused                => null;
                end case;
@@ -1511,11 +1484,11 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Registry_Child_Enums;
 
-   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.Ptr) is
+   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.T) is
 
       procedure Generate_Code_For_The_Public_Part is
 
-         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Tag.Ptr;
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Tag.T;
                                        R       : Vk_XML.Registry_Tag.T)
          is
             procedure Generate_Code_For_The_Non_Struct_Types is
@@ -1848,7 +1821,7 @@ package body Vk_Package_Creator is
                procedure Generate_The_Code (Variable_Name        : Aida.String_T;
                                             The_Nested_Type_Name : Aida.String_T;
                                             Last_Range_Index     : Aida.String_T;
-                                            Type_V               : Vk_XML.Type_Tag.Ptr)
+                                            Type_V               : Vk_XML.Type_Tag.T)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1890,13 +1863,13 @@ package body Vk_Package_Creator is
                      Put_Line ("");
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                end Generate_The_Code;
 
                procedure Generate_Potential_Access_Type (The_Nested_Type_Name : Aida.String_T;
                                                          Second               : Aida.String_T;
-                                                         Type_V               : Vk_XML.Type_Tag.Ptr)
+                                                         Type_V               : Vk_XML.Type_Tag.T)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1934,19 +1907,19 @@ package body Vk_Package_Creator is
                            C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Access_Type_Name);
                         else
                            Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
                         end if;
                      end if;
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                end Generate_Potential_Access_Type;
 
                procedure Generate_Potential_Constant_Access_Type (The_Nested_Type_Name : Aida.String_T;
                                                                   First                : Aida.String_T;
                                                                   Third                : Aida.String_T;
-                                                                  Type_V               : Vk_XML.Type_Tag.Ptr)
+                                                                  Type_V               : Vk_XML.Type_Tag.T)
                is
                   Searched_For_Cursor : C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
@@ -1986,7 +1959,7 @@ package body Vk_Package_Creator is
                            C_Type_Name_To_Ada_Name_Map.Insert (Nested_Type_Name, Adafied_Constant_Access_Type_Name);
                         else
                            Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                           Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                           Aida.Text_IO.Put_Line (To_String (Type_V));
                         end if;
                      end if;
                   elsif
@@ -1999,14 +1972,14 @@ package body Vk_Package_Creator is
                      null;
                   else
                      Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                     Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                     Aida.Text_IO.Put_Line (To_String (Type_V));
                   end if;
                end Generate_Potential_Constant_Access_Type;
 
                Members : Member_Vectors.Vector;
 
                -- This subprogram also generates code for constant access types if they are not already defined for a member.
-               procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML.Type_Tag.Ptr) is
+               procedure Generate_Code_For_The_Array_Declarations_If_Any (Type_V : Vk_XML.Type_Tag.T) is
                begin
                   for Member of Members loop
                      if Member.Children.Length = 3 then
@@ -2092,7 +2065,7 @@ package body Vk_Package_Creator is
                   end loop;
                end Generate_Code_For_The_Array_Declarations_If_Any;
 
-               procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML.Type_Tag.Ptr) is
+               procedure Generate_Usage_Comments_After_Record_Definition_If_Any (Type_V : Vk_XML.Type_Tag.T) is
                begin
 --                    for Type_Child of Type_V.Children loop
 --                       if Type_Child.Kind_Id = Child_Validity then
@@ -2132,7 +2105,7 @@ package body Vk_Package_Creator is
                   null;
                end Generate_Usage_Comments_After_Record_Definition_If_Any;
 
-               procedure Populate_Members_Vector (Type_V : Vk_XML.Type_Tag.Ptr) is
+               procedure Populate_Members_Vector (Type_V : Vk_XML.Type_Tag.T) is
                begin
                   Members.Clear;
 
@@ -2143,7 +2116,7 @@ package body Vk_Package_Creator is
                   end loop;
                end Populate_Members_Vector;
 
-               procedure Generate_Code_For_Struct (Type_V : Vk_XML.Type_Tag.Ptr) is
+               procedure Generate_Code_For_Struct (Type_V : Vk_XML.Type_Tag.T) is
 
                   New_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
@@ -2202,12 +2175,12 @@ package body Vk_Package_Creator is
                                     Put_Line (";");
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
                                  end if;
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
                      elsif Member.Children.Length = 3 then
@@ -2270,16 +2243,16 @@ package body Vk_Package_Creator is
                                        Put_Line (";");
                                     else
                                        Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't find " & To_String (Old_Type_Name) & ", can't handle ");
-                                       Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                       Aida.Text_IO.Put_Line (To_String (Type_V));
                                     end if;
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V));
                               end if;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
                      elsif Member.Children.Length = 4 then
@@ -2328,7 +2301,7 @@ package body Vk_Package_Creator is
                                           Put_Line (";");
                                        else
                                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
                                        end if;
                                     end;
                                  elsif
@@ -2356,12 +2329,12 @@ package body Vk_Package_Creator is
                                           Put_Line (";");
                                        else
                                           Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                          Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                          Aida.Text_IO.Put_Line (To_String (Type_V));
                                        end if;
                                     end;
                                  else
                                     Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
                                  end if;
                               end;
                            end if;
@@ -2403,12 +2376,12 @@ package body Vk_Package_Creator is
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
-                        Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                        Aida.Text_IO.Put_Line (To_String (Type_V));
                      end if;
                   end loop;
 
@@ -2420,7 +2393,7 @@ package body Vk_Package_Creator is
                   Put_Line ("");
                end Generate_Code_For_Struct;
 
-               procedure Generate_Code_For_Union (Type_V : Vk_XML.Type_Tag.Ptr) is
+               procedure Generate_Code_For_Union (Type_V : Vk_XML.Type_Tag.T) is
 
                   New_Type_Name : Ada.Strings.Unbounded.Unbounded_String;
 
@@ -2465,7 +2438,7 @@ package body Vk_Package_Creator is
                                  end;
                               else
                                  Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                 Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                 Aida.Text_IO.Put_Line (To_String (Type_V));
                               end if;
                            end;
                         elsif Member.Children.Length = 3 then
@@ -2563,12 +2536,12 @@ package body Vk_Package_Creator is
                                     Put_Line (";");
                                  else
                                     Aida.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", can't handle ");
-                                    Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                                    Aida.Text_IO.Put_Line (To_String (Type_V));
                                  end if;
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
 
@@ -2610,12 +2583,12 @@ package body Vk_Package_Creator is
                               end;
                            else
                               Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", can't handle ");
-                              Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                              Aida.Text_IO.Put_Line (To_String (Type_V));
                            end if;
                         end;
                      else
                         Aida.Text_IO.Put (GNAT.Source_Info.Source_Location & ", Skipping conversion of ");
-                        Aida.Text_IO.Put_Line (To_String (Type_V.all));
+                        Aida.Text_IO.Put_Line (To_String (Type_V));
                      end if;
                   end loop;
 
@@ -2636,9 +2609,9 @@ package body Vk_Package_Creator is
             begin
                for Struct of Sorted_Structs loop
                   if Struct.Category = "struct" then
-                     Generate_Code_For_Struct (Struct);
+                     Generate_Code_For_Struct (Struct.all);
                   else
-                     Generate_Code_For_Union (Struct);
+                     Generate_Code_For_Union (Struct.all);
                   end if;
                end loop;
             end Generate_Code_For_The_Sorted_Structs;
@@ -2654,7 +2627,7 @@ package body Vk_Package_Creator is
             for Request_Child of R.Children loop
                case Request_Child.Kind_Id is
                   when Child_Enums =>
-                     Handle_Registry_Child_Enums (Request_Child.Enums);
+                     Handle_Registry_Child_Enums (Request_Child.Enums.all);
                   when others =>
                      null;
                end case;
@@ -2687,7 +2660,7 @@ package body Vk_Package_Creator is
             C_Subprogram_Name : Ada.Strings.Unbounded.Unbounded_String;
             Subprogram_Name   : Ada.Strings.Unbounded.Unbounded_String;
 
-            procedure Handle_Proto (Proto_V : Vk_XML.Proto_Tag.Ptr) is
+            procedure Handle_Proto (Proto_V : Vk_XML.Proto_Tag.T) is
 
                procedure Handle_Proto_Children is
                   First  : Vk_XML.Proto_Tag.Child_T renames Proto_V.Children.Element (Proto_V.Children.First_Index);
@@ -2757,7 +2730,7 @@ package body Vk_Package_Creator is
                for Command_Child of Command_V.Children loop
                   case Command_Child.Kind_Id is
                      when Child_Proto =>
-                        Handle_Proto (Command_Child.Proto);
+                        Handle_Proto (Command_Child.Proto.all);
                      when others      => null;
                   end case;
                end loop;
@@ -2904,7 +2877,7 @@ package body Vk_Package_Creator is
             end Generate_Potential_Access_Type;
 
             function Is_Pointer_Actually_An_Array (Command_V : Vk_XML.Command_Tag.T;
-                                                   Param_V   : Vk_XML.Param_Tag.Ptr) return Boolean
+                                                   Param_V   : Vk_XML.Param_Tag.T) return Boolean
             is
                Is_Found : Boolean := False;
             begin
@@ -3169,7 +3142,7 @@ package body Vk_Package_Creator is
                           Third.Kind_Id = Child_Name and then
                           Third.Name.Value'Length > 0
                         then
-                           if Is_Pointer_Actually_An_Array (Command_V, Param) then
+                           if Is_Pointer_Actually_An_Array (Command_V, Param.all) then
                               Generate_Potential_Array_Declaration (String (First.Nested_Type.Value),
                                                                     String (Second.XML_Text.all),
                                                                     String (Third.Name.Value),
@@ -3209,7 +3182,7 @@ package body Vk_Package_Creator is
 
             procedure Generate_Code_For_The_Subprogram_Parameters_If_Any is
 
-               procedure Generate_Code_For_Parameter (Param   : Vk_XML.Param_Tag.Ptr;
+               procedure Generate_Code_For_Parameter (Param   : Vk_XML.Param_Tag.T;
                                                       Is_Last : Boolean) is
                begin
                   if Param.Children.Length = 2 then
@@ -3435,7 +3408,7 @@ package body Vk_Package_Creator is
 
             begin
                for Param of Params loop
-                  Generate_Code_For_Parameter (Param, Param = Params.Last_Element);
+                  Generate_Code_For_Parameter (Param.all, Param = Params.Last_Element);
                end loop;
             end Generate_Code_For_The_Subprogram_Parameters_If_Any;
 
@@ -3522,7 +3495,7 @@ package body Vk_Package_Creator is
             end if;
          end Handle_Command;
 
-         procedure Handle_Commands (Commands_V : Vk_XML.Commands_Tag.Ptr)
+         procedure Handle_Commands (Commands_V : Vk_XML.Commands_Tag.T)
          is
          begin
             for Command of Commands_V.Children loop
@@ -3574,11 +3547,11 @@ package body Vk_Package_Creator is
                when Child_Tags =>
                   null;
                when Child_Types =>
-                  Handle_Child_Types (Request_Child.Types, R.all);
+                  Handle_Child_Types (Request_Child.Types.all, R);
                when Child_Enums =>
                   null;
                when Child_Commands =>
-                  Handle_Commands (Request_Child.Commands);
+                  Handle_Commands (Request_Child.Commands.all);
                when Child_Feature =>
                   null;
                when Child_Extensions =>
@@ -3591,12 +3564,12 @@ package body Vk_Package_Creator is
 
       procedure Generate_Code_For_The_Private_Part is
 
-         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Tag.Ptr;
-                                       R       : Vk_XML.Registry_Tag.Ptr)
+         procedure Handle_Child_Types (Types_V : Vk_XML.Types_Tag.T;
+                                       R       : Vk_XML.Registry_Tag.T)
          is
 
-            procedure Handle_Child_Type_In_The_Private_Part (Type_V : Vk_XML.Type_Tag.Ptr;
-                                                             R      : Vk_XML.Registry_Tag.Ptr)
+            procedure Handle_Child_Type_In_The_Private_Part (Type_V : Vk_XML.Type_Tag.T;
+                                                             R      : Vk_XML.Registry_Tag.T)
             is
             begin
                if
@@ -3651,7 +3624,7 @@ package body Vk_Package_Creator is
          begin
             for Types_Child of Types_V.Children loop
                case Types_Child.Kind_Id is
-                  when Child_Type => Handle_Child_Type_In_The_Private_Part (Types_Child.Type_V, R);
+                  when Child_Type => Handle_Child_Type_In_The_Private_Part (Types_Child.Type_V.all, R);
                   when others     => null;
                end case;
             end loop;
@@ -3671,7 +3644,7 @@ package body Vk_Package_Creator is
          for Request_Child of R.Children loop
             case Request_Child.Kind_Id is
                when Child_Types =>
-                  Handle_Child_Types (Request_Child.Types, R);
+                  Handle_Child_Types (Request_Child.Types.all, R);
                when others =>
                   null;
             end case;

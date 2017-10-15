@@ -9,7 +9,7 @@ private with Vk_XML.Type_Tag;
 
 package Vk_Package_Creator is
 
-   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.Ptr);
+   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.T);
 
 private
 

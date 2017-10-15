@@ -5,7 +5,12 @@ with Ada.Characters.Latin_1;
 with Vk;
 with System;
 
+with GWindows.Windows.Main; use GWindows.Windows.Main;
+with GWindows.Application;
+
 procedure Main is
+   pragma Linker_Options ("-mwindows");
+
    use type Vk.Result_T;
    use type Vk.Queue_Flag_Bits_T;
    use type Interfaces.Unsigned_32;
@@ -13,6 +18,50 @@ procedure Main is
    Instance : aliased Vk.Instance_T;
 
    Result : Vk.Result_T;
+
+   procedure Create_Device (Physical_Device : Vk.Physical_Device_T) is
+      Create_Info          : aliased Vk.Device_Create_Info_T;
+      Device_Queue_Info    : aliased Vk.Device_Queue_Create_Info_T;
+      Device               : aliased Vk.Device_T;
+
+      Priority : aliased constant Interfaces.C.C_float := 1.0;
+   begin
+      Create_Info.Stype := Vk.STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+      Create_Info.Next := System.Null_Address;
+      Create_Info.Flags := 0;
+
+      -- No extensions nor layers
+      Create_Info.Enabled_Layer_Count := 0;
+      Create_Info.Enabled_Layer_Names := Vk.Char_Ptr_Array_Conversions.Null_Address;
+      Create_Info.Enabled_Extension_Count := 0;
+      Create_Info.Enabled_Extension_Names := Vk.Char_Ptr_Array_Conversions.Null_Address;
+      Create_Info.Enabled_Features := null;
+
+      Device_Queue_Info.Stype := Vk.STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      Device_Queue_Info.Next  := System.Null_Address;
+      Device_Queue_Info.Flags := 0;
+
+      Device_Queue_Info.Queue_Family_Index := 0; -- Use first queue family in the list
+      Device_Queue_Info.Queue_Count := 1;
+      Device_Queue_Info.Queue_Priorities := Priority'Unchecked_Access;
+
+      Create_Info.Queue_Create_Info_Count := 1;
+      Create_Info.Queue_Create_Infos := Device_Queue_Info'Unchecked_Access;
+
+      Result := Vk.Create_Device (Physical_Device => Physical_Device,
+                                  Create_Info     => Create_Info'Access,
+                                  Allocator       => null,
+                                  Device          => Device'Access);
+
+      if Result = Vk.SUCCESS then
+         null;
+         Ada.Text_IO.Put_Line ("Success!");
+--        Ada.Text_IO.Put_Line ("Number of physical devices:" & Number_Of_Devices'Img);
+--         Query_Physical_Devices_Properties (Number_Of_Devices);
+      else
+         Ada.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ",");
+      end if;
+   end Create_Device;
 
    procedure Print_Queue_Family_Properties_To_Standard_Out (Queue_Family_Properties : Vk.Queue_Family_Properties_T) is
 
@@ -58,6 +107,8 @@ procedure Main is
          for I in Interfaces.C.size_t range Queue_Family_Properties'First .. Interfaces.C.size_t (Queue_Count - 1) loop
             Print_Queue_Family_Properties_To_Standard_Out (Queue_Family_Properties (I));
          end loop;
+
+         Create_Device (Physical_Device);
       else
          Ada.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", no queue families!!");
       end if;
@@ -155,4 +206,12 @@ begin
    else
       Ada.Text_IO.Put_Line (GNAT.Source_Info.Source_Location & ", Call to Vk.Create_Instance returned " & Result'Img);
    end if;
+
+   declare
+      Main_Window : Main_Window_Type;
+   begin
+      Main_Window.Create ("My First Window");
+      Visible (Main_Window, True);
+      GWindows.Application.Message_Loop;
+   end;
 end Main;

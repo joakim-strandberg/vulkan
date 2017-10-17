@@ -1,3 +1,5 @@
+with "GWindows";
+
 library project Vulkan is
    for Library_Name use "vulkan_ada";
    for Library_Kind use "static";

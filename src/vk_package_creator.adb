@@ -3893,6 +3893,8 @@ package body Vk_Package_Creator is
          Valid_Extensions.Append ("VK_KHR_display_swapchain");
          Valid_Extensions.Append ("VK_EXT_debug_report");
          if Generating_Code_For_OS = Windows then
+            Add ("HINSTANCE", "GWindows.Types.Handle");
+            Add ("HWND", "GWindows.Types.Handle");
             Valid_Extensions.Append ("VK_KHR_win32_surface");
          end if;
       end Initialize_Global_Variables;
@@ -4071,6 +4073,7 @@ package body Vk_Package_Creator is
                           Name => "vk.ads");
       Put_Line ("with Interfaces.C.Strings;");
       Put_Line ("with Generic_Address_To_Access_Conversions;");
+      Put_Line ("with GWindows.Types;");
       Put_Line ("with System;");
       Put_Line ("");
       Put_Line ("package Vk is");

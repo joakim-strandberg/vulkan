@@ -1,5 +1,6 @@
 with Interfaces.C.Strings;
 with Generic_Address_To_Access_Conversions;
+with GWindows.Types;
 with System;
 
 package Vk is
@@ -53,8 +54,8 @@ package Vk is
       IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, -- Optimal layout when image is used for read only shader access
       IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, -- Optimal layout when image is used only as source of transfer operations
       IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, -- Optimal layout when image is used only as destination of transfer operations
-      IMAGE_LAYOUT_PREINITIALIZED -- Initial layout used when the data is populated by the CPU
-      );
+      IMAGE_LAYOUT_PREINITIALIZED, -- Initial layout used when the data is populated by the CPU
+      IMAGE_LAYOUT_PRESENT_SRC_KHR);
    for Image_Layout_T use
      (IMAGE_LAYOUT_UNDEFINED                        => 0,
       IMAGE_LAYOUT_GENERAL                          => 1,
@@ -64,14 +65,12 @@ package Vk is
       IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL         => 5,
       IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL             => 6,
       IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL             => 7,
-      IMAGE_LAYOUT_PREINITIALIZED                   => 8);
+      IMAGE_LAYOUT_PREINITIALIZED                   => 8,
+      IMAGE_LAYOUT_PRESENT_SRC_KHR                  => 1000002002);
    for Image_Layout_T'Size use Interfaces.C.int'Size;
 
    type Attachment_Load_Op_T is (ATTACHMENT_LOAD_OP_LOAD, ATTACHMENT_LOAD_OP_CLEAR, ATTACHMENT_LOAD_OP_DONT_CARE);
-   for Attachment_Load_Op_T use
-     (ATTACHMENT_LOAD_OP_LOAD      => 0,
-      ATTACHMENT_LOAD_OP_CLEAR     => 1,
-      ATTACHMENT_LOAD_OP_DONT_CARE => 2);
+   for Attachment_Load_Op_T use (ATTACHMENT_LOAD_OP_LOAD => 0, ATTACHMENT_LOAD_OP_CLEAR => 1, ATTACHMENT_LOAD_OP_DONT_CARE => 2);
    for Attachment_Load_Op_T'Size use Interfaces.C.int'Size;
 
    type Attachment_Store_Op_T is (ATTACHMENT_STORE_OP_STORE, ATTACHMENT_STORE_OP_DONT_CARE);
@@ -831,7 +830,14 @@ package Vk is
       STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
       STRUCTURE_TYPE_MEMORY_BARRIER,
       STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO,
-      STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO);
+      STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO,
+      STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+      STRUCTURE_TYPE_PRESENT_INFO_KHR,
+      STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR,
+      STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR,
+      STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR,
+      STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+      STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT);
    for Structure_Type_T use
      (STRUCTURE_TYPE_APPLICATION_INFO                          => 0,
       STRUCTURE_TYPE_INSTANCE_CREATE_INFO                      => 1,
@@ -881,7 +887,14 @@ package Vk is
       STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER                      => 45,
       STRUCTURE_TYPE_MEMORY_BARRIER                            => 46,
       STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO               => 47,
-      STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO                 => 48);
+      STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO                 => 48,
+      STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR                 => 1000002000,
+      STRUCTURE_TYPE_PRESENT_INFO_KHR                          => 1000002001,
+      STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR              => 1000003000,
+      STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR           => 1000003001,
+      STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR                  => 1000004000,
+      STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR             => 1000010000,
+      STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT     => 1000012000);
    for Structure_Type_T'Size use Interfaces.C.int'Size;
 
    type Subpass_Contents_T is (SUBPASS_CONTENTS_INLINE, SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
@@ -889,7 +902,12 @@ package Vk is
    for Subpass_Contents_T'Size use Interfaces.C.int'Size;
 
    type Result_T is
-     (ERROR_FORMAT_NOT_SUPPORTED, -- Requested format is not supported on this device
+     (ERROR_VALIDATION_FAILED_EXT,
+      ERROR_INCOMPATIBLE_DISPLAY_KHR,
+      ERROR_OUT_OF_DATE_KHR,
+      ERROR_NATIVE_WINDOW_IN_USE_KHR,
+      ERROR_SURFACE_LOST_KHR,
+      ERROR_FORMAT_NOT_SUPPORTED, -- Requested format is not supported on this device
       ERROR_TOO_MANY_OBJECTS, -- Too many objects of the type have already been created
       ERROR_INCOMPATIBLE_DRIVER, -- Unable to find a Vulkan driver
       ERROR_FEATURE_NOT_PRESENT, -- Requested feature is not available on this device
@@ -905,26 +923,32 @@ package Vk is
       TIMEOUT, -- A wait operation has not completed in the specified time
       EVENT_SET, -- An event is signaled
       EVENT_RESET, -- An event is unsignaled
-      INCOMPLETE -- A return array was too small for the result
-      );
+      INCOMPLETE, -- A return array was too small for the result
+      SUBOPTIMAL_KHR);
    for Result_T use
-     (ERROR_FORMAT_NOT_SUPPORTED  => -11,
-      ERROR_TOO_MANY_OBJECTS      => -10,
-      ERROR_INCOMPATIBLE_DRIVER   => -9,
-      ERROR_FEATURE_NOT_PRESENT   => -8,
-      ERROR_EXTENSION_NOT_PRESENT => -7,
-      ERROR_LAYER_NOT_PRESENT     => -6,
-      ERROR_MEMORY_MAP_FAILED     => -5,
-      ERROR_DEVICE_LOST           => -4,
-      ERROR_INITIALIZATION_FAILED => -3,
-      ERROR_OUT_OF_DEVICE_MEMORY  => -2,
-      ERROR_OUT_OF_HOST_MEMORY    => -1,
-      SUCCESS                     => 0,
-      NOT_READY                   => 1,
-      TIMEOUT                     => 2,
-      EVENT_SET                   => 3,
-      EVENT_RESET                 => 4,
-      INCOMPLETE                  => 5);
+     (ERROR_VALIDATION_FAILED_EXT    => -1000012001,
+      ERROR_INCOMPATIBLE_DISPLAY_KHR => -1000004001,
+      ERROR_OUT_OF_DATE_KHR          => -1000002004,
+      ERROR_NATIVE_WINDOW_IN_USE_KHR => -1000001001,
+      ERROR_SURFACE_LOST_KHR         => -1000001000,
+      ERROR_FORMAT_NOT_SUPPORTED     => -11,
+      ERROR_TOO_MANY_OBJECTS         => -10,
+      ERROR_INCOMPATIBLE_DRIVER      => -9,
+      ERROR_FEATURE_NOT_PRESENT      => -8,
+      ERROR_EXTENSION_NOT_PRESENT    => -7,
+      ERROR_LAYER_NOT_PRESENT        => -6,
+      ERROR_MEMORY_MAP_FAILED        => -5,
+      ERROR_DEVICE_LOST              => -4,
+      ERROR_INITIALIZATION_FAILED    => -3,
+      ERROR_OUT_OF_DEVICE_MEMORY     => -2,
+      ERROR_OUT_OF_HOST_MEMORY       => -1,
+      SUCCESS                        => 0,
+      NOT_READY                      => 1,
+      TIMEOUT                        => 2,
+      EVENT_SET                      => 3,
+      EVENT_RESET                    => 4,
+      INCOMPLETE                     => 5,
+      SUBOPTIMAL_KHR                 => 1000002003);
    for Result_T'Size use Interfaces.C.int'Size;
 
    type Dynamic_State_T is
@@ -1032,6 +1056,22 @@ package Vk is
    for Rasterization_Order_Amd_T use (RASTERIZATION_ORDER_STRICT_AMD => 0, RASTERIZATION_ORDER_RELAXED_AMD => 1);
    for Rasterization_Order_Amd_T'Size use Interfaces.C.int'Size;
 
+   KHR_SURFACE_SPEC_VERSION                    : constant                   := 25;
+   KHR_SURFACE_EXTENSION_NAME                  : constant String            := "VK_KHR_surface";
+   COLORSPACE_SRGB_NONLINEAR_KHR               : constant Color_Space_Khr_T := COLOR_SPACE_SRGB_NONLINEAR_KHR;
+   KHR_SWAPCHAIN_SPEC_VERSION                  : constant                   := 68;
+   KHR_SWAPCHAIN_EXTENSION_NAME                : constant String            := "VK_KHR_swapchain";
+   KHR_DISPLAY_SPEC_VERSION                    : constant                   := 21;
+   KHR_DISPLAY_EXTENSION_NAME                  : constant String            := "VK_KHR_display";
+   KHR_DISPLAY_SWAPCHAIN_SPEC_VERSION          : constant                   := 9;
+   KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME        : constant String            := "VK_KHR_display_swapchain";
+   KHR_WIN32_SURFACE_SPEC_VERSION              : constant                   := 5;
+   KHR_WIN32_SURFACE_EXTENSION_NAME            : constant String            := "VK_KHR_win32_surface";
+   EXT_DEBUG_REPORT_SPEC_VERSION               : constant                   := 2;
+   EXT_DEBUG_REPORT_EXTENSION_NAME             : constant String            := "VK_EXT_debug_report";
+   STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT : constant Structure_Type_T  :=
+     STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+
    type Sample_Mask_T is new Interfaces.Unsigned_32;
 
    type Bool_32_T is new Interfaces.Unsigned_32;
@@ -1093,8 +1133,7 @@ package Vk is
    type Memory_Property_Flags_T is new Flags_T;
 
    type Memory_Property_Flag_Bits_T is new Memory_Property_Flags_T;
-   MEMORY_PROPERTY_DEVICE_LOCAL_BIT : Memory_Property_Flag_Bits_T :=
-     1; -- If otherwise stated, then allocate memory on device
+   MEMORY_PROPERTY_DEVICE_LOCAL_BIT  : Memory_Property_Flag_Bits_T := 1; -- If otherwise stated, then allocate memory on device
    MEMORY_PROPERTY_HOST_VISIBLE_BIT  : Memory_Property_Flag_Bits_T := 2; -- Memory is mappable by host
    MEMORY_PROPERTY_HOST_COHERENT_BIT : Memory_Property_Flag_Bits_T :=
      4; -- Memory will have i/o coherency. If not set, application may need to use vkFlushMappedMemoryRanges and vkInvalidateMappedMemoryRanges to flush/invalidate host cache
@@ -1110,17 +1149,16 @@ package Vk is
    type Access_Flags_T is new Flags_T;
 
    type Access_Flag_Bits_T is new Access_Flags_T;
-   ACCESS_INDIRECT_COMMAND_READ_BIT         : Access_Flag_Bits_T := 1; -- Controls coherency of indirect command reads
-   ACCESS_INDEX_READ_BIT                    : Access_Flag_Bits_T := 2; -- Controls coherency of index reads
-   ACCESS_VERTEX_ATTRIBUTE_READ_BIT         : Access_Flag_Bits_T := 4; -- Controls coherency of vertex attribute reads
-   ACCESS_UNIFORM_READ_BIT                  : Access_Flag_Bits_T := 8; -- Controls coherency of uniform buffer reads
-   ACCESS_INPUT_ATTACHMENT_READ_BIT         : Access_Flag_Bits_T := 16; -- Controls coherency of input attachment reads
-   ACCESS_SHADER_READ_BIT                   : Access_Flag_Bits_T := 32; -- Controls coherency of shader reads
-   ACCESS_SHADER_WRITE_BIT                  : Access_Flag_Bits_T := 64; -- Controls coherency of shader writes
-   ACCESS_COLOR_ATTACHMENT_READ_BIT         : Access_Flag_Bits_T := 128; -- Controls coherency of color attachment reads
-   ACCESS_COLOR_ATTACHMENT_WRITE_BIT : Access_Flag_Bits_T := 256; -- Controls coherency of color attachment writes
-   ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT : Access_Flag_Bits_T :=
-     512; -- Controls coherency of depth/stencil attachment reads
+   ACCESS_INDIRECT_COMMAND_READ_BIT          : Access_Flag_Bits_T := 1; -- Controls coherency of indirect command reads
+   ACCESS_INDEX_READ_BIT                     : Access_Flag_Bits_T := 2; -- Controls coherency of index reads
+   ACCESS_VERTEX_ATTRIBUTE_READ_BIT          : Access_Flag_Bits_T := 4; -- Controls coherency of vertex attribute reads
+   ACCESS_UNIFORM_READ_BIT                   : Access_Flag_Bits_T := 8; -- Controls coherency of uniform buffer reads
+   ACCESS_INPUT_ATTACHMENT_READ_BIT          : Access_Flag_Bits_T := 16; -- Controls coherency of input attachment reads
+   ACCESS_SHADER_READ_BIT                    : Access_Flag_Bits_T := 32; -- Controls coherency of shader reads
+   ACCESS_SHADER_WRITE_BIT                   : Access_Flag_Bits_T := 64; -- Controls coherency of shader writes
+   ACCESS_COLOR_ATTACHMENT_READ_BIT          : Access_Flag_Bits_T := 128; -- Controls coherency of color attachment reads
+   ACCESS_COLOR_ATTACHMENT_WRITE_BIT         : Access_Flag_Bits_T := 256; -- Controls coherency of color attachment writes
+   ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT  : Access_Flag_Bits_T := 512; -- Controls coherency of depth/stencil attachment reads
    ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT : Access_Flag_Bits_T :=
      1024; -- Controls coherency of depth/stencil attachment writes
    ACCESS_TRANSFER_READ_BIT  : Access_Flag_Bits_T := 2048; -- Controls coherency of transfer reads
@@ -1133,16 +1171,15 @@ package Vk is
    type Buffer_Usage_Flags_T is new Flags_T;
 
    type Buffer_Usage_Flag_Bits_T is new Buffer_Usage_Flags_T;
-   BUFFER_USAGE_TRANSFER_SRC_BIT : Buffer_Usage_Flag_Bits_T := 1; -- Can be used as a source of transfer operations
-   BUFFER_USAGE_TRANSFER_DST_BIT : Buffer_Usage_Flag_Bits_T := 2; -- Can be used as a destination of transfer operations
+   BUFFER_USAGE_TRANSFER_SRC_BIT         : Buffer_Usage_Flag_Bits_T := 1; -- Can be used as a source of transfer operations
+   BUFFER_USAGE_TRANSFER_DST_BIT         : Buffer_Usage_Flag_Bits_T := 2; -- Can be used as a destination of transfer operations
    BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT : Buffer_Usage_Flag_Bits_T := 4; -- Can be used as TBO
    BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT : Buffer_Usage_Flag_Bits_T := 8; -- Can be used as IBO
    BUFFER_USAGE_UNIFORM_BUFFER_BIT       : Buffer_Usage_Flag_Bits_T := 16; -- Can be used as UBO
    BUFFER_USAGE_STORAGE_BUFFER_BIT       : Buffer_Usage_Flag_Bits_T := 32; -- Can be used as SSBO
    BUFFER_USAGE_INDEX_BUFFER_BIT         : Buffer_Usage_Flag_Bits_T :=
      64; -- Can be used as source of fixed-function index fetch (index buffer)
-   BUFFER_USAGE_VERTEX_BUFFER_BIT : Buffer_Usage_Flag_Bits_T :=
-     128; -- Can be used as source of fixed-function vertex fetch (VBO)
+   BUFFER_USAGE_VERTEX_BUFFER_BIT : Buffer_Usage_Flag_Bits_T := 128; -- Can be used as source of fixed-function vertex fetch (VBO)
    BUFFER_USAGE_INDIRECT_BUFFER_BIT : Buffer_Usage_Flag_Bits_T :=
      256; -- Can be the source of indirect parameters (e.g. indirect buffer, parameter buffer)
 
@@ -1174,9 +1211,8 @@ package Vk is
    IMAGE_USAGE_TRANSFER_DST_BIT : Image_Usage_Flag_Bits_T := 2; -- Can be used as a destination of transfer operations
    IMAGE_USAGE_SAMPLED_BIT      : Image_Usage_Flag_Bits_T :=
      4; -- Can be sampled from (SAMPLED_IMAGE and COMBINED_IMAGE_SAMPLER descriptor types)
-   IMAGE_USAGE_STORAGE_BIT : Image_Usage_Flag_Bits_T :=
-     8; -- Can be used as storage image (STORAGE_IMAGE descriptor type)
-   IMAGE_USAGE_COLOR_ATTACHMENT_BIT : Image_Usage_Flag_Bits_T := 16; -- Can be used as framebuffer color attachment
+   IMAGE_USAGE_STORAGE_BIT : Image_Usage_Flag_Bits_T := 8; -- Can be used as storage image (STORAGE_IMAGE descriptor type)
+   IMAGE_USAGE_COLOR_ATTACHMENT_BIT         : Image_Usage_Flag_Bits_T := 16; -- Can be used as framebuffer color attachment
    IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : Image_Usage_Flag_Bits_T :=
      32; -- Can be used as framebuffer depth/stencil attachment
    IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT : Image_Usage_Flag_Bits_T := 64; -- Image data not needed outside of rendering
@@ -1234,9 +1270,8 @@ package Vk is
      16; -- Format can be used for storage texel buffers (IBOs)
    FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT : Format_Feature_Flag_Bits_T :=
      32; -- Format supports atomic operations in case it's used for storage texel buffers
-   FORMAT_FEATURE_VERTEX_BUFFER_BIT : Format_Feature_Flag_Bits_T := 64; -- Format can be used for vertex buffers (VBOs)
-   FORMAT_FEATURE_COLOR_ATTACHMENT_BIT : Format_Feature_Flag_Bits_T :=
-     128; -- Format can be used for color attachment images
+   FORMAT_FEATURE_VERTEX_BUFFER_BIT          : Format_Feature_Flag_Bits_T := 64; -- Format can be used for vertex buffers (VBOs)
+   FORMAT_FEATURE_COLOR_ATTACHMENT_BIT : Format_Feature_Flag_Bits_T := 128; -- Format can be used for color attachment images
    FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT : Format_Feature_Flag_Bits_T :=
      256; -- Format supports blending in case it's used for color attachment images
    FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT : Format_Feature_Flag_Bits_T :=
@@ -1272,21 +1307,19 @@ package Vk is
    type Command_Pool_Create_Flags_T is new Flags_T;
 
    type Command_Pool_Create_Flag_Bits_T is new Command_Pool_Create_Flags_T;
-   COMMAND_POOL_CREATE_TRANSIENT_BIT : Command_Pool_Create_Flag_Bits_T := 1; -- Command buffers have a short lifetime
+   COMMAND_POOL_CREATE_TRANSIENT_BIT            : Command_Pool_Create_Flag_Bits_T := 1; -- Command buffers have a short lifetime
    COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : Command_Pool_Create_Flag_Bits_T :=
      2; -- Command buffers may release their memory individually
 
    type Command_Pool_Reset_Flags_T is new Flags_T;
 
    type Command_Pool_Reset_Flag_Bits_T is new Command_Pool_Reset_Flags_T;
-   COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT : Command_Pool_Reset_Flag_Bits_T :=
-     1; -- Release resources owned by the pool
+   COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT : Command_Pool_Reset_Flag_Bits_T := 1; -- Release resources owned by the pool
 
    type Command_Buffer_Reset_Flags_T is new Flags_T;
 
    type Command_Buffer_Reset_Flag_Bits_T is new Command_Buffer_Reset_Flags_T;
-   COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT : Command_Buffer_Reset_Flag_Bits_T :=
-     1; -- Release resources owned by the buffer
+   COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT : Command_Buffer_Reset_Flag_Bits_T := 1; -- Release resources owned by the buffer
 
    type Command_Buffer_Usage_Flags_T is new Flags_T;
 
@@ -1307,8 +1340,7 @@ package Vk is
    QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT : Query_Pipeline_Statistic_Flag_Bits_T := 32; -- Optional
    QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT : Query_Pipeline_Statistic_Flag_Bits_T := 64; -- Optional
    QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT : Query_Pipeline_Statistic_Flag_Bits_T := 128; -- Optional
-   QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT : Query_Pipeline_Statistic_Flag_Bits_T :=
-     256; -- Optional
+   QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT : Query_Pipeline_Statistic_Flag_Bits_T := 256; -- Optional
    QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT : Query_Pipeline_Statistic_Flag_Bits_T :=
      512; -- Optional
    QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT : Query_Pipeline_Statistic_Flag_Bits_T := 1024; -- Optional
@@ -1344,26 +1376,22 @@ package Vk is
 
    type Pipeline_Stage_Flag_Bits_T is new Pipeline_Stage_Flags_T;
    PIPELINE_STAGE_TOP_OF_PIPE_BIT : Pipeline_Stage_Flag_Bits_T := 1; -- Before subsequent commands are processed
-   PIPELINE_STAGE_DRAW_INDIRECT_BIT : Pipeline_Stage_Flag_Bits_T := 2; -- Draw/DispatchIndirect command fetch
+   PIPELINE_STAGE_DRAW_INDIRECT_BIT                  : Pipeline_Stage_Flag_Bits_T := 2; -- Draw/DispatchIndirect command fetch
    PIPELINE_STAGE_VERTEX_INPUT_BIT                   : Pipeline_Stage_Flag_Bits_T := 4; -- Vertex/index fetch
    PIPELINE_STAGE_VERTEX_SHADER_BIT                  : Pipeline_Stage_Flag_Bits_T := 8; -- Vertex shading
    PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT    : Pipeline_Stage_Flag_Bits_T := 16; -- Tessellation control shading
-   PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT : Pipeline_Stage_Flag_Bits_T :=
-     32; -- Tessellation evaluation shading
-   PIPELINE_STAGE_GEOMETRY_SHADER_BIT      : Pipeline_Stage_Flag_Bits_T := 64; -- Geometry shading
-   PIPELINE_STAGE_FRAGMENT_SHADER_BIT      : Pipeline_Stage_Flag_Bits_T := 128; -- Fragment shading
-   PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT : Pipeline_Stage_Flag_Bits_T :=
-     256; -- Early fragment (depth and stencil) tests
-   PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT : Pipeline_Stage_Flag_Bits_T :=
-     512; -- Late fragment (depth and stencil) tests
-   PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT : Pipeline_Stage_Flag_Bits_T := 1024; -- Color attachment writes
-   PIPELINE_STAGE_COMPUTE_SHADER_BIT          : Pipeline_Stage_Flag_Bits_T := 2048; -- Compute shading
-   PIPELINE_STAGE_TRANSFER_BIT                : Pipeline_Stage_Flag_Bits_T := 4096; -- Transfer/copy operations
+   PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT : Pipeline_Stage_Flag_Bits_T := 32; -- Tessellation evaluation shading
+   PIPELINE_STAGE_GEOMETRY_SHADER_BIT                : Pipeline_Stage_Flag_Bits_T := 64; -- Geometry shading
+   PIPELINE_STAGE_FRAGMENT_SHADER_BIT                : Pipeline_Stage_Flag_Bits_T := 128; -- Fragment shading
+   PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT : Pipeline_Stage_Flag_Bits_T := 256; -- Early fragment (depth and stencil) tests
+   PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT : Pipeline_Stage_Flag_Bits_T := 512; -- Late fragment (depth and stencil) tests
+   PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT        : Pipeline_Stage_Flag_Bits_T := 1024; -- Color attachment writes
+   PIPELINE_STAGE_COMPUTE_SHADER_BIT                 : Pipeline_Stage_Flag_Bits_T := 2048; -- Compute shading
+   PIPELINE_STAGE_TRANSFER_BIT                       : Pipeline_Stage_Flag_Bits_T := 4096; -- Transfer/copy operations
    PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT : Pipeline_Stage_Flag_Bits_T := 8192; -- After previous commands have completed
-   PIPELINE_STAGE_HOST_BIT                    : Pipeline_Stage_Flag_Bits_T :=
-     16384; -- Indicates host (CPU) is a source/sink of the dependency
-   PIPELINE_STAGE_ALL_GRAPHICS_BIT : Pipeline_Stage_Flag_Bits_T := 32768; -- All stages of the graphics pipeline
-   PIPELINE_STAGE_ALL_COMMANDS_BIT : Pipeline_Stage_Flag_Bits_T := 65536; -- All stages supported on the queue
+   PIPELINE_STAGE_HOST_BIT : Pipeline_Stage_Flag_Bits_T := 16384; -- Indicates host (CPU) is a source/sink of the dependency
+   PIPELINE_STAGE_ALL_GRAPHICS_BIT                   : Pipeline_Stage_Flag_Bits_T := 32768; -- All stages of the graphics pipeline
+   PIPELINE_STAGE_ALL_COMMANDS_BIT                   : Pipeline_Stage_Flag_Bits_T := 65536; -- All stages supported on the queue
 
    type Sample_Count_Flags_T is new Flags_T;
 
@@ -1697,7 +1725,7 @@ package Vk is
    end record;
    pragma Convention (C_Pass_By_Copy, Device_Queue_Create_Info_T);
 
-   type Application_Info_Const_Ptr is access all Application_Info_T;
+   type Application_Info_Const_Ptr is access constant Application_Info_T;
 
    type Instance_Create_Info_T is record
       Stype                   : Structure_Type_T;
@@ -2347,20 +2375,17 @@ package Vk is
 
    type Pipeline_Vertex_Input_State_Create_Info_Const_Ptr is access constant Pipeline_Vertex_Input_State_Create_Info_T;
 
-   type Pipeline_Input_Assembly_State_Create_Info_Const_Ptr is
-     access constant Pipeline_Input_Assembly_State_Create_Info_T;
+   type Pipeline_Input_Assembly_State_Create_Info_Const_Ptr is access constant Pipeline_Input_Assembly_State_Create_Info_T;
 
    type Pipeline_Tessellation_State_Create_Info_Const_Ptr is access constant Pipeline_Tessellation_State_Create_Info_T;
 
    type Pipeline_Viewport_State_Create_Info_Const_Ptr is access constant Pipeline_Viewport_State_Create_Info_T;
 
-   type Pipeline_Rasterization_State_Create_Info_Const_Ptr is
-     access constant Pipeline_Rasterization_State_Create_Info_T;
+   type Pipeline_Rasterization_State_Create_Info_Const_Ptr is access constant Pipeline_Rasterization_State_Create_Info_T;
 
    type Pipeline_Multisample_State_Create_Info_Const_Ptr is access constant Pipeline_Multisample_State_Create_Info_T;
 
-   type Pipeline_Depth_Stencil_State_Create_Info_Const_Ptr is
-     access constant Pipeline_Depth_Stencil_State_Create_Info_T;
+   type Pipeline_Depth_Stencil_State_Create_Info_Const_Ptr is access constant Pipeline_Depth_Stencil_State_Create_Info_T;
 
    type Pipeline_Color_Blend_State_Create_Info_Const_Ptr is access constant Pipeline_Color_Blend_State_Create_Info_T;
 
@@ -2494,8 +2519,7 @@ package Vk is
    type Uint_32_Array_T is array (Uint_32_Array_Index_T) of Interfaces.Unsigned_32;
    pragma Convention (C, Uint_32_Array_T);
 
-   type Clear_Color_Value_Kind_Id_T is
-     (Clear_Color_Value_Float_32, Clear_Color_Value_Int_32, Clear_Color_Value_Uint_32);
+   type Clear_Color_Value_Kind_Id_T is (Clear_Color_Value_Float_32, Clear_Color_Value_Int_32, Clear_Color_Value_Uint_32);
 
    type Clear_Color_Value_T (Kind_Id : Clear_Color_Value_Kind_Id_T := Clear_Color_Value_Kind_Id_T'First) is record
       case Kind_Id is
@@ -2685,14 +2709,12 @@ package Vk is
 
    type Max_Compute_Work_Group_Count_Array_Index_T is range 0 .. 3;
 
-   type Max_Compute_Work_Group_Count_Array_T is
-     array (Max_Compute_Work_Group_Count_Array_Index_T) of Interfaces.Unsigned_32;
+   type Max_Compute_Work_Group_Count_Array_T is array (Max_Compute_Work_Group_Count_Array_Index_T) of Interfaces.Unsigned_32;
    pragma Convention (C, Max_Compute_Work_Group_Count_Array_T);
 
    type Max_Compute_Work_Group_Size_Array_Index_T is range 0 .. 3;
 
-   type Max_Compute_Work_Group_Size_Array_T is
-     array (Max_Compute_Work_Group_Size_Array_Index_T) of Interfaces.Unsigned_32;
+   type Max_Compute_Work_Group_Size_Array_T is array (Max_Compute_Work_Group_Size_Array_Index_T) of Interfaces.Unsigned_32;
    pragma Convention (C, Max_Compute_Work_Group_Size_Array_T);
 
    type Max_Viewport_Dimensions_Array_Index_T is range 0 .. 2;
@@ -2985,6 +3007,15 @@ package Vk is
    end record;
    pragma Convention (C_Pass_By_Copy, Surface_Capabilities_Khr_T);
 
+   type Win_32_Surface_Create_Info_Khr_T is record
+      Stype     : Structure_Type_T;
+      Next      : Void_Ptr;
+      Flags     : Win_32_Surface_Create_Flags_Khr_T;
+      Hinstance : GWindows.Types.Handle;
+      Hwnd      : GWindows.Types.Handle;
+   end record;
+   pragma Convention (C_Pass_By_Copy, Win_32_Surface_Create_Info_Khr_T);
+
    type Surface_Format_Khr_T is record
       Format      : Format_T;
       Color_Space : Color_Space_Khr_T;
@@ -3165,8 +3196,7 @@ package Vk is
 
    MAX_PHYSICAL_DEVICES_INDEX : constant := 100;
 
-   type Physical_Devices_Array_T is
-     array (Interfaces.C.size_t range 0 .. MAX_PHYSICAL_DEVICES_INDEX) of Physical_Device_T;
+   type Physical_Devices_Array_T is array (Interfaces.C.size_t range 0 .. MAX_PHYSICAL_DEVICES_INDEX) of Physical_Device_T;
    pragma Convention (C, Physical_Devices_Array_T);
 
    package Physical_Devices_Array_Conversions is new Generic_Address_To_Access_Conversions (Physical_Devices_Array_T);
@@ -3179,9 +3209,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkEnumeratePhysicalDevices";
 
-   function Get_Device_Proc_Addr
-     (Device : Device_T;
-      Name   : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T with
+   function Get_Device_Proc_Addr (Device : Device_T; Name : Interfaces.C.Strings.chars_ptr) return Pfn_Vk_Void_Function_T with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkGetDeviceProcAddr";
@@ -3224,9 +3252,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkGetPhysicalDeviceMemoryProperties";
 
-   procedure Get_Physical_Device_Features
-     (Physical_Device : Physical_Device_T;
-      Features        : access Physical_Device_Features_T) with
+   procedure Get_Physical_Device_Features (Physical_Device : Physical_Device_T; Features : access Physical_Device_Features_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkGetPhysicalDeviceFeatures";
@@ -3267,8 +3293,7 @@ package Vk is
 
    MAX_LAYER_PROPERTIES_INDEX : constant := 100;
 
-   type Layer_Properties_Array_T is
-     array (Interfaces.C.size_t range 0 .. MAX_LAYER_PROPERTIES_INDEX) of Layer_Properties_T;
+   type Layer_Properties_Array_T is array (Interfaces.C.size_t range 0 .. MAX_LAYER_PROPERTIES_INDEX) of Layer_Properties_T;
    pragma Convention (C, Layer_Properties_Array_T);
 
    package Layer_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions (Layer_Properties_Array_T);
@@ -3286,8 +3311,7 @@ package Vk is
      array (Interfaces.C.size_t range 0 .. MAX_EXTENSION_PROPERTIES_INDEX) of Extension_Properties_T;
    pragma Convention (C, Extension_Properties_Array_T);
 
-   package Extension_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
-     (Extension_Properties_Array_T);
+   package Extension_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions (Extension_Properties_Array_T);
 
    function Enumerate_Instance_Extension_Properties
      (Layer_Name     : Interfaces.C.Strings.chars_ptr;
@@ -3351,10 +3375,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkAllocateMemory";
 
-   procedure Free_Memory
-     (Device    : Device_T;
-      Memory    : Device_Memory_T;
-      Allocator : access constant Allocation_Callbacks_T) with
+   procedure Free_Memory (Device : Device_T; Memory : Device_Memory_T; Allocator : access constant Allocation_Callbacks_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkFreeMemory";
@@ -3454,8 +3475,7 @@ package Vk is
    MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX : constant := 100;
 
    type Sparse_Image_Format_Properties_Array_T is
-     array
-     (Interfaces.C.size_t range 0 .. MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX) of Sparse_Image_Format_Properties_T;
+     array (Interfaces.C.size_t range 0 .. MAX_SPARSE_IMAGE_FORMAT_PROPERTIES_INDEX) of Sparse_Image_Format_Properties_T;
    pragma Convention (C, Sparse_Image_Format_Properties_Array_T);
 
    package Sparse_Image_Format_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
@@ -3605,10 +3625,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkCreateBuffer";
 
-   procedure Destroy_Buffer
-     (Device    : Device_T;
-      Buffer    : Buffer_T;
-      Allocator : access constant Allocation_Callbacks_T) with
+   procedure Destroy_Buffer (Device : Device_T; Buffer : Buffer_T; Allocator : access constant Allocation_Callbacks_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkDestroyBuffer";
@@ -3751,10 +3768,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkCreateComputePipelines";
 
-   procedure Destroy_Pipeline
-     (Device    : Device_T;
-      Pipeline  : Pipeline_T;
-      Allocator : access constant Allocation_Callbacks_T) with
+   procedure Destroy_Pipeline (Device : Device_T; Pipeline : Pipeline_T; Allocator : access constant Allocation_Callbacks_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkDestroyPipeline";
@@ -3785,10 +3799,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkCreateSampler";
 
-   procedure Destroy_Sampler
-     (Device    : Device_T;
-      Sampler   : Sampler_T;
-      Allocator : access constant Allocation_Callbacks_T) with
+   procedure Destroy_Sampler (Device : Device_T; Sampler : Sampler_T; Allocator : access constant Allocation_Callbacks_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkDestroySampler";
@@ -3896,10 +3907,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkDestroyRenderPass";
 
-   procedure Get_Render_Area_Granularity
-     (Device      : Device_T;
-      Render_Pass : Render_Pass_T;
-      Granularity : access Extent_2D_T) with
+   procedure Get_Render_Area_Granularity (Device : Device_T; Render_Pass : Render_Pass_T; Granularity : access Extent_2D_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkGetRenderAreaGranularity";
@@ -3958,9 +3966,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkEndCommandBuffer";
 
-   function Reset_Command_Buffer
-     (Command_Buffer : Command_Buffer_T;
-      Flags          : Command_Buffer_Reset_Flags_T) return Result_T with
+   function Reset_Command_Buffer (Command_Buffer : Command_Buffer_T; Flags : Command_Buffer_Reset_Flags_T) return Result_T with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkResetCommandBuffer";
@@ -4250,18 +4256,12 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkCmdResolveImage";
 
-   procedure Cmd_Set_Event
-     (Command_Buffer : Command_Buffer_T;
-      Event          : Event_T;
-      Stage_Mask     : Pipeline_Stage_Flags_T) with
+   procedure Cmd_Set_Event (Command_Buffer : Command_Buffer_T; Event : Event_T; Stage_Mask : Pipeline_Stage_Flags_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkCmdSetEvent";
 
-   procedure Cmd_Reset_Event
-     (Command_Buffer : Command_Buffer_T;
-      Event          : Event_T;
-      Stage_Mask     : Pipeline_Stage_Flags_T) with
+   procedure Cmd_Reset_Event (Command_Buffer : Command_Buffer_T; Event : Event_T; Stage_Mask : Pipeline_Stage_Flags_T) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkCmdResetEvent";
@@ -4306,10 +4306,7 @@ package Vk is
       Convention    => Stdcall,
       External_Name => "vkCmdBeginQuery";
 
-   procedure Cmd_End_Query
-     (Command_Buffer : Command_Buffer_T;
-      Query_Pool     : Query_Pool_T;
-      Query          : Interfaces.Unsigned_32) with
+   procedure Cmd_End_Query (Command_Buffer : Command_Buffer_T; Query_Pool : Query_Pool_T; Query : Interfaces.Unsigned_32) with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkCmdEndQuery";
@@ -4388,8 +4385,7 @@ package Vk is
      array (Interfaces.C.size_t range 0 .. MAX_DISPLAY_PROPERTIES_INDEX) of Display_Properties_Khr_T;
    pragma Convention (C, Display_Properties_Array_T);
 
-   package Display_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions
-     (Display_Properties_Array_T);
+   package Display_Properties_Array_Conversions is new Generic_Address_To_Access_Conversions (Display_Properties_Array_T);
 
    function Get_Physical_Device_Display_Properties_Khr
      (Physical_Device : Physical_Device_T;
@@ -4522,8 +4518,7 @@ package Vk is
 
    MAX_SURFACE_FORMATS_INDEX : constant := 100;
 
-   type Surface_Formats_Array_T is
-     array (Interfaces.C.size_t range 0 .. MAX_SURFACE_FORMATS_INDEX) of Surface_Format_Khr_T;
+   type Surface_Formats_Array_T is array (Interfaces.C.size_t range 0 .. MAX_SURFACE_FORMATS_INDEX) of Surface_Format_Khr_T;
    pragma Convention (C, Surface_Formats_Array_T);
 
    package Surface_Formats_Array_Conversions is new Generic_Address_To_Access_Conversions (Surface_Formats_Array_T);
@@ -4596,9 +4591,10 @@ package Vk is
       External_Name => "vkQueuePresentKHR";
 
    function Create_Win_32_Surface_Khr
-     (Instance  : Instance_T;
-      Allocator : access constant Allocation_Callbacks_T;
-      Surface   : access Surface_Khr_T) return Result_T with
+     (Instance    : Instance_T;
+      Create_Info : access constant Win_32_Surface_Create_Info_Khr_T;
+      Allocator   : access constant Allocation_Callbacks_T;
+      Surface     : access Surface_Khr_T) return Result_T with
       Import        => True,
       Convention    => Stdcall,
       External_Name => "vkCreateWin32SurfaceKHR";

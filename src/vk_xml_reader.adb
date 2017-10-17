@@ -154,6 +154,7 @@ package body Vk_XML_Reader is
    use all type Vk_XML.Extension_Tag.Child_Kind_Id_T;
    use all type Vk_XML.Extension_Tag.Supported_T;
    use all type Vk_XML.Extensions_Tag.Child_Kind_Id_T;
+   use all type Vk_XML.Require_Enum_Tag.Dir_T;
 --     use all type Vk_XML.Vendor_Id_Tag.Name_T;
 --     use all type Vk_XML.Vendor_Id_Tag.Id_T;
 --     use all type Vk_XML.Vendor_Id_Tag.Comment_T;
@@ -1450,7 +1451,11 @@ package body Vk_XML_Reader is
                      end if;
                   end;
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Dir then
-                  Current_Tag_V.Require_Enum_V.Set_Dir (Attribute_Value, SH);
+                  if Attribute_Value = "-" then
+                     Current_Tag_V.Require_Enum_V.Set_Dir (Minus_Sign);
+                  else
+                     Initialize (Call_Result, "5a5e14a7-77f8-4d66-90f0-b4870f2f0078");
+                  end if;
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Extends then
                   Current_Tag_V.Require_Enum_V.Set_Extends (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Require_Enum_Attribute_Comment then

@@ -32,6 +32,7 @@ project Aida is
                          "aida-utf8.ads",
                          "aida-utf8_code_point.adb",
                          "aida-utf8_code_point.ads",
+                         "aida-xml.adb",
                          "aida-xml.ads",
                          "aida-xml-generic_parse_xml_file.adb",
                          "aida-xml-generic_parse_xml_file.ads"

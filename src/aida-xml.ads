@@ -25,6 +25,14 @@ package Aida.XML is
 
    package Subprogram_Call_Result is new Aida.Generic_Subprogram_Call_Result;
 
+   generic
+      type Custom_T is limited private;
+      with procedure Char (C   : Character;
+                           Arg : Custom_T);
+   procedure XML_Decode (S           : String_T;
+                         Arg         : Custom_T;
+                         Call_Result : out Subprogram_Call_Result.T);
+
 private
 
    package Boolean_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,

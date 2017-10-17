@@ -1,5 +1,6 @@
 with Aida.Text_IO;
 with Aida.UTF8;
+with Aida.XML;
 with Ada.Text_IO;
 with Aida.UTF8_Code_Point;
 with GNAT.Source_Info;
@@ -45,6 +46,7 @@ package body Vk_Package_Creator is
 
    use all type Aida.String_T;
    use all type Aida.Int32_T;
+   use all type Aida.Character_T;
 
    use all type Aida.UTF8_Code_Point.T;
    use all type Ada.Strings.Unbounded.Unbounded_String;
@@ -88,6 +90,16 @@ package body Vk_Package_Creator is
    T_End  : constant String := "_T";
    AT_End : constant String := "_Ptr";
    CAT_End : constant String := "_Const_Ptr";
+
+   procedure Put_Escaped_XML (Char : Character;
+                              File : Ada.Text_IO.File_Type) is
+   begin
+      Ada.Text_IO.Put (File => File,
+                       Item => Char);
+   end Put_Escaped_XML;
+
+   procedure Put_Escaped_XML is new Aida.XML.XML_Decode (Custom_T => Ada.Text_IO.File_Type,
+                                                         Char     => Put_Escaped_XML);
 
    File : Ada.Text_IO.File_Type;
 
@@ -1484,7 +1496,8 @@ package body Vk_Package_Creator is
       end if;
    end Handle_Registry_Child_Enums;
 
-   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.T) is
+   procedure Create_Vk_Package (R  : Vk_XML.Registry_Tag.T;
+                                SH : Dynamic_Pools.Subpool_Handle) is
 
       procedure Generate_Code_For_The_Public_Part is
 
@@ -3508,6 +3521,151 @@ package body Vk_Package_Creator is
             end loop;
          end Handle_Commands;
 
+         procedure Generate_Code_For_The_Constants_Defined_In_Extensions is
+
+            procedure Handle_Require_Enum_Child (E    : Vk_XML.Extension_Tag.T;
+                                                 Enum : Vk_XML.Require_Enum_Tag.T) is
+            begin
+               if
+                 Enum.Exists_Value and
+                 Enum.Exists_Name and
+                 not Enum.Exists_Offset and
+                 not Enum.Exists_Dir and
+                 not Enum.Exists_Comment and
+                 not Enum.Exists_Extends and
+                 not Enum.Exists_Bit_Position
+               then
+                  Put_Tabs (1);
+
+                  -- Assuming all Enum.Names begin with VK_ and skip the first three characterss
+                  Put (Enum.Name (Enum.Name'First + 3 .. Enum.Name'Last));
+
+                  Put (" : constant ");
+
+                  if (for all I in Enum.Value'Range => Is_Digit (Aida.Character_T (Enum.Value (I)))) then
+                     Put (":= ");
+                     Put (Enum.Value);
+                  else
+                     declare
+                        Call_Result : Aida.XML.Subprogram_Call_Result.T;
+                        pragma Unreferenced (Call_Result);
+                     begin
+                        if Enum.Value (Enum.Value'First) = '&' then
+                           -- Implicitly assuming the string begins with &quot;
+                           Put ("String := ");
+                           Put_Escaped_XML (Enum.Value, File, Call_Result);
+                        else
+                           -- Implicitly assuming the string represents an enumeration value, skip the prefix VK_
+                           Put (":= ");
+                           Put (Enum.Value (Enum.Value'First + 3..Enum.Value'Last));
+                        end if;
+                     end;
+                  end if;
+                  Put_Line (";");
+               elsif
+                 Enum.Exists_Name and
+                 Enum.Exists_Offset and
+                 Enum.Exists_Extends
+               then
+                  null; -- Ignore
+               else
+                  Aida.Text_IO.Put_Line ("8d1baf60-2e40-411b-8eef-e62e3953e667: cannot handle <enum> in vk.xml!");
+               end if;
+            end Handle_Require_Enum_Child;
+
+            procedure Handle_Require (E       : Vk_XML.Extension_Tag.T;
+                                      Require : Vk_XML.Require_Tag.T) is
+            begin
+               for C of Require.Children loop
+                  case C.Kind_Id is
+                  when Child_Type => null;
+                  when Child_Enum => Handle_Require_Enum_Child (E, C.Enum.all);
+                  when Child_Command => null;
+                  when Child_Out_Commented_Message => null;
+                  when Child_Usage => null;
+                  end case;
+               end loop;
+            end Handle_Require;
+
+            procedure Handle_Extension (E : Vk_XML.Extension_Tag.T) is
+
+               function Count_Require_Tags return Aida.Nat32_T is
+                  N : Aida.Nat32_T := 0;
+               begin
+                  for C of E.Children loop
+                     case C.Kind_Id is
+                     when Child_Require =>
+                        N := N + 1;
+                        if N > 10 then
+                           exit;
+                        end if;
+                     when others => null;
+                     end case;
+                  end loop;
+
+                  return N;
+               end Count_Require_Tags;
+
+               N : Aida.Nat32_T := Count_Require_Tags;
+            begin
+               if Count_Require_Tags = 1 then
+                  for C of E.Children loop
+                     case C.Kind_Id is
+                     when Child_Require =>
+                        Handle_Require (E, C.Require.all);
+                        exit;
+                     when others => null;
+                     end case;
+                  end loop;
+               else
+                  Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+               end if;
+            end Handle_Extension;
+
+            procedure Handle_Extensions_Child (Child : Vk_XML.Extensions_Tag.Child_T) is
+
+
+            begin
+               case Child.Kind_Id is
+               when Child_Extension             => Handle_Extension (Child.Extension.all);
+               when Child_Out_Commented_Message => null;
+               end case;
+            end Handle_Extensions_Child;
+
+            function Count_Extensions_Tags return Aida.Nat32_T is
+               N : Aida.Nat32_T := 0;
+            begin
+               for R_Child of R.Children loop
+                  case R_Child.Kind_Id is
+                  when Child_Extensions =>
+                     N := N + 1;
+                     if N > 10 then
+                        exit;
+                     end if;
+                  when others => null;
+                  end case;
+               end loop;
+
+               return N;
+            end Count_Extensions_Tags;
+
+         begin
+            if Count_Extensions_Tags = 1 then
+               for R_Child of R.Children loop
+                  case R_Child.Kind_Id is
+                  when Child_Extensions =>
+                     for E of R_Child.Extensions.Children loop
+                        Handle_Extensions_Child (E);
+                     end loop;
+                     exit;
+                  when others => null;
+                  end case;
+               end loop;
+            else
+               Aida.Text_IO.Put_Line ("More than one <extensions> tag in vk.xml!");
+            end if;
+         end Generate_Code_For_The_Constants_Defined_In_Extensions;
+
       begin
          Put_Line ("");
          Put_Tabs (1);Put_Line ("type Major_Version_T is range 0..2**9;");
@@ -3535,6 +3693,8 @@ package body Vk_Package_Creator is
          Generate_Code_For_Special_Types;
 
          Generate_Code_For_The_Enum_Types;
+
+         Generate_Code_For_The_Constants_Defined_In_Extensions;
 
          for Request_Child of R.Children loop
             case Request_Child.Kind_Id is
@@ -3683,7 +3843,77 @@ package body Vk_Package_Creator is
          Add ("const char* const*", "Char_Ptr_Array_Conversions.Object_Address");
       end Initialize_Global_Variables;
 
-      procedure Go_Through_Extensions is
+      procedure Extend_Existing_Enumeration_Types_By_Using_Extensions is
+
+         procedure Handle_Require_Enum_Child (E    : Vk_XML.Extension_Tag.T;
+                                              Enum : Vk_XML.Require_Enum_Tag.T) is
+         begin
+            if
+              Enum.Exists_Value and
+              Enum.Exists_Name and
+              not Enum.Exists_Offset and
+              not Enum.Exists_Dir and
+              not Enum.Exists_Comment and
+              not Enum.Exists_Extends and
+              not Enum.Exists_Bit_Position
+            then
+               null; -- Generate the code for the constants after the enumeration type definitions
+                     -- because the constants may refer to enumeration values that are not yet defined
+                     -- in vk.ads.
+            elsif
+              Enum.Exists_Name and
+              Enum.Exists_Offset and
+              Enum.Exists_Extends
+            then
+               declare
+                  Is_Found : Boolean := False;
+               begin
+                  for Registry_Child of R.Children loop
+                     case Registry_Child.Kind_Id is
+                        when Child_Enums =>
+                           if Registry_Child.Enums.Exists_Name and then Registry_Child.Enums.Name = Enum.Extends then
+
+                              declare
+                                 New_Enum : Vk_XML.Enums_Enum_Tag.Ptr :=
+                                   new (SH) Vk_XML.Enums_Enum_Tag.T;
+                                 V : Aida.Int32_T := 1_000_000_000+1_000*Aida.Int32_T (E.Number)+Aida.Int32_T (Enum.Offset);
+                              begin
+                                 New_Enum.Set_Name (Enum.Name, SH);
+
+                                 if Enum.Exists_Dir then
+                                    V := -V;
+                                 end if;
+
+                                 New_Enum.Set_Value (Aida.String_T (Ada.Strings.Fixed.Trim (V'Image, Ada.Strings.Both)), SH);
+                                 Registry_Child.Enums.Append_Child ((Kind_Id    => Child_Enums_Enum,
+                                                                     Enums_Enum => New_Enum));
+                              end;
+
+                              Is_Found := True;
+                              exit;
+                           end if;
+                        when others => null;
+                     end case;
+                  end loop;
+               end;
+            else
+               Aida.Text_IO.Put_Line ("515ed6d2-f5ec-4679-8dd4-be821fdd991e: cannot handle <enum> in vk.xml!");
+            end if;
+         end Handle_Require_Enum_Child;
+
+         procedure Handle_Require (E       : Vk_XML.Extension_Tag.T;
+                                   Require : Vk_XML.Require_Tag.T) is
+         begin
+            for C of Require.Children loop
+               case C.Kind_Id is
+                  when Child_Type => null;
+                  when Child_Enum => Handle_Require_Enum_Child (E, C.Enum.all);
+                  when Child_Command => null;
+                  when Child_Out_Commented_Message => null;
+                  when Child_Usage => null;
+               end case;
+            end loop;
+         end Handle_Require;
 
          procedure Handle_Extension (E : Vk_XML.Extension_Tag.T) is
 
@@ -3707,7 +3937,14 @@ package body Vk_Package_Creator is
             N : Aida.Nat32_T := Count_Require_Tags;
          begin
             if Count_Require_Tags = 1 then
-               null;
+               for C of E.Children loop
+                  case C.Kind_Id is
+                     when Child_Require =>
+                        Handle_Require (E, C.Require.all);
+                        exit;
+                     when others => null;
+                  end case;
+               end loop;
             else
                Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
             end if;
@@ -3768,7 +4005,7 @@ package body Vk_Package_Creator is
          else
             Aida.Text_IO.Put_Line ("More than one <extensions> tag in vk.xml!");
          end if;
-      end Go_Through_Extensions;
+      end Extend_Existing_Enumeration_Types_By_Using_Extensions;
 
    begin
       Initialize_Global_Variables;
@@ -3782,7 +4019,7 @@ package body Vk_Package_Creator is
       Put_Line ("");
       Put_Line ("package Vk is");
 
-      Go_Through_Extensions;
+      Extend_Existing_Enumeration_Types_By_Using_Extensions;
    end Create_Vk_Package;
 
 end Vk_Package_Creator;

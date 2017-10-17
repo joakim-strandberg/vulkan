@@ -4,6 +4,10 @@ package Vk_XML.Require_Enum_Tag is
 
    type Bit_Position_T is new Aida.Int32_T range 0..20;
 
+   type Dir_T is (
+                  Minus_Sign
+                  );
+
    type T is tagged limited private;
 
    procedure Set_Name (This  : in out T;
@@ -48,13 +52,12 @@ package Vk_XML.Require_Enum_Tag is
      Global => null;
 
    procedure Set_Dir (This  : in out T;
-                      Value : Aida.String_T;
-                      SP    : Dynamic_Pools.Subpool_Handle) with
+                      Value : Dir_T) with
      Global => null,
      Pre    => not This.Exists_Dir,
      Post   => This.Exists_Dir and This.Dir = Value;
 
-   function Dir (This : T) return Aida.String_T with
+   function Dir (This : T) return Dir_T with
      Global => null,
      Pre    => This.Exists_Dir;
 
@@ -120,12 +123,19 @@ private
       end case;
    end record;
 
+   type Nullable_Dir_T (Exists : Boolean := False) is record
+      case Exists is
+         when True  => Value : Dir_T;
+         when False => null;
+      end case;
+   end record;
+
    type T is tagged limited
       record
          My_Name         : Nullable_String_Ptr;
          My_Value        : Nullable_String_Ptr;
          My_Offset       : Nullable_Offset_T;
-         My_Dir          : Nullable_String_Ptr;
+         My_Dir          : Nullable_Dir_T;
          My_Extends      : Nullable_String_Ptr;
          My_Comment      : Nullable_String_Ptr;
          My_Bit_Position : Nullable_Bit_Position_T;
@@ -143,7 +153,7 @@ private
 
    function Exists_Offset (This : T) return Boolean is (This.My_Offset.Exists);
 
-   function Dir (This : T) return Aida.String_T is (This.My_Dir.Value.all);
+   function Dir (This : T) return Dir_T is (This.My_Dir.Value);
 
    function Exists_Dir (This : T) return Boolean is (This.My_Dir.Exists);
 

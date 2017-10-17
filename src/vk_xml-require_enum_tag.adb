@@ -27,12 +27,11 @@ package body Vk_XML.Require_Enum_Tag is
    end Set_Comment;
 
    procedure Set_Dir (This : in out T;
-                      Value : Aida.String_T;
-                      SP   : Dynamic_Pools.Subpool_Handle)
+                      Value : Dir_T)
    is
    begin
       This.My_Dir := (Exists => True,
-                      Value  => new (SP) Aida.String_T'(Value));
+                      Value  => Value);
    end Set_Dir;
 
    procedure Set_Offset (This : in out T;

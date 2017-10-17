@@ -1,4 +1,5 @@
 with Vk_XML.Registry_Tag;
+with Dynamic_Pools;
 
 private with Ada.Strings.Unbounded;
 private with Ada.Containers.Vectors;
@@ -9,7 +10,8 @@ private with Vk_XML.Type_Tag;
 
 package Vk_Package_Creator is
 
-   procedure Create_Vk_Package (R : Vk_XML.Registry_Tag.T);
+   procedure Create_Vk_Package (R  : Vk_XML.Registry_Tag.T;
+                                SH : Dynamic_Pools.Subpool_Handle);
 
 private
 

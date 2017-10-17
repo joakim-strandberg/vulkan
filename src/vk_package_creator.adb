@@ -9,6 +9,7 @@ with Ada.Containers.Generic_Constrained_Array_Sort;
 with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
+with Ada.Containers.Indefinite_Vectors;
 
 with Vk_XML.Command_Tag;
 with Vk_XML.Commands_Tag;
@@ -111,6 +112,12 @@ package body Vk_Package_Creator is
    use type C_Type_Name_To_Ada_Name_Map_Owner.Cursor;
 
    C_Type_Name_To_Ada_Name_Map : C_Type_Name_To_Ada_Name_Map_Owner.Map;
+
+   package Valid_Extensions_Vector is new Ada.Containers.Indefinite_Vectors (Index_Type   => Positive,
+                                                                             Element_Type => Aida.String_T,
+                                                                             "="          => Aida."=");
+
+   Valid_Extensions : Valid_Extensions_Vector.Vector;
 
    procedure Put_Tabs (N : Natural) is
    begin
@@ -3555,9 +3562,42 @@ package body Vk_Package_Creator is
                            Put ("String := ");
                            Put_Escaped_XML (Enum.Value, File, Call_Result);
                         else
-                           -- Implicitly assuming the string represents an enumeration value, skip the prefix VK_
-                           Put (":= ");
-                           Put (Enum.Value (Enum.Value'First + 3..Enum.Value'Last));
+                           -- Implicitly assuming the string represents an enumeration value
+                           -- We must find the enumeration type name to generate the code for the constant
+
+                           declare
+                              Is_Found : Boolean := False;
+                              Adafied_Enum_Name : Ada.Strings.Unbounded.Unbounded_String;
+                           begin
+                              for Registry_Child of R.Children loop
+                                 case Registry_Child.Kind_Id is
+                                    when Child_Enums =>
+                                       for Enums_Child of Registry_Child.Enums.Children loop
+                                          case Enums_Child.Kind_Id is
+                                             when Child_Enums_Enum =>
+                                                if Enums_Child.Enums_Enum.Name = Enum.Value then
+                                                   Is_Found := True;
+
+                                                   Adaify_Type_Name (Old_Name => Registry_Child.Enums.Name,
+                                                                     New_Name => Adafied_Enum_Name);
+
+                                                   Puts (To_String (Adafied_Enum_Name));
+
+                                                   -- Implicitly assuming the string represents an enumeration value, skip the prefix VK_
+                                                   Put (" := ");
+                                                   Put (Enum.Value (Enum.Value'First + 3..Enum.Value'Last));
+                                                end if;
+                                             when others => null;
+                                          end case;
+                                       end loop;
+                                    when others      => null;
+                                 end case;
+                              end loop;
+
+                              if not Is_Found then
+                                 Aida.Text_IO.Put_Line ("451432b5-5449-4ac2-9f7f-13604de7627d");
+                              end if;
+                           end;
                         end if;
                      end;
                   end if;
@@ -3608,17 +3648,19 @@ package body Vk_Package_Creator is
 
                N : Aida.Nat32_T := Count_Require_Tags;
             begin
-               if Count_Require_Tags = 1 then
-                  for C of E.Children loop
-                     case C.Kind_Id is
-                     when Child_Require =>
-                        Handle_Require (E, C.Require.all);
-                        exit;
-                     when others => null;
-                     end case;
-                  end loop;
-               else
-                  Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+               if Valid_Extensions.Contains (E.Name) then
+                  if Count_Require_Tags = 1 then
+                     for C of E.Children loop
+                        case C.Kind_Id is
+                        when Child_Require =>
+                           Handle_Require (E, C.Require.all);
+                           exit;
+                        when others => null;
+                        end case;
+                     end loop;
+                  else
+                     Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+                  end if;
                end if;
             end Handle_Extension;
 
@@ -3637,12 +3679,12 @@ package body Vk_Package_Creator is
             begin
                for R_Child of R.Children loop
                   case R_Child.Kind_Id is
-                  when Child_Extensions =>
-                     N := N + 1;
-                     if N > 10 then
-                        exit;
-                     end if;
-                  when others => null;
+                     when Child_Extensions =>
+                        N := N + 1;
+                        if N > 10 then
+                           exit;
+                        end if;
+                     when others => null;
                   end case;
                end loop;
 
@@ -3661,6 +3703,8 @@ package body Vk_Package_Creator is
                   when others => null;
                   end case;
                end loop;
+
+               Put_Line ("");
             else
                Aida.Text_IO.Put_Line ("More than one <extensions> tag in vk.xml!");
             end if;
@@ -3827,7 +3871,7 @@ package body Vk_Package_Creator is
          end Add;
 
       begin
-         C_Type_Name_To_Ada_Name_Map_Owner.Clear (C_Type_Name_To_Ada_Name_Map);
+         C_Type_Name_To_Ada_Name_Map.Clear;
          Add ("size_t", "Interfaces.C.size_t");
          Add ("int32_t", "Interfaces.Integer_32");
          Add ("uint8_t", "Interfaces.Unsigned_8");
@@ -3841,6 +3885,16 @@ package body Vk_Package_Creator is
          Add ("char*", "Interfaces.C.Strings.chars_ptr");
          Add ("const char*", "Interfaces.C.Strings.chars_ptr");
          Add ("const char* const*", "Char_Ptr_Array_Conversions.Object_Address");
+
+         Valid_Extensions.Clear;
+         Valid_Extensions.Append ("VK_KHR_surface");
+         Valid_Extensions.Append ("VK_KHR_swapchain");
+         Valid_Extensions.Append ("VK_KHR_display");
+         Valid_Extensions.Append ("VK_KHR_display_swapchain");
+         Valid_Extensions.Append ("VK_EXT_debug_report");
+         if Generating_Code_For_OS = Windows then
+            Valid_Extensions.Append ("VK_KHR_win32_surface");
+         end if;
       end Initialize_Global_Variables;
 
       procedure Extend_Existing_Enumeration_Types_By_Using_Extensions is
@@ -3936,17 +3990,19 @@ package body Vk_Package_Creator is
 
             N : Aida.Nat32_T := Count_Require_Tags;
          begin
-            if Count_Require_Tags = 1 then
-               for C of E.Children loop
-                  case C.Kind_Id is
+            if Valid_Extensions.Contains (E.Name) then
+               if Count_Require_Tags = 1 then
+                  for C of E.Children loop
+                     case C.Kind_Id is
                      when Child_Require =>
                         Handle_Require (E, C.Require.all);
                         exit;
                      when others => null;
-                  end case;
-               end loop;
-            else
-               Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+                     end case;
+                  end loop;
+               else
+                  Aida.Text_IO.Put_Line ("f0ea1c3c-0bec-4372-9748-3cfa7ce7df44: More than one <require> tag in vk.xml!");
+               end if;
             end if;
          end Handle_Extension;
 

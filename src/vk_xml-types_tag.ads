@@ -1,16 +1,19 @@
 with Vk_XML.Type_Tag;
+with Vk_XML.Comment_Tag;
 
 package Vk_XML.Types_Tag is
 
    type Child_Kind_Id_T is (
                             Child_Type,
-                            Child_Out_Commented_Message
+                            Child_Out_Commented_Message, -- TODO: Still used??
+                            Child_Comment
                            );
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
       case Kind_Id is
          when Child_Type                  => Type_V                : not null Type_Tag.Ptr;
          when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
+         when Child_Comment               => Comment               : not null Comment_Tag.Ptr;
       end case;
    end record;
 
@@ -28,6 +31,20 @@ package Vk_XML.Types_Tag is
    procedure Append_Child (This  : in out T;
                            Child : Child_T);
 
+   procedure Set_Comment (This  : in out T;
+                          Value : Aida.String_T;
+                          SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Comment,
+     Post   => This.Exists_Comment and This.Comment = Value;
+
+   function Comment (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Comment;
+
+   function Exists_Comment (This : T) return Boolean with
+     Global => null;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
@@ -35,8 +52,13 @@ private
    type T is tagged limited
       record
          My_Children : aliased Child_Vectors.Vector;
+         My_Comment : Nullable_String_Ptr;
       end record;
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
+
+   function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
+
+   function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
 
 end Vk_XML.Types_Tag;

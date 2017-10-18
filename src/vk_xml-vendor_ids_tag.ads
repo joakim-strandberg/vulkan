@@ -28,6 +28,20 @@ package Vk_XML.Vendor_Ids_Tag is
    procedure Append_Child (This  : in out T;
                            Child : Child_T);
 
+   procedure Set_Comment (This  : in out T;
+                               Value : Aida.String_T;
+                               SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Comment,
+     Post   => This.Exists_Comment and This.Comment = Value;
+
+   function Comment (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Comment;
+
+   function Exists_Comment (This : T) return Boolean with
+     Global => null;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
@@ -35,8 +49,13 @@ private
    type T is tagged limited
       record
          My_Children : aliased Child_Vectors.Vector;
+         My_Comment  : Nullable_String_Ptr;
       end record;
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
+
+   function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
+
+   function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
 
 end Vk_XML.Vendor_Ids_Tag;

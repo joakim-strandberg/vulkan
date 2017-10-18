@@ -51,6 +51,7 @@ package body Vk_XML_Reader is
    XML_Tag_Registry                                 : constant Aida.String_T := "registry";
    XML_Tag_Comment                                  : constant Aida.String_T := "comment";
    XML_Tag_Vendor_Ids                               : constant Aida.String_T := "vendorids";
+   XML_Tag_Vendor_Ids_Attribute_Comment             : constant Aida.String_T := "comment";
    XML_Tag_Vendor_Id                                : constant Aida.String_T := "vendorid";
    XML_Tag_Vendor_Id_Attribute_Name                 : constant Aida.String_T := "name";
    XML_Tag_Vendor_Id_Attribute_Id                   : constant Aida.String_T := "id";
@@ -68,12 +69,16 @@ package body Vk_XML_Reader is
    XML_Tag_Type_Attribute_Parent                    : constant Aida.String_T := "parent";
    XML_Tag_Type_Attribute_Returned_Only             : constant Aida.String_T := "returnedonly";
    XML_Tag_Type_Attribute_Comment                   : constant Aida.String_T := "comment";
+   XML_Tag_Type_Attribute_Struct_Extends            : constant Aida.String_T := "structextends";
    XML_Tag_Name                                     : constant Aida.String_T := "name";
    XML_Tag_Member                                   : constant Aida.String_T := "member";
    XML_Tag_Member_Attribute_Optional                : constant Aida.String_T := "optional";
    XML_Tag_Member_Attribute_Len                     : constant Aida.String_T := "len";
    XML_Tag_Member_Attribute_No_Auto_Validity        : constant Aida.String_T := "noautovalidity";
    XML_Tag_Member_Attribute_Valid_Extension_Structs : constant Aida.String_T := "validextensionstructs";
+   XML_Tag_Member_Attribute_Values                  : constant Aida.String_T := "values";
+   XML_Tag_Member_Attribute_Altlen                  : constant Aida.String_T := "altlen";
+   XML_Tag_Member_Attribute_Extern_Sync             : constant Aida.String_T := "externsync";
    XML_Tag_Validity                                 : constant Aida.String_T := "validity";
    XML_Tag_Usage                                    : constant Aida.String_T := "usage";
    XML_Tag_Usage_Attribute_Command                  : constant Aida.String_T := "command";
@@ -96,6 +101,8 @@ package body Vk_XML_Reader is
    XML_Tag_Command_Attribute_Queues                 : constant Aida.String_T := "queues";
    XML_Tag_Command_Attribute_Render_Pass            : constant Aida.String_T := "renderpass";
    XML_Tag_Command_Attribute_Cmd_Buffer_Level       : constant Aida.String_T := "cmdbufferlevel";
+   XML_Tag_Command_Attribute_Pipeline               : constant Aida.String_T := "pipeline";
+   XML_Tag_Command_Attribute_Comment                : constant Aida.String_T := "comment";
    XML_Tag_Proto                                    : constant Aida.String_T := "proto";
    XML_Tag_Param                                    : constant Aida.String_T := "param";
    XML_Tag_Param_Attribute_Optional                 : constant Aida.String_T := "optional";
@@ -633,8 +640,27 @@ package body Vk_XML_Reader is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Comment then
+                     declare
+                        Comment : not null Vk_XML.Comment_Tag.Ptr := new (SH) Vk_XML.Comment_Tag.T;
+                        Child : Vk_XML.Types_Tag.Child_T := (Kind_Id => Child_Comment,
+                                                             Comment => Comment);
+
+                        Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Comment);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Comment := Comment;
+
+                        Initialize (Temp_Tag);
+
+                        Prev_Tag.Types_V.Append_Child (Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag ");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & String (Tag_Name));
                   end if;
                when Current_Tag_Def.Tag_Id.Type_T =>
                   if Tag_Name = XML_Tag_Name then
@@ -713,8 +739,27 @@ package body Vk_XML_Reader is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Comment then
+                     declare
+                        Comment : not null Vk_XML.Comment_Tag.Ptr := new (SH) Vk_XML.Comment_Tag.T;
+                        Child : Vk_XML.Type_Tag.Child_T := (Kind_Id => Child_Comment,
+                                                            Comment => Comment);
+
+                        Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Comment);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Comment := Comment;
+
+                        Initialize (Temp_Tag);
+
+                        Prev_Tag.Type_V.Append_Child (Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag ");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & String (Tag_Name));
                   end if;
                when Current_Tag_Def.Tag_Id.Member =>
                   if Tag_Name = XML_Tag_Type then
@@ -774,8 +819,27 @@ package body Vk_XML_Reader is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Comment then
+                     declare
+                        Comment : not null Vk_XML.Comment_Tag.Ptr := new (SH) Vk_XML.Comment_Tag.T;
+                        Child : Vk_XML.Member_Tag.Child_T := (Kind_Id => Child_Comment,
+                                                              Comment => Comment);
+
+                        Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Comment);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Comment := Comment;
+
+                        Initialize (Temp_Tag);
+
+                        Prev_Tag.Member_V.Append_Child (Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag ");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & String (Tag_Name));
                   end if;
                when Current_Tag_Def.Tag_Id.Validity =>
                   if Tag_Name = XML_Tag_Usage then
@@ -839,8 +903,27 @@ package body Vk_XML_Reader is
                                                                    Key       => Parents_Including_Self,
                                                                    New_Item  => Temp_Tag);
                      end;
+                  elsif Tag_Name = XML_Tag_Comment then
+                     declare
+                        Comment : not null Vk_XML.Comment_Tag.Ptr := new (SH) Vk_XML.Comment_Tag.T;
+                        Child : Vk_XML.Enums_Tag.Child_T := (Kind_Id => Child_Comment,
+                                                             Comment  => Comment);
+
+                        Temp_Tag : Current_Tag_T (Current_Tag_Def.Tag_Id.Comment);
+                     begin
+                        Temp_Tag.Parent_Tag := Prev_Tag.Id;
+                        Temp_Tag.Comment := Comment;
+
+                        Initialize (Temp_Tag);
+
+                        Prev_Tag.Enums_V.Append_Child (Child);
+
+                        Current_Tag_To_Tags_Map_Type_Owner.Insert (Container => Parents_Including_Self_To_Current_Tag_Map,
+                                                                   Key       => Parents_Including_Self,
+                                                                   New_Item  => Temp_Tag);
+                     end;
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag ");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & "Found unexpected start tag " & String (Tag_Name));
                   end if;
                when Current_Tag_Def.Tag_Id.Commands =>
                   if Tag_Name = XML_Tag_Command then
@@ -1278,8 +1361,10 @@ package body Vk_XML_Reader is
                   end if;
                elsif Attribute_Name = XML_Tag_Type_Attribute_Comment then
                   Current_Tag_V.Type_V.Set_Comment (Attribute_Value, SH);
+               elsif Attribute_Name = XML_Tag_Type_Attribute_Struct_Extends then
+                  Current_Tag_V.Type_V.Set_Struct_Extends (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Name));
                end if;
             when Current_Tag_Def.Tag_Id.Member =>
                if Attribute_Name = XML_Tag_Member_Attribute_Optional then
@@ -1298,8 +1383,20 @@ package body Vk_XML_Reader is
                   end if;
                elsif Attribute_Name = XML_Tag_Member_Attribute_Valid_Extension_Structs then
                   Current_Tag_V.Member_V.Set_Valid_Extension_Structs (Attribute_Value, SH);
+               elsif Attribute_Name = XML_Tag_Member_Attribute_Values then
+                  Current_Tag_V.Member_V.Set_Values (Attribute_Value, SH);
+               elsif Attribute_Name = XML_Tag_Member_Attribute_Altlen then
+                  Current_Tag_V.Member_V.Set_Alt_Len (Attribute_Value, SH);
+               elsif Attribute_Name = XML_Tag_Member_Attribute_Extern_Sync then
+                  if Attribute_Value = "true" then
+                     Current_Tag_V.Member_V.Set_Extern_Sync (True);
+                  elsif Attribute_Value = "false" then
+                     Current_Tag_V.Member_V.Set_Extern_Sync (False);
+                  else
+                     Initialize (Call_Result, "0862ca0d-10c4-4991-8834-0d5ac0642da0");
+                  end if;
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Name));
                end if;
             when Current_Tag_Def.Tag_Id.Enums =>
                if Attribute_Name = XML_Tag_Enums_Attribute_Name then
@@ -1365,12 +1462,12 @@ package body Vk_XML_Reader is
                      Current_Tag_V.Command_V.Append_Queue (Graphics);
                   elsif Attribute_Value = "compute" then
                      Current_Tag_V.Command_V.Append_Queue (Compute);
-                  elsif Attribute_Value = "transfer,graphics,compute" then
+                  elsif Attribute_Value = "transfer,graphics,compute" or Attribute_Value = "graphics,compute,transfer" then
                      Current_Tag_V.Command_V.Append_Queue (Graphics);
                      Current_Tag_V.Command_V.Append_Queue (Compute);
                      Current_Tag_V.Command_V.Append_Queue (Transfer);
                   else
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Value));
                   end if;
                elsif Attribute_Name = XML_Tag_Command_Attribute_Render_Pass then
                   if Attribute_Value = "inside" then
@@ -1388,11 +1485,25 @@ package body Vk_XML_Reader is
                      Current_Tag_V.Command_V.Append_Command_Buffer_Level (Secondary);
                   elsif Attribute_Value = "primary" then
                      Current_Tag_V.Command_V.Append_Command_Buffer_Level (Primary);
+                  elsif Attribute_Value = "secondary" then
+                     Current_Tag_V.Command_V.Append_Command_Buffer_Level (Secondary);
+                  else
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Value));
+                  end if;
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Pipeline then
+                  if Attribute_Value = "graphics" then
+                     Current_Tag_V.Command_V.Set_Pipeline (Graphics);
+                  elsif Attribute_Value = "compute" then
+                     Current_Tag_V.Command_V.Set_Pipeline (Compute);
+                  elsif Attribute_Value = "transfer" then
+                     Current_Tag_V.Command_V.Set_Pipeline (Transfer);
                   else
                      Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                   end if;
+               elsif Attribute_Name = XML_Tag_Command_Attribute_Comment then
+                  Current_Tag_V.Command_V.Set_Comment (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Name));
                end if;
             when Current_Tag_Def.Tag_Id.Param =>
                if Attribute_Name = XML_Tag_Param_Attribute_Optional then
@@ -1421,6 +1532,8 @@ package body Vk_XML_Reader is
                   Current_Tag_V.Feature_V.Set_Name (Attribute_Value, SH);
                elsif Attribute_Name = XML_Tag_Feature_Attribute_Number then
                   Current_Tag_V.Feature_V.Set_Number (Attribute_Value, SH);
+               elsif Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Feature_V.Set_Comment (Attribute_Value, SH);
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
@@ -1517,7 +1630,7 @@ package body Vk_XML_Reader is
                elsif Attribute_Name = XML_Tag_Extension_Attribute_Contact then
                   Current_Tag_V.Extension_V.Set_Contact (Attribute_Value, SH);
                else
-                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                  Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & String (Attribute_Name));
                end if;
             when Current_Tag_Def.Tag_Id.Usage =>
                if Attribute_Name = XML_Tag_Usage_Attribute_Command then
@@ -1527,21 +1640,46 @@ package body Vk_XML_Reader is
                else
                   Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
                end if;
+            when Current_Tag_Def.Tag_Id.Vendor_Ids =>
+               if Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Vendor_Ids_V.Set_Comment (Attribute_Value, SH);
+               else
+                  Initialize (Call_Result, "08c517a4-46bc-4701-9356-9fba4bfe309e");
+               end if;
+            when Current_Tag_Def.Tag_Id.Tags =>
+               if Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Tags_V.Set_Comment (Attribute_Value, SH);
+               else
+                  Initialize (Call_Result, "6e459f73-eefb-4f1b-aa94-9ed99441d1ad");
+               end if;
+            when Current_Tag_Def.Tag_Id.Types =>
+               if Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Types_V.Set_Comment (Attribute_Value, SH);
+               else
+                  Initialize (Call_Result, "2ed15293-d651-49c7-acd5-82e38479c04a");
+               end if;
+            when Current_Tag_Def.Tag_Id.Commands =>
+               if Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Commands_V.Set_Comment (Attribute_Value, SH);
+               else
+                  Initialize (Call_Result, "1778c55a-cdbc-43eb-b82f-f6e2c78bc06b");
+               end if;
+            when Current_Tag_Def.Tag_Id.Extensions =>
+               if Attribute_Name = XML_Tag_Vendor_Ids_Attribute_Comment then
+                  Current_Tag_V.Extensions_V.Set_Comment (Attribute_Value, SH);
+               else
+                  Initialize (Call_Result, "c4a0c882-d7bd-422d-975a-ba0eb8a637cd");
+               end if;
             when Current_Tag_Def.Tag_Id.Registry |
                  Current_Tag_Def.Tag_Id.Comment |
-                 Current_Tag_Def.Tag_Id.Vendor_Ids |
-                 Current_Tag_Def.Tag_Id.Tags |
-                 Current_Tag_Def.Tag_Id.Types |
                  Current_Tag_Def.Tag_Id.Name |
                  Current_Tag_Def.Tag_Id.Nested_Type |
                  Current_Tag_Def.Tag_Id.Validity |
                  Current_Tag_Def.Tag_Id.Enum |
-                 Current_Tag_Def.Tag_Id.Commands |
                  Current_Tag_Def.Tag_Id.Proto |
                  Current_Tag_Def.Tag_Id.Implicit_External_Sync_Parameters |
-                 Current_Tag_Def.Tag_Id.External_Sync_Parameter |
-                 Current_Tag_Def.Tag_Id.Extensions =>
-               Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name ");
+                 Current_Tag_Def.Tag_Id.External_Sync_Parameter =>
+               Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected attribute name " & Current_Tag_V.Kind_Id'Img & ", " & String (Attribute_Name));
             end case;
          end;
       end Attribute;
@@ -1654,7 +1792,7 @@ package body Vk_XML_Reader is
                        Current_Tag_Def.Tag_Id.Require_Command |
                        Current_Tag_Def.Tag_Id.Extensions |
                        Current_Tag_Def.Tag_Id.Extension =>
-                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag '");
+                     Initialize (Call_Result, GNAT.Source_Info.Source_Location & ", found unexpected end tag " & String (Tag_Name) & ", " & Tag_Value'Length'Img);
                   end case;
                end;
             else

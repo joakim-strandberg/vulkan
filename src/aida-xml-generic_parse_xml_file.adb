@@ -141,8 +141,11 @@ begin
                         Pointer => P,
                         Value   => CP);
 
---                       Aida.Text_IO.Put_Line ("Extracted:" & Aida.UTF8.Image (CP) & ", state " & State_Id_Type'Image (State_Id));
---                   Aida.Text_IO.Put (Aida.UTF8.Image (CP));
+--           Aida.Text_IO.Put ("Extracted:");
+--           Aida.Text_IO.Put (String (Image (CP)));
+--           Aida.Text_IO.Put (", state ");
+--           Aida.Text_IO.Put_Line (State_Id_Type'Image (State_Id));
+--         Aida.Text_IO.Put (Image (CP));
 
          case State_Id is
             when Searching_For_XML_Start_String =>

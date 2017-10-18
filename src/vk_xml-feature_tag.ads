@@ -70,6 +70,21 @@ package Vk_XML.Feature_Tag is
    function Exists_Number (This : T) return Boolean with
      Global => null;
 
+
+   procedure Set_Comment (This  : in out T;
+                          Value : Aida.String_T;
+                          SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Comment,
+     Post   => This.Exists_Comment and This.Comment = Value;
+
+   function Comment (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Comment;
+
+   function Exists_Comment (This : T) return Boolean with
+     Global => null;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
@@ -80,6 +95,7 @@ private
          My_Name     : Nullable_String_Ptr;
          My_Number   : Nullable_String_Ptr;
          My_Children : aliased Child_Vectors.Vector;
+         My_Comment  : Nullable_String_Ptr;
       end record;
 
    function API (This : T) return Aida.String_T is (This.My_API.Value.all);
@@ -95,5 +111,9 @@ private
    function Exists_Number (This : T) return Boolean is (This.My_Number.Exists);
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
+
+   function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
+
+   function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
 
 end Vk_XML.Feature_Tag;

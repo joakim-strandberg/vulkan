@@ -121,11 +121,46 @@ package Vk_XML.Command_Tag is
    procedure Append_Command_Buffer_Level (This : in out T;
                                           Item : Command_Buffer_Level_T);
 
+   procedure Set_Pipeline (This  : in out T;
+                           Value : Queue_T) with
+     Global => null,
+     Pre    => not This.Exists_Pipeline,
+     Post   => This.Exists_Pipeline and This.Pipeline = Value;
+
+   function Pipeline (This : T) return Queue_T with
+     Global => null,
+     Pre    => This.Exists_Pipeline;
+
+   function Exists_Pipeline (This : T) return Boolean with
+     Global => null;
+
+
+   procedure Set_Comment (This  : in out T;
+                          Value : Aida.String_T;
+                          SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Comment,
+     Post   => This.Exists_Comment and This.Comment = Value;
+
+   function Comment (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Comment;
+
+   function Exists_Comment (This : T) return Boolean with
+     Global => null;
+
    function To_String (This : T) return String;
 
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
+
+   type Nullable_Pipeline_T (Exists : Boolean := False) is record
+      case Exists is
+         when True => Value : Queue_T;
+         when False => null;
+      end case;
+   end record;
 
    type T is tagged limited
       record
@@ -135,6 +170,8 @@ private
          My_Queues                : aliased Queue_Vectors.Vector;
          My_Render_Passes         : aliased Render_Pass_Vectors.Vector;
          My_Command_Buffer_Levels : aliased Command_Buffer_Level_Vectors.Vector;
+         My_Pipeline              : Nullable_Pipeline_T;
+         My_Comment               : Nullable_String_Ptr;
       end record;
 
    function Success_Codes (This : aliased T) return Success_Codes_Ref is ((E => This.My_Success_Codes'Access));
@@ -148,5 +185,13 @@ private
    function Render_Passes (This : aliased T) return Render_Passes_Ref is ((E => This.My_Render_Passes'Access));
 
    function Command_Buffer_Levels (This : aliased T) return Command_Buffer_Levels_Ref is ((E => This.My_Command_Buffer_Levels'Access));
+
+   function Pipeline (This : T) return Queue_T is (This.My_Pipeline.Value);
+
+   function Exists_Pipeline (This : T) return Boolean is (This.My_Pipeline.Exists);
+
+   function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
+
+   function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
 
 end Vk_XML.Command_Tag;

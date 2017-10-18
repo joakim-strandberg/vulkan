@@ -119,4 +119,13 @@ package body Vk_XML.Type_Tag is
       This.My_Children.Append (Child);
    end Append_Child;
 
+   procedure Set_Struct_Extends (This  : in out T;
+                                 Value : Aida.String_T;
+                                 SP    : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Struct_Extends := (Exists => True,
+                                 Value  => new (SP) Aida.String_T'(Value));
+   end Set_Struct_Extends;
+
 end Vk_XML.Type_Tag;

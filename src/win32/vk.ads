@@ -5,6 +5,8 @@ with System;
 
 package Vk is
 
+   use type Interfaces.C.char_array;
+
    type Major_Version_T is range 0 .. 2**9;
    type Minor_Version_T is range 0 .. 2**9;
    type Patch_Version_T is range 0 .. 2**11;
@@ -1056,20 +1058,21 @@ package Vk is
    for Rasterization_Order_Amd_T use (RASTERIZATION_ORDER_STRICT_AMD => 0, RASTERIZATION_ORDER_RELAXED_AMD => 1);
    for Rasterization_Order_Amd_T'Size use Interfaces.C.int'Size;
 
-   KHR_SURFACE_SPEC_VERSION                    : constant                   := 25;
-   KHR_SURFACE_EXTENSION_NAME                  : constant String            := "VK_KHR_surface";
-   COLORSPACE_SRGB_NONLINEAR_KHR               : constant Color_Space_Khr_T := COLOR_SPACE_SRGB_NONLINEAR_KHR;
-   KHR_SWAPCHAIN_SPEC_VERSION                  : constant                   := 68;
-   KHR_SWAPCHAIN_EXTENSION_NAME                : constant String            := "VK_KHR_swapchain";
-   KHR_DISPLAY_SPEC_VERSION                    : constant                   := 21;
-   KHR_DISPLAY_EXTENSION_NAME                  : constant String            := "VK_KHR_display";
-   KHR_DISPLAY_SWAPCHAIN_SPEC_VERSION          : constant                   := 9;
-   KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME        : constant String            := "VK_KHR_display_swapchain";
-   KHR_WIN32_SURFACE_SPEC_VERSION              : constant                   := 5;
-   KHR_WIN32_SURFACE_EXTENSION_NAME            : constant String            := "VK_KHR_win32_surface";
-   EXT_DEBUG_REPORT_SPEC_VERSION               : constant                   := 2;
-   EXT_DEBUG_REPORT_EXTENSION_NAME             : constant String            := "VK_EXT_debug_report";
-   STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT : constant Structure_Type_T  :=
+   KHR_SURFACE_SPEC_VERSION             : constant                                 := 25;
+   KHR_SURFACE_EXTENSION_NAME           : aliased constant Interfaces.C.char_array := "VK_KHR_surface" & Interfaces.C.nul;
+   COLORSPACE_SRGB_NONLINEAR_KHR        : constant Color_Space_Khr_T               := COLOR_SPACE_SRGB_NONLINEAR_KHR;
+   KHR_SWAPCHAIN_SPEC_VERSION           : constant                                 := 68;
+   KHR_SWAPCHAIN_EXTENSION_NAME         : aliased constant Interfaces.C.char_array := "VK_KHR_swapchain" & Interfaces.C.nul;
+   KHR_DISPLAY_SPEC_VERSION             : constant                                 := 21;
+   KHR_DISPLAY_EXTENSION_NAME           : aliased constant Interfaces.C.char_array := "VK_KHR_display" & Interfaces.C.nul;
+   KHR_DISPLAY_SWAPCHAIN_SPEC_VERSION   : constant                                 := 9;
+   KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME : aliased constant Interfaces.C.char_array :=
+     "VK_KHR_display_swapchain" & Interfaces.C.nul;
+   KHR_WIN32_SURFACE_SPEC_VERSION              : constant                                 := 5;
+   KHR_WIN32_SURFACE_EXTENSION_NAME : aliased Interfaces.C.char_array := "VK_KHR_win32_surface" & Interfaces.C.nul;
+   EXT_DEBUG_REPORT_SPEC_VERSION               : constant                                 := 2;
+   EXT_DEBUG_REPORT_EXTENSION_NAME : aliased constant Interfaces.C.char_array := "VK_EXT_debug_report" & Interfaces.C.nul;
+   STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT : constant Structure_Type_T                :=
      STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 
    type Sample_Mask_T is new Interfaces.Unsigned_32;

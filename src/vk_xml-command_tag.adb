@@ -103,4 +103,21 @@ package body Vk_XML.Command_Tag is
       return To_String (R);
    end To_String;
 
+   procedure Set_Pipeline (This : in out T;
+                           Value : Queue_T)
+   is
+   begin
+      This.My_Pipeline := (Exists => True,
+                           Value  => Value);
+   end Set_Pipeline;
+
+   procedure Set_Comment (This : in out T;
+                          Value : Aida.String_T;
+                          SP   : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Comment := (Exists => True,
+                          Value  => new (SP) Aida.String_T'(Value));
+   end Set_Comment;
+
 end Vk_XML.Command_Tag;

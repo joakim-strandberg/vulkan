@@ -65,6 +65,8 @@ package body Vk_XML.Member_Tag is
                   Append (S, "<enum/>");
                when Child_XML_Text =>
                   Append (S, String (Type_V.XML_Text.all));
+               when Child_Comment =>
+                  Append (S, "<comment/>");
             end case;
          end loop;
 
@@ -73,5 +75,31 @@ package body Vk_XML.Member_Tag is
 
       return Aida.String_T (To_String (S));
    end To_String;
+
+   procedure Set_Values (This : in out T;
+                         Value : Aida.String_T;
+                         SP   : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Values := (Exists => True,
+                         Value  => new (SP) Aida.String_T'(Value));
+   end Set_Values;
+
+   procedure Set_Alt_Len (This : in out T;
+                          Value : Aida.String_T;
+                          SP   : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Alt_Len := (Exists => True,
+                          Value  => new (SP) Aida.String_T'(Value));
+   end Set_Alt_Len;
+
+   procedure Set_Extern_Sync (This : in out T;
+                              Value : Boolean)
+   is
+   begin
+      This.My_Extern_Sync := (Exists => True,
+                              Value  => Value);
+   end Set_Extern_Sync;
 
 end Vk_XML.Member_Tag;

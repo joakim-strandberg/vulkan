@@ -1372,6 +1372,7 @@ package body Vk_Package_Creator is
                      when Child_Enums_Enum            => Enum_Vector.Append (Enums_Child.Enums_Enum);
                      when Child_Out_Commented_Message => null;
                      when Child_Unused                => null;
+                     when Child_Comment               => null;
                   end case;
                end loop;
             end Populate_Enum_Vector;
@@ -1488,6 +1489,7 @@ package body Vk_Package_Creator is
                   when Child_Enums_Enum            => Handle_API_Constants_Enum (Enums_Child.Enums_Enum.all);
                   when Child_Out_Commented_Message => null;--Handle_Out_Commented_Message(Element (Children (Types_V), I).Out_Commented_Message);
                   when Child_Unused                => null;
+                  when Child_Comment               => null;
                end case;
             end loop;
             Put_Line ("");
@@ -1517,6 +1519,7 @@ package body Vk_Package_Creator is
                   case Types_Child.Kind_Id is
                      when Child_Type                  => Handle_Child_Type (Types_Child.Type_V.all, R);
                      when Child_Out_Commented_Message => Handle_Out_Commented_Message(Types_Child.Out_Commented_Message);
+                     when Child_Comment               => null;
                   end case;
                end loop;
             end Generate_Code_For_The_Non_Struct_Types;
@@ -3547,9 +3550,8 @@ package body Vk_Package_Creator is
                   -- Assuming all Enum.Names begin with VK_ and skip the first three characterss
                   Put (Enum.Name (Enum.Name'First + 3 .. Enum.Name'Last));
 
-                  Put (" : constant ");
-
                   if (for all I in Enum.Value'Range => Is_Digit (Aida.Character_T (Enum.Value (I)))) then
+                     Put (" : constant ");
                      Put (":= ");
                      Put (Enum.Value);
                   else
@@ -3559,9 +3561,13 @@ package body Vk_Package_Creator is
                      begin
                         if Enum.Value (Enum.Value'First) = '&' then
                            -- Implicitly assuming the string begins with &quot;
-                           Put ("String := ");
+                           Put (" : aliased constant Interfaces.C.char_array := "); -- It would be nice to be able to include the "constant" keyword. But how?
+                           Put (" : aliased Interfaces.C.char_array := ");
                            Put_Escaped_XML (Enum.Value, File, Call_Result);
+                           Put (" & Interfaces.C.nul");
                         else
+                           Put (" : constant ");
+
                            -- Implicitly assuming the string represents an enumeration value
                            -- We must find the enumeration type name to generate the code for the constant
 
@@ -3711,6 +3717,8 @@ package body Vk_Package_Creator is
          end Generate_Code_For_The_Constants_Defined_In_Extensions;
 
       begin
+         Put_Line ("");
+         Put_Tabs (1);Put_Line ("use type Interfaces.C.char_array;");
          Put_Line ("");
          Put_Tabs (1);Put_Line ("type Major_Version_T is range 0..2**9;");
          Put_Tabs (1);Put_Line ("type Minor_Version_T is range 0..2**9;");

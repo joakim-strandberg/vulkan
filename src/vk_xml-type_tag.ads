@@ -2,6 +2,7 @@ with Vk_XML.Name_Tag;
 with Vk_XML.Member_Tag;
 with Vk_XML.Validity_Tag;
 with Vk_XML.Nested_Type_Tag;
+with Vk_XML.Comment_Tag;
 
 -- <type category="struct" name="VkPhysicalDeviceProperties" returnedonly="true">
 package Vk_XML.Type_Tag is
@@ -12,7 +13,8 @@ package Vk_XML.Type_Tag is
                             Child_Nested_Type,
                             Child_Member,
                             Child_Validity,
-                            Child_Out_Commented_Message
+                            Child_Out_Commented_Message,
+                            Child_Comment
                            );
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_XML_Text) is record
@@ -23,6 +25,7 @@ package Vk_XML.Type_Tag is
          when Child_Member                => Member                : not null Member_Tag.Ptr;
          when Child_Validity              => Validity              : not null Validity_Tag.Ptr;
          when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr;
+         when Child_Comment               => Comment               : not null Comment_Tag.Ptr;
       end case;
    end record;
 
@@ -123,6 +126,20 @@ package Vk_XML.Type_Tag is
    function Exists_Comment (This : T) return Boolean with
      Global => null;
 
+   procedure Set_Struct_Extends (This  : in out T;
+                                 Value : Aida.String_T;
+                                 SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Struct_Extends,
+     Post   => This.Exists_Struct_Extends and This.Struct_Extends = Value;
+
+   function Struct_Extends (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Struct_Extends;
+
+   function Exists_Struct_Extends (This : T) return Boolean with
+     Global => null;
+
    function To_String (This : T) return String;
 
    type Ptr is access all T with Storage_Pool => Main_Pool;
@@ -130,13 +147,14 @@ package Vk_XML.Type_Tag is
 private
 
    type T is tagged limited record
-      My_Name          : Nullable_String_Ptr;
-      My_Category      : Nullable_String_Ptr;
-      My_Requires      : Nullable_String_Ptr;
-      My_Parent        : Nullable_String_Ptr;
-      My_Returned_Only : Nullable_Boolean_T;
-      My_Comment       : Nullable_String_Ptr;
-      My_Children      : aliased Child_Vectors.Vector;
+      My_Name           : Nullable_String_Ptr;
+      My_Category       : Nullable_String_Ptr;
+      My_Requires       : Nullable_String_Ptr;
+      My_Parent         : Nullable_String_Ptr;
+      My_Returned_Only  : Nullable_Boolean_T;
+      My_Comment        : Nullable_String_Ptr;
+      My_Struct_Extends : Nullable_String_Ptr;
+      My_Children       : aliased Child_Vectors.Vector;
    end record;
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
@@ -164,5 +182,9 @@ private
    function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
 
    function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
+
+   function Struct_Extends (This : T) return Aida.String_T is (This.My_Struct_Extends.Value.all);
+
+   function Exists_Struct_Extends (This : T) return Boolean is (This.My_Struct_Extends.Exists);
 
 end Vk_XML.Type_Tag;

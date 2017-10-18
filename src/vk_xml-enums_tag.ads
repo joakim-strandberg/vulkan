@@ -1,12 +1,14 @@
 with Vk_XML.Enums_Enum_Tag;
 with Vk_XML.Unused_Tag;
+with Vk_XML.Comment_Tag;
 
 package Vk_XML.Enums_Tag is
 
    type Child_Kind_Id_T is (
                             Child_Enums_Enum,
                             Child_Out_Commented_Message,
-                            Child_Unused
+                            Child_Unused,
+                            Child_Comment
                            );
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
@@ -14,6 +16,7 @@ package Vk_XML.Enums_Tag is
          when Child_Enums_Enum            => Enums_Enum            : not null Enums_Enum_Tag.Ptr;
          when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
          when Child_Unused                => Unused                : not null Unused_Tag.Ptr;
+         when Child_Comment               => Comment               : not null Comment_Tag.Ptr;
       end case;
    end record;
 

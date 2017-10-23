@@ -16,4 +16,13 @@ package body Vk_XML.Require_Tag is
                           Value  => new (SP) Aida.String_T'(Value));
    end Set_Comment;
 
+   procedure Set_Extension (This  : in out T;
+                            Value : Aida.String_T;
+                            SP    : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Extension := (Exists => True,
+                            Value  => new (SP) Aida.String_T'(Value));
+   end Set_Extension;
+
 end Vk_XML.Require_Tag;

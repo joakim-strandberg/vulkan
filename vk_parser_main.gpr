@@ -21,6 +21,7 @@ project Vk_Parser_Main is
    end Compiler;
 
    package Binder is
+      for Default_Switches ("Ada") use Default.Binder'Switches ("Ada");
    end Binder;
 
    package Linker is

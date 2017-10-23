@@ -3624,11 +3624,12 @@ package body Vk_Package_Creator is
             begin
                for C of Require.Children loop
                   case C.Kind_Id is
-                  when Child_Type => null;
-                  when Child_Enum => Handle_Require_Enum_Child (E, C.Enum.all);
-                  when Child_Command => null;
-                  when Child_Out_Commented_Message => null;
-                  when Child_Usage => null;
+                     when Child_Type                  => null;
+                     when Child_Enum                  => Handle_Require_Enum_Child (E, C.Enum.all);
+                     when Child_Command               => null;
+                     when Child_Out_Commented_Message => null;
+                     when Child_Usage                 => null;
+                     when Child_Comment               => null;
                   end case;
                end loop;
             end Handle_Require;
@@ -3970,11 +3971,12 @@ package body Vk_Package_Creator is
          begin
             for C of Require.Children loop
                case C.Kind_Id is
-                  when Child_Type => null;
-                  when Child_Enum => Handle_Require_Enum_Child (E, C.Enum.all);
-                  when Child_Command => null;
+                  when Child_Type                  => null;
+                  when Child_Enum                  => Handle_Require_Enum_Child (E, C.Enum.all);
+                  when Child_Command               => null;
                   when Child_Out_Commented_Message => null;
-                  when Child_Usage => null;
+                  when Child_Usage                 => null;
+                  when Child_Comment               => null;
                end case;
             end loop;
          end Handle_Require;

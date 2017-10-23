@@ -1,10 +1,13 @@
 abstract project Default is
 
    package Compiler is
-      for Switches ("Ada") use ("-fstack-check", "-gnato");
+      for Switches ("Ada") use ("-fstack-check", "-gnato", "-g");
    end Compiler;
 
    package Binder is
+      for Switches ("Ada") use (
+                                "-E" -- Store stack-trace in exceptions
+                               );
    end Binder;
 
    package Linker is

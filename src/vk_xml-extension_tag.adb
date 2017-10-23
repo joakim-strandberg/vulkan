@@ -59,4 +59,21 @@ package body Vk_XML.Extension_Tag is
                        Value  => new (SP) Aida.String_T'(Value));
    end Set_Name;
 
+   procedure Set_Type_Attribute (This : in out T;
+                                 Value : Type_Attribute_T)
+   is
+   begin
+      This.My_Type_Attribute := (Exists => True,
+                                 Value  => Value);
+   end Set_Type_Attribute;
+
+   procedure Set_Requires (This  : in out T;
+                           Value : Aida.String_T;
+                           SP    : Dynamic_Pools.Subpool_Handle)
+   is
+   begin
+      This.My_Requires := (Exists => True,
+                           Value  => new (SP) Aida.String_T'(Value));
+   end Set_Requires;
+
 end Vk_XML.Extension_Tag;

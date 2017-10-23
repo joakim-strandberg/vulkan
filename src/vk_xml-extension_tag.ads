@@ -2,19 +2,24 @@ with Vk_XML.Require_Tag;
 
 package Vk_XML.Extension_Tag is
 
-   type Number_T is new Positive range 1..30;
+   type Number_T is new Positive range 1..178;
 
    type Supported_T is (
                         Vulkan,
                         Disabled
                        );
 
+   type Type_Attribute_T is (
+                             Device,
+                             Instance
+                            );
+
    type Child_Kind_Id_T is (
                             Child_Dummy,
                             Child_Require
                            );
 
-   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Require) is record
+   type Child_T (Kind_Id : Child_Kind_Id_T := Child_Dummy) is record
       case Kind_Id is
          when Child_Dummy   => Dummy   : not null String_Ptr := Empty_String'Access;
          when Child_Require => Require : not null Require_Tag.Ptr;
@@ -117,6 +122,35 @@ package Vk_XML.Extension_Tag is
    function Exists_Contact (This : T) return Boolean with
      Global => null;
 
+
+   procedure Set_Type_Attribute (This  : in out T;
+                                 Value : Type_Attribute_T) with
+     Global => null,
+     Pre    => not This.Exists_Type_Attribute,
+     Post   => This.Exists_Type_Attribute and This.Type_Attribute = Value;
+
+   function Type_Attribute (This : T) return Type_Attribute_T with
+     Global => null,
+     Pre    => This.Exists_Type_Attribute;
+
+   function Exists_Type_Attribute (This : T) return Boolean with
+     Global => null;
+
+
+   procedure Set_Requires (This  : in out T;
+                           Value : Aida.String_T;
+                           SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Requires,
+     Post   => This.Exists_Requires and This.Requires = Value;
+
+   function Requires (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Requires;
+
+   function Exists_Requires (This : T) return Boolean with
+     Global => null;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
@@ -135,15 +169,24 @@ private
       end case;
    end record;
 
+   type Nullable_Type_Attribute_T (Exists : Boolean := False) is record
+      case Exists is
+         when True => Value : Type_Attribute_T;
+         when False => null;
+      end case;
+   end record;
+
    type T is tagged limited
       record
-         My_Name      : Nullable_String_Ptr;
-         My_Number    : Nullable_Number_T;
-         My_Supported : Nullable_Supported_T;
-         My_Children  : aliased Child_Vectors.Vector;
-         My_Protect   : Nullable_String_Ptr;
-         My_Author    : Nullable_String_Ptr;
-         My_Contact   : Nullable_String_Ptr;
+         My_Name           : Nullable_String_Ptr;
+         My_Number         : Nullable_Number_T;
+         My_Supported      : Nullable_Supported_T;
+         My_Children       : aliased Child_Vectors.Vector;
+         My_Protect        : Nullable_String_Ptr;
+         My_Author         : Nullable_String_Ptr;
+         My_Contact        : Nullable_String_Ptr;
+         My_Type_Attribute : Nullable_Type_Attribute_T;
+         My_Requires       : Nullable_String_Ptr;
       end record;
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
@@ -171,5 +214,13 @@ private
    function Contact (This : T) return Aida.String_T is (This.My_Contact.Value.all);
 
    function Exists_Contact (This : T) return Boolean is (This.My_Contact.Exists);
+
+   function Type_Attribute (This : T) return Type_Attribute_T is (This.My_Type_Attribute.Value);
+
+   function Exists_Type_Attribute (This : T) return Boolean is (This.My_Type_Attribute.Exists);
+
+   function Requires (This : T) return Aida.String_T is (This.My_Requires.Value.all);
+
+   function Exists_Requires (This : T) return Boolean is (This.My_Requires.Exists);
 
 end Vk_XML.Extension_Tag;

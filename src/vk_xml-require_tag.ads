@@ -2,6 +2,7 @@ with Vk_XML.Type_Tag;
 with Vk_XML.Require_Enum_Tag;
 with Vk_XML.Require_Command_Tag;
 with Vk_XML.Usage_Tag;
+with Vk_XML.Comment_Tag;
 
 package Vk_XML.Require_Tag is
 
@@ -10,7 +11,8 @@ package Vk_XML.Require_Tag is
                             Child_Enum,
                             Child_Command,
                             Child_Out_Commented_Message,
-                            Child_Usage
+                            Child_Usage,
+                            Child_Comment
                            );
 
    type Child_T (Kind_Id : Child_Kind_Id_T := Child_Out_Commented_Message) is record
@@ -20,6 +22,7 @@ package Vk_XML.Require_Tag is
          when Child_Command               => Command               : not null Require_Command_Tag.Ptr;
          when Child_Out_Commented_Message => Out_Commented_Message : not null String_Ptr := Empty_String'Access;
          when Child_Usage                 => Usage                 : not null Usage_Tag.Ptr;
+         when Child_Comment               => Comment               : not null Comment_Tag.Ptr;
       end case;
    end record;
 
@@ -51,14 +54,30 @@ package Vk_XML.Require_Tag is
    function Exists_Comment (This : T) return Boolean with
      Global => null;
 
+
+   procedure Set_Extension (This  : in out T;
+                            Value : Aida.String_T;
+                            SP    : Dynamic_Pools.Subpool_Handle) with
+     Global => null,
+     Pre    => not This.Exists_Extension,
+     Post   => This.Exists_Extension and This.Extension = Value;
+
+   function Extension (This : T) return Aida.String_T with
+     Global => null,
+     Pre    => This.Exists_Extension;
+
+   function Exists_Extension (This : T) return Boolean with
+     Global => null;
+
    type Ptr is access all T with Storage_Pool => Main_Pool;
 
 private
 
    type T is tagged limited
       record
-         My_Comment  : Nullable_String_Ptr;
-         My_Children : aliased Child_Vectors.Vector;
+         My_Comment   : Nullable_String_Ptr;
+         My_Children  : aliased Child_Vectors.Vector;
+         My_Extension : Nullable_String_Ptr;
       end record;
 
    function Children (This : aliased T) return Children_Ref is ((E => This.My_Children'Access));
@@ -66,5 +85,9 @@ private
    function Comment (This : T) return Aida.String_T is (This.My_Comment.Value.all);
 
    function Exists_Comment (This : T) return Boolean is (This.My_Comment.Exists);
+
+   function Extension (This : T) return Aida.String_T is (This.My_Extension.Value.all);
+
+   function Exists_Extension (This : T) return Boolean is (This.My_Extension.Exists);
 
 end Vk_XML.Require_Tag;
